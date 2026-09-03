@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Learning Curve — Engineering Playbook & Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --surface: #0F172A;
+      --surface-hover: #1E293B;
+      --surface-card: rgba(15, 23, 42, 0.75);
+      --border: rgba(51, 65, 85, 0.6);
+      --border-accent: rgba(99, 102, 241, 0.4);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #6366F1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10B981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --rose: #F43F5E;
+      --rose-glow: rgba(244, 63, 94, 0.2);
+      --amber: #F59E0B;
+      --code-bg: #030712;
+      --sidebar-width: 280px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Ambient background lighting */
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      left: 20%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -200px;
+      right: 10%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top Navigation Bar (Mobile / Tablet) */
+    .mobile-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mobile-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #FFF;
+    }
+
+    .menu-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #FFF;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .menu-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+    }
+
+    /* App Layout */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Backdrop overlay for mobile drawer */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 45;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .drawer-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 50;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #FFF;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), #A855F7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .brand-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .close-drawer-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .search-box {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #FFF;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .nav-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 12px;
+      list-style: none;
+    }
+
+    .nav-category {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748B;
+      padding: 10px 12px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+
+    .nav-item:hover {
+      color: #FFF;
+      background: var(--surface-hover);
+    }
+
+    .nav-item.active {
+      color: #FFF;
+      background: rgba(99, 102, 241, 0.15);
+      border-left: 3px solid var(--accent);
+      font-weight: 600;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 40px 48px 80px;
+      max-width: 1140px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Header section */
+    .doc-header {
+      margin-bottom: 36px;
+    }
+
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid;
+    }
+
+    .badge-primary { background: rgba(99, 102, 241, 0.12); border-color: rgba(99, 102, 241, 0.3); color: #818CF8; }
+    .badge-emerald { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); color: #34D399; }
+    .badge-amber { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #FBBF24; }
+    .badge-rose { background: rgba(244, 63, 94, 0.12); border-color: rgba(244, 63, 94, 0.3); color: #FB7185; }
+
+    .doc-title {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #FFF;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .doc-description {
+      font-size: clamp(14px, 2vw, 16px);
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--surface-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: clamp(20px, 3.5vw, 32px);
+      margin-bottom: 32px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      transition: border-color 0.2s ease;
+    }
+
+    .section-card:hover {
+      border-color: var(--border-accent);
+    }
+
+    .section-title {
+      font-size: clamp(18px, 2.5vw, 22px);
+      font-weight: 700;
+      color: #FFF;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title span.number {
+      font-size: 12px;
+      background: var(--surface-hover);
+      color: #818CF8;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    /* Interactive Pipeline Simulator */
+    .pipeline-container {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: clamp(16px, 2.5vw, 24px);
+      margin-top: 18px;
+    }
+
+    .pipeline-nodes {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .node-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      min-width: 140px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .node-item:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+
+    .node-item.active {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.15);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .node-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #FFF;
+    }
+
+    .node-role {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .node-arrow {
+      color: #64748B;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .node-inspector {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      font-size: 13.5px;
+      color: #CBD5E1;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .inspector-tag {
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: #FFF;
+    }
+
+    /* Comparison Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .compare-card.positive {
+      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .compare-card.negative {
+      border-color: rgba(244, 63, 94, 0.35);
+      background: rgba(244, 63, 94, 0.04);
+    }
+
+    .compare-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 14.5px;
+    }
+
+    .compare-header.positive { color: #34D399; }
+    .compare-header.negative { color: #FB7185; }
+
+    /* Interactive Code Tabs */
+    .tabs-header {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+      background: #030712;
+      padding: 10px 14px 0;
+      border-radius: 12px 12px 0 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tab-btn:hover {
+      color: #FFF;
+      background: var(--surface-hover);
+    }
+
+    .tab-btn.active {
+      color: #FFF;
+      background: #0B1120;
+      border: 1px solid var(--border);
+      border-bottom: 1px solid #0B1120;
+      font-weight: 600;
+    }
+
+    .code-container {
+      position: relative;
+      background: #0B1120;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 18px;
+      overflow-x: auto;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid var(--border);
+      color: #CBD5E1;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent);
+      color: #FFF;
+      border-color: var(--accent);
+    }
+
+    pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(11.5px, 1.8vw, 13px);
+      color: #E2E8F0;
+      line-height: 1.65;
+      tab-size: 2;
+      display: block;
+      min-width: 100%;
+    }
+
+    /* Checklist Section */
+    .checklist-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .check-item:hover {
+      border-color: var(--border-accent);
+      background: var(--surface-hover);
+    }
+
+    .check-item input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--emerald);
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .check-label {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #E2E8F0;
+    }
+
+    .check-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Links Resource Grid */
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .resource-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .resource-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      background: var(--surface-hover);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .resource-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .resource-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 8px 0 12px;
+      line-height: 1.5;
+    }
+
+    .resource-link-text {
+      font-size: 11px;
+      font-weight: 600;
+      color: #818CF8;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1024px) {
+      .mobile-header { display: flex; }
+      .close-drawer-btn { display: block; }
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-content {
+        padding: 24px 20px 60px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .badge-bar { gap: 6px; }
+      .badge { font-size: 10.5px; padding: 3px 8px; }
+      .node-inspector { font-size: 12.5px; padding: 14px; }
+      .copy-btn { font-size: 10.5px; padding: 4px 8px; top: 8px; right: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Mobile Top Bar -->
+  <header class="mobile-header">
+    <div class="mobile-brand">
+      <div class="brand-icon">⚡</div>
+      <span>Learning Curve</span>
+    </div>
+    <button class="menu-btn" onclick="toggleDrawer(true)" aria-label="Open Navigation Menu">
+      ☰ Menu
+    </button>
+  </header>
+
+  <!-- Mobile Overlay Backdrop -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer(false)"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation Drawer -->
+    <aside class="sidebar" id="sidebarDrawer">
+      <div class="sidebar-header">
+        <div>
+          <div class="brand-title">
+            <div class="brand-icon">⚡</div>
+            <span>Learning Curve</span>
+          </div>
+          <div class="brand-subtitle">Interactive Engineering Playbook</div>
+        </div>
+        <button class="close-drawer-btn" onclick="toggleDrawer(false)" aria-label="Close Navigation">✕</button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="topicSearch" class="search-input" placeholder="Search architecture, rules..." oninput="handleSearch(this.value)">
+      </div>
+
+      <ul class="nav-list">
+        <li>
+          <a class="nav-item" href="../index.html" style="color: #818CF8; font-weight: 600; margin-bottom: 12px; background: rgba(99, 102, 241, 0.1);">
+            <span class="nav-item-icon">←</span>
+            <span>Back to Home Hub</span>
+          </a>
+        </li>
+        <li class="nav-category">Active Playbook</li>
+        <li>
+          <a class="nav-item active" onclick="navTo('hero')">
+            <span class="nav-item-icon">🔐</span>
+            <span>Authentication Architecture</span>
+          </a>
+        </li>
+        <li class="nav-category">Sections</li>
+        <li><a class="nav-item" onclick="navTo('stake')"><span>1. What Was at Stake</span></a></li>
+        <li><a class="nav-item" onclick="navTo('simulator')"><span>2. Pipeline Simulator</span></a></li>
+        <li><a class="nav-item" onclick="navTo('tradeoffs')"><span>3. Architectural Decisions</span></a></li>
+        <li><a class="nav-item" onclick="navTo('code-explorer')"><span>4. Code Explorer</span></a></li>
+        <li><a class="nav-item" onclick="navTo('checklist')"><span>5. Production Checklist</span></a></li>
+        <li><a class="nav-item" onclick="navTo('resources')"><span>6. References & Guides</span></a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Header Section -->
+      <section id="hero" class="doc-header">
+        <div class="badge-bar">
+          <span class="badge badge-primary">⚡ Architecture Pattern</span>
+          <span class="badge badge-emerald">OWASP Security Standard</span>
+          <span class="badge badge-amber">React 19 / TanStack v5</span>
+          <span class="badge badge-rose">Yup Validation Engine</span>
+        </div>
+        <h1 class="doc-title">Enterprise Authentication Architecture & Security Hardening</h1>
+        <p class="doc-description">
+          A production blueprint for high-performance, security-hardened authentication. Resolves keystroke re-rendering penalties, mitigates account enumeration attacks, introduces modular Yup request rules, and enforces strict separation of concerns.
+        </p>
+      </section>
+
+      <!-- 1. What Was at Stake -->
+      <section id="stake" class="section-card">
+        <h2 class="section-title"><span class="number">01</span> What Was at Stake & Liabilities Overcome</h2>
+        <div class="grid-2">
+          <div class="compare-card negative">
+            <div class="compare-header negative">❌ The Pre-Refactor Liabilities</div>
+            <ul style="padding-left: 18px; font-size: 13.5px; color: #CBD5E1; line-height: 1.7;">
+              <li><strong>Keystroke Re-Render Bottleneck:</strong> Fully controlled state forced re-render of the entire component tree on every keystroke.</li>
+              <li><strong>OWASP Account Enumeration:</strong> Explicit error messages ("Your password is incorrect") leaked user email existence to potential attackers.</li>
+              <li><strong>Monolithic Component:</strong> Presentation component was polluted with mutations, store updates, and regex parsing.</li>
+              <li><strong>Browser Autofill Glitches:</strong> Chrome injected light-blue background tint on emails, giving false visual validation.</li>
+            </ul>
+          </div>
+          <div class="compare-card positive">
+            <div class="compare-header positive">✅ The Architectural Solution</div>
+            <ul style="padding-left: 18px; font-size: 13.5px; color: #CBD5E1; line-height: 1.7;">
+              <li><strong>Zero Keystroke Re-Renders:</strong> Uncontrolled inputs via <code>useRef</code> allow the DOM to manage typing natively with 0 re-renders.</li>
+              <li><strong>Generic Security Alert Banner:</strong> Standardized generic message prevents brute-force enumeration attacks.</li>
+              <li><strong>Subprocess Pipeline + Yup:</strong> Normalization and validation run through testable, declarative request schemas.</li>
+              <li><strong>Tailwind Scoped Autofill:</strong> Inset shadow utilities normalize input backgrounds without polluting global CSS.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Interactive Pipeline Simulator -->
+      <section id="simulator" class="section-card">
+        <h2 class="section-title"><span class="number">02</span> Interactive Authentication Pipeline Simulator</h2>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px;">
+          Click through each node in the execution pipeline to inspect its exact responsibility and contract.
+        </p>
+
+        <div class="pipeline-container">
+          <div class="pipeline-nodes">
+            <div class="node-item active" onclick="selectNode(0)">
+              <div class="node-title">1. LoginForm.tsx</div>
+              <div class="node-role">Presentation Layer</div>
+            </div>
+            <div class="node-arrow">→</div>
+            <div class="node-item" onclick="selectNode(1)">
+              <div class="node-title">2. useAuth()</div>
+              <div class="node-role">UI Coordinator</div>
+            </div>
+            <div class="node-arrow">→</div>
+            <div class="node-item" onclick="selectNode(2)">
+              <div class="node-title">3. Subprocesses</div>
+              <div class="node-role">Yup Engine / Rules</div>
+            </div>
+            <div class="node-arrow">→</div>
+            <div class="node-item" onclick="selectNode(3)">
+              <div class="node-title">4. useSignInAction</div>
+              <div class="node-role">TanStack Mutation</div>
+            </div>
+            <div class="node-arrow">→</div>
+            <div class="node-item" onclick="selectNode(4)">
+              <div class="node-title">5. AuthController</div>
+              <div class="node-role">Backend API</div>
+            </div>
+          </div>
+
+          <div id="inspectorDisplay" class="node-inspector">
+            <span class="inspector-tag" id="inspectorTag">Presentation</span>
+            <div id="inspectorText">
+              <strong>LoginForm.tsx</strong>: Uses <code>useRef</code> to read input values upon form submit. Typing produces zero component re-renders. Renders button spinner during submission and displays the generic security alert banner.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Trade-offs Matrix -->
+      <section id="tradeoffs" class="section-card">
+        <h2 class="section-title"><span class="number">03</span> Architectural Trade-Off Decisions</h2>
+        <div class="grid-2">
+          <div class="compare-card">
+            <div style="font-size: 14.5px; font-weight: 700; color: #FFF; margin-bottom: 8px;">Uncontrolled (useRef) vs Controlled (useState)</div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+              <strong>Decision:</strong> Uncontrolled. Login credentials do not require real-time character-by-character masking or live strength meters. Removing state on keystrokes eliminates 100% of typing re-renders and ensures instant keyboard responsiveness.
+            </p>
+          </div>
+          <div class="compare-card">
+            <div style="font-size: 14.5px; font-weight: 700; color: #FFF; margin-bottom: 8px;">Yup Schemas vs Inline Regex</div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+              <strong>Decision:</strong> Yup Request Schemas. Combines transformation (casting: trimming, lowercasing) with declarative validation rules. Guarantees 100% rule parity across consumer web and merchant portals.
+            </p>
+          </div>
+          <div class="compare-card">
+            <div style="font-size: 14.5px; font-weight: 700; color: #FFF; margin-bottom: 8px;">Generic Error Alert vs Field-Specific Errors</div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+              <strong>Decision:</strong> Generic Global Banner. OWASP compliance requires never disclosing whether the email or password was the reason for failure, preventing malicious account enumeration.
+            </p>
+          </div>
+          <div class="compare-card">
+            <div style="font-size: 14.5px; font-weight: 700; color: #FFF; margin-bottom: 8px;">Tailwind autofill: vs Global index.css</div>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+              <strong>Decision:</strong> Component Tailwind Utilities. Encapsulates <code>autofill:shadow-[inset_0_0_0_1000px_#FFFEFE]</code> directly within <code>Input.tsx</code>, keeping global stylesheets pristine.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Code Explorer -->
+      <section id="code-explorer" class="section-card">
+        <h2 class="section-title"><span class="number">04</span> Code Explorer & Interactive Snippets</h2>
+
+        <div class="tabs-header">
+          <button class="tab-btn active" onclick="switchTab(0, this)">LoginForm.tsx</button>
+          <button class="tab-btn" onclick="switchTab(1, this)">useAuth.ts</button>
+          <button class="tab-btn" onclick="switchTab(2, this)">SigninRequestRules.ts</button>
+          <button class="tab-btn" onclick="switchTab(3, this)">validateAuthInput.ts</button>
+          <button class="tab-btn" onclick="switchTab(4, this)">Input.tsx (Autofill)</button>
+        </div>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyActiveCode()">📋 Copy Code</button>
+          <pre><code id="codeViewer"></code></pre>
+        </div>
+      </section>
+
+      <!-- 5. Production Audit Checklist -->
+      <section id="checklist" class="section-card">
+        <h2 class="section-title"><span class="number">05</span> Production Audit Checklist</h2>
+        <div class="checklist-group">
+          <label class="check-item">
+            <input type="checkbox" checked onchange="toggleCheck(this)">
+            <div>
+              <div class="check-label">Zero Keystroke Re-Render Verification</div>
+              <div class="check-sub">Verify in React DevTools Profiler that typing in email/password inputs does not trigger component renders.</div>
+            </div>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" checked onchange="toggleCheck(this)">
+            <div>
+              <div class="check-label">OWASP User Enumeration Defense</div>
+              <div class="check-sub">Ensure backend 401/422 and client validation failures both produce identical generic error notices.</div>
+            </div>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" checked onchange="toggleCheck(this)">
+            <div>
+              <div class="check-label">Pre-Mutation Validation Guard</div>
+              <div class="check-sub">Confirm submitting empty inputs triggers local Yup validation and aborts before issuing any HTTP request.</div>
+            </div>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" checked onchange="toggleCheck(this)">
+            <div>
+              <div class="check-label">Cross-Browser Autofill Uniformity</div>
+              <div class="check-sub">Verify that autofilling email in Chrome/Edge does not render light blue background or mismatched text color.</div>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- 6. References & Deep-Dives -->
+      <section id="resources" class="section-card">
+        <h2 class="section-title"><span class="number">06</span> Reference Playbook & Learning Sources</h2>
+        <div class="resource-grid">
+          <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html" target="_blank" class="resource-card">
+            <div>
+              <div class="resource-title">OWASP Authentication Guide ↗</div>
+              <div class="resource-desc">Official security guidelines on error responses, brute-force mitigation, and credential stuffing defense.</div>
+            </div>
+            <div class="resource-link-text">Read OWASP Spec →</div>
+          </a>
+
+          <a href="https://react.dev/learn/sharing-state-between-components#controlled-and-uncontrolled-components" target="_blank" class="resource-card">
+            <div>
+              <div class="resource-title">React: Uncontrolled State ↗</div>
+              <div class="resource-desc">Core architectural reasons for letting the DOM hold transient form state instead of React re-render cycles.</div>
+            </div>
+            <div class="resource-link-text">View React Docs →</div>
+          </a>
+
+          <a href="https://tanstack.com/query/latest/docs/framework/react/guides/mutations" target="_blank" class="resource-card">
+            <div>
+              <div class="resource-title">TanStack Query v5 Mutations ↗</div>
+              <div class="resource-desc">Decoupling asynchronous server side-effects, session caching, and optimistic mutations from presentation.</div>
+            </div>
+            <div class="resource-link-text">Explore Mutations →</div>
+          </a>
+
+          <a href="https://github.com/jquense/yup" target="_blank" class="resource-card">
+            <div>
+              <div class="resource-title">Yup Schema Validation API ↗</div>
+              <div class="resource-desc">Deep-dive into declarative schema casting, transforms, and synchronous validation methods.</div>
+            </div>
+            <div class="resource-link-text">Browse Yup Docs →</div>
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('sidebarDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      if (open) {
+        drawer.classList.add('open');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      } else {
+        drawer.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function navTo(id) {
+      toggleDrawer(false);
+      const target = document.getElementById(id);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Pipeline node metadata
+    const nodes = [
+      {
+        tag: "Presentation",
+        title: "LoginForm.tsx",
+        text: "Uses useRef to read input values upon form submit. Zero keystroke re-renders. Renders button spinner during submission and displays the generic security alert banner."
+      },
+      {
+        tag: "Coordinator",
+        title: "useAuth()",
+        text: "Acts as the UI-facing gateway. Orchestrates input through the subprocess pipeline, manages globalError state, and triggers TanStack mutation only upon valid input."
+      },
+      {
+        tag: "Validation / Yup",
+        title: "Subprocess Pipeline",
+        text: "Pure TypeScript modules. Uses Yup SigninWithEmailRules and SigninWithPhoneRules for casting (trim/lowercase) and schema validation before any API request is sent."
+      },
+      {
+        tag: "Server State",
+        title: "useSignInAction",
+        text: "TanStack Query useMutation hook. Calls AuthController, persists token to Storage and secure cookies, updates auth store, and handles router redirects."
+      },
+      {
+        tag: "Controller / API",
+        title: "AuthController.ts",
+        text: "Extends Controller base class. Leverages Axios with Bearer interceptors to communicate with backend endpoint POST /auth/signin."
+      }
+    ];
+
+    function selectNode(index) {
+      document.querySelectorAll('.node-item').forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+      });
+      const node = nodes[index];
+      document.getElementById('inspectorTag').innerText = node.tag;
+      document.getElementById('inspectorText').innerHTML = `<strong>${node.title}</strong>: ${node.text}`;
+    }
+
+    // Code snippets
+    const codeSnippets = [
+`// src/components/auth/LoginForm.tsx
+import { useState, useRef, FormEvent } from "react";
+import { FiEye, FiEyeOff, FiAlertCircle } from "react-icons/fi";
+import { FcGoogle } from "react-icons/fc";
+import { Input } from "../shared/Input";
+import { Button } from "../shared/Button";
+import { useAuth } from "@/actions/auth/useAuth";
+
+const LoginForm = () => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Uncontrolled references — 0 keystroke re-renders
+  const identifierInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  const { signIn, signInWithGoogle, isPending, isGooglePending, globalError } = useAuth();
+
+  const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const identifier = identifierInputRef.current?.value || "";
+    const password = passwordInputRef.current?.value || "";
+    await signIn(identifier, password);
+  };
+
+  return (
+    <div className="w-full max-w-[372px] 2xl:max-w-[465px]">
+      <h2>Signin to Bitnormous Business</h2>
+
+      {/* OWASP-compliant Global Generic Error */}
+      {globalError && (
+        <div className="p-3.5 rounded-lg bg-[#FEF2F2] border border-[#FCA5A5] text-[#B91C1C]">
+          <FiAlertCircle className="w-5 h-5" />
+          <span>{globalError}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSignIn}>
+        <Input ref={identifierInputRef} name="identifier" label="Email or Phone" />
+        <Input ref={passwordInputRef} name="password" label="Password" type={showPassword ? "text" : "password"} />
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Signing in..." : "Sign in"}
+        </Button>
+      </form>
+    </div>
+  );
+};`,
+
+`// src/actions/auth/useAuth.ts
+import { useState, useCallback } from "react";
+import { useSignInAction } from "./useSignInAction";
+import { handleUserInput } from "./subprocesses/handleUserInput";
+
+export function useAuth() {
+  const [authErrorMessage, setAuthErrorMessage] = useState<string | null>(null);
+  const signInMutation = useSignInAction();
+
+  const globalError = authErrorMessage || (serverErrors.email || serverErrors.password 
+    ? "The email or password you entered is incorrect" 
+    : null);
+
+  const signIn = useCallback(async (rawIdentifier: string, rawPassword: string) => {
+    setAuthErrorMessage(null);
+    const result = handleUserInput(rawIdentifier, rawPassword);
+
+    if (!result.success) {
+      setAuthErrorMessage("The email or password you entered is incorrect");
+      return false;
+    }
+
+    try {
+      await signInMutation.mutateAsync(result.credentials);
+      return true;
+    } catch {
+      setAuthErrorMessage("The email or password you entered is incorrect");
+      return false;
+    }
+  }, [signInMutation]);
+
+  return { signIn, globalError, isPending: signInMutation.isPending };
+}`,
+
+`// src/requests/SigninRequestRules.ts
+import { object, string } from "yup";
+
+export const SigninWithPhoneRules = object({
+  phone: string()
+    .trim()
+    .required("Phone number is required")
+    .test("valid-phone", "Invalid phone number", (value) => {
+      if (!value) return false;
+      const digits = value.replace(/\\D/g, "");
+      return digits.length >= 9 && digits.length <= 15;
+    }),
+  password: string().trim().required().min(6),
+});
+
+export const SigninWithEmailRules = object({
+  email: string().trim().lowercase().required().email(),
+  password: string().trim().required().min(6),
+});`,
+
+`// src/actions/auth/subprocesses/validateAuthInput.ts
+import { ValidationError } from "yup";
+import { SigninWithEmailRules, SigninWithPhoneRules } from "@/requests";
+
+export function validateAuthInput(identifier: string, password: string) {
+  const isEmail = identifier.includes("@");
+  const schema = isEmail ? SigninWithEmailRules : SigninWithPhoneRules;
+  const payload = isEmail ? { email: identifier, password } : { phone: identifier, password };
+
+  try {
+    schema.validateSync(payload, { abortEarly: false });
+    return { isValid: true, errors: {} };
+  } catch (err) {
+    const errors: Record<string, string> = {};
+    if (err instanceof ValidationError) {
+      err.inner.forEach(e => { if (e.path) errors[e.path] = e.message; });
+    }
+    return { isValid: false, errors };
+  }
+}`,
+
+`// src/components/shared/Input.tsx
+<input
+  ref={ref}
+  className="... autofill:shadow-[inset_0_0_0_1000px_#FFFEFE] autofill:[-webkit-text-fill-color:#1E1E1E] text-[#1E1E1E] placeholder:text-[#94A3B8]"
+  {...props}
+/>`
+    ];
+
+    let activeTabIndex = 0;
+    function switchTab(index, btn) {
+      activeTabIndex = index;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCode();
+    }
+
+    function renderCode() {
+      const code = codeSnippets[activeTabIndex];
+      const el = document.getElementById('codeViewer');
+      el.textContent = code;
+    }
+
+    function copyActiveCode() {
+      const code = codeSnippets[activeTabIndex];
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => { btn.textContent = "📋 Copy Code"; }, 2000);
+      });
+    }
+
+    function handleSearch(query) {
+      const lower = query.toLowerCase();
+      document.querySelectorAll('.section-card').forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(lower) ? 'block' : 'none';
+      });
+    }
+
+    function toggleCheck(checkbox) {
+      const item = checkbox.closest('.check-item');
+      item.style.opacity = checkbox.checked ? '1' : '0.6';
+    }
+
+    // Init on load
+    renderCode();
+  </script>
+</body>
+</html>
