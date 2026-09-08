@@ -1,13 +1,13 @@
-﻿param (
-    [string] = 'docs: auto-sync update [' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + ']'
+param (
+    [string]$commitMsg = ('docs: auto-sync update [' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + ']')
 )
 
 git add -A
- = git status --porcelain
-if () {
-    git commit -m 
-     = git remote
-    if ( -contains 'origin') {
+$status = git status --porcelain
+if ($status) {
+    git commit -m $commitMsg
+    $remotes = git remote
+    if ($remotes -contains 'origin') {
         git push origin main
         Write-Host '✅ Successfully pushed to GitHub/Vercel remote.' -ForegroundColor Green
     } else {

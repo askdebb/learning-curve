@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Learning Curve — Stepper State Persistence & Push Notifications Playbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --surface: #0F172A;
+      --surface-hover: #1E293B;
+      --surface-card: rgba(15, 23, 42, 0.75);
+      --border: rgba(51, 65, 85, 0.6);
+      --border-accent: rgba(99, 102, 241, 0.4);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #6366F1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10B981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --rose: #F43F5E;
+      --rose-glow: rgba(244, 63, 94, 0.2);
+      --amber: #F59E0B;
+      --code-bg: #030712;
+      --sidebar-width: 280px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      left: 20%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -200px;
+      right: 10%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .mobile-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mobile-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #FFF;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), #A855F7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .menu-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #FFF;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(16px);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      flex-shrink: 0;
+      padding: 24px 16px;
+      z-index: 30;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 17px;
+      color: #FFF;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+    }
+
+    .close-drawer-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-category {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin: 16px 8px 6px;
+      font-weight: 700;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #CBD5E1;
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #FFF;
+      border-left: 3px solid var(--accent);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px 48px 100px;
+      max-width: 1060px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-primary { background: rgba(99, 102, 241, 0.15); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .doc-title {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      line-height: 1.25;
+      color: #FFF;
+      margin-bottom: 12px;
+    }
+
+    .doc-title span {
+      background: linear-gradient(135deg, #818CF8, #C084FC);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .doc-desc {
+      font-size: 15.5px;
+      color: #94A3B8;
+      max-width: 820px;
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+
+    .section-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 32px;
+      backdrop-filter: blur(12px);
+    }
+
+    .section-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    /* Interactive Simulator */
+    .simulator-box {
+      background: #0B1120;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 16px;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .sim-btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: #FFF;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sim-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+    }
+
+    .sim-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .stepper-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      padding: 30px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 10px;
+      border: 1px dashed var(--border);
+      margin-bottom: 20px;
+    }
+
+    .step-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .step-circle.active {
+      background: #250A63;
+      border-color: #EA8E26;
+      color: #FFF;
+      box-shadow: 0 0 16px rgba(234, 142, 38, 0.4);
+    }
+
+    .step-circle.completed {
+      background: var(--emerald);
+      border-color: var(--emerald);
+      color: #FFF;
+    }
+
+    .step-title {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .sim-log-tray {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      color: #A5B4FC;
+      min-height: 80px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    /* Mock Push Notification Notification */
+    .mock-notification {
+      display: none;
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      width: 340px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
+      z-index: 100;
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .mock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .mock-app-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #818CF8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mock-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #FFF;
+      margin-bottom: 4px;
+    }
+
+    .mock-body {
+      font-size: 12px;
+      color: #CBD5E1;
+      line-height: 1.4;
+    }
+
+    /* Code Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      background: #0B1120;
+      border: 1px solid var(--border);
+      border-radius: 10px 10px 0 0;
+      padding: 6px 12px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 8px 14px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--surface);
+      color: #FFF;
+      font-weight: 600;
+    }
+
+    .code-container {
+      position: relative;
+      background: #030712;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      color: #E2E8F0;
+      line-height: 1.7;
+    }
+
+    /* Checklist */
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+    }
+
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--emerald);
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .check-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #FFF;
+    }
+
+    .check-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    @media (max-width: 1024px) {
+      .mobile-header { display: flex; }
+      .close-drawer-btn { display: block; }
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { padding: 24px 20px 80px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Mobile Top Bar -->
+  <header class="mobile-header">
+    <div class="mobile-brand">
+      <div class="brand-icon">⚡</div>
+      <span>Learning Curve</span>
+    </div>
+    <button class="menu-btn" onclick="toggleDrawer(true)">☰ Menu</button>
+  </header>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebarDrawer">
+      <div class="sidebar-header">
+        <div>
+          <div class="brand-title">
+            <div class="brand-icon">⚡</div>
+            <span>Learning Curve</span>
+          </div>
+          <div class="brand-subtitle">Interactive Playbook</div>
+        </div>
+        <button class="close-drawer-btn" onclick="toggleDrawer(false)">✕</button>
+      </div>
+
+      <ul class="nav-list">
+        <li>
+          <a class="nav-item" href="../index.html" style="color: #818CF8; font-weight: 600; margin-bottom: 12px; background: rgba(99, 102, 241, 0.1);">
+            <span>← Back to Home Hub</span>
+          </a>
+        </li>
+        <li class="nav-category">Active Playbook</li>
+        <li>
+          <a class="nav-item active">
+            <span>🔄 Stepper & Web Push Sync</span>
+          </a>
+        </li>
+        <li class="nav-category">Playbook Sections</li>
+        <li><a class="nav-item" href="#simulator"><span>1. Interactive Lifecycle Sim</span></a></li>
+        <li><a class="nav-item" href="#stake"><span>2. Mobile OS Pathology</span></a></li>
+        <li><a class="nav-item" href="#code"><span>3. Production Code Explorer</span></a></li>
+        <li><a class="nav-item" href="#checklist"><span>4. Production Checklist</span></a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="badge-bar">
+        <span class="badge badge-primary">⚡ Architecture Playbook</span>
+        <span class="badge badge-emerald">Zustand Persist Sync</span>
+        <span class="badge badge-amber">Context-Aware Push API</span>
+      </div>
+
+      <h1 class="doc-title">
+        Resilient Stepper State, WebSocket Lifecycle & <span>Context-Aware Push Notifications</span>
+      </h1>
+      <p class="doc-desc">
+        Eliminating mobile browser tab discard and HMR reload state loss in cryptocurrency checkouts, featuring synchronous local rehydration, socket wake-up listeners, and native push notifications that fire strictly when the user is away from the checkout tab.
+      </p>
+
+      <!-- Section 1: Interactive Simulator -->
+      <section id="simulator" class="section-card">
+        <h2 class="section-heading">🎮 Interactive Lifecycle & Background Simulator</h2>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px;">
+          Test how the state machine reacts when the customer switches to their crypto wallet app, locks their phone, or receives asynchronous mempool confirmations:
+        </p>
+
+        <div class="simulator-box">
+          <div class="sim-controls">
+            <button class="sim-btn" id="btnTabFocus" onclick="toggleTabFocus()">
+              <span id="focusIcon">📱</span> <span id="focusText">Simulate Phone Sleep / App Switch</span>
+            </button>
+            <button class="sim-btn" onclick="simulateEvent('detected')">
+              <span>⚡</span> Send Mempool Broadcast (Step 2)
+            </button>
+            <button class="sim-btn" onclick="simulateEvent('completed')">
+              <span>🎉</span> Send Finality Broadcast (Step 3)
+            </button>
+            <button class="sim-btn" onclick="resetSim()">
+              <span>🔄</span> Reset Session
+            </button>
+          </div>
+
+          <!-- Stepper Visualizer -->
+          <div class="stepper-preview">
+            <div class="step-node">
+              <div class="step-circle active" id="simStep1">1</div>
+              <span class="step-title">1. Awaiting Payment</span>
+            </div>
+            <div style="height: 2px; width: 60px; background: var(--border);"></div>
+            <div class="step-node">
+              <div class="step-circle" id="simStep2">2</div>
+              <span class="step-title">2. Processing Mempool</span>
+            </div>
+            <div style="height: 2px; width: 60px; background: var(--border);"></div>
+            <div class="step-node">
+              <div class="step-circle" id="simStep3">3</div>
+              <span class="step-title">3. Confirmed</span>
+            </div>
+          </div>
+
+          <div class="sim-log-tray" id="simLogs">
+            [System Ready] Session initialized with Step 3 in localStorage (session_id: pay-session.882f).
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Code Explorer -->
+      <section id="code" class="section-card">
+        <h2 class="section-heading">💻 Production Implementation Explorer</h2>
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="showCode('store', this)">checkoutStore.ts (Zustand Persist)</button>
+          <button class="tab-btn" onclick="showCode('guards', this)">Checkout.tsx (Router Guards)</button>
+          <button class="tab-btn" onclick="showCode('stepper', this)">CheckoutQRStep.tsx (Derived State)</button>
+          <button class="tab-btn" onclick="showCode('notif', this)">browserNotifications.ts (Push Engine)</button>
+        </div>
+
+        <div class="code-container">
+          <pre><code id="codeBlock">import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+export const useCheckoutStore = create<CheckoutState>()(
+  persist(
+    (set, get) => ({
+      step: 1,
+      merchantSlug: "",
+      sessionData: null,
+      confirmedPaymentAmount: 0,
+
+      setStep: (step) => set({ step }),
+      setSessionData: (sessionData) => set({ sessionData }),
+      resetForNewPayment: () => set({ step: 2, sessionData: null }),
+      submitPaymentData: () => set({ step: 3 }),
+    }),
+    {
+      name: "bitnormous_checkout_state",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 3: Production Checklist -->
+      <section id="checklist" class="section-card">
+        <h2 class="section-heading">✅ Production Engineering Checklist</h2>
+        <div class="checklist">
+          <label class="check-item">
+            <input type="checkbox" checked>
+            <div>
+              <div class="check-title">Synchronous Storage Hydration</div>
+              <div class="check-desc">Utilizes localStorage rather than async IndexedDB to guarantee state is available prior to initial DOM paint.</div>
+            </div>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" checked>
+            <div>
+              <div class="check-title">Cross-Merchant Slug Collision Guard</div>
+              <div class="check-desc">Automatically cleans up and resets state when a customer navigates to a different merchant URL.</div>
+            </div>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" checked>
+            <div>
+              <div class="check-title">Strict Background Visibility Gating</div>
+              <div class="check-desc">Suppresses push notifications when the tab is in focus; fires only when customer is in their wallet app or screen is locked.</div>
+            </div>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" checked>
+            <div>
+              <div class="check-title">Proactive Socket Wake-Up on Visibility Change</div>
+              <div class="check-desc">Listens for document visibility change and forces pusher.connect() to immediately resume socket broadcasts.</div>
+            </div>
+          </label>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Mock Push Alert Overlay -->
+  <div class="mock-notification" id="mockNotif">
+    <div class="mock-header">
+      <span class="mock-app-tag">Bitnormous Checkout</span>
+      <span style="font-size: 11px; color: var(--text-muted);">Just now</span>
+    </div>
+    <div class="mock-title" id="mockNotifTitle">Payment Detected (Step 2/3)</div>
+    <div class="mock-body" id="mockNotifBody">We detected your transaction on the network. Confirming blocks...</div>
+  </div>
+
+  <script>
+    let isAway = false;
+    let currentStep = 1;
+
+    function log(msg) {
+      const tray = document.getElementById('simLogs');
+      tray.innerHTML += '<br>' + msg;
+      tray.scrollTop = tray.scrollHeight;
+    }
+
+    function toggleTabFocus() {
+      isAway = !isAway;
+      const btn = document.getElementById('btnTabFocus');
+      const text = document.getElementById('focusText');
+      const icon = document.getElementById('focusIcon');
+
+      if (isAway) {
+        btn.classList.add('active');
+        text.textContent = 'Tab is Backgrounded (Phone Locked / In Wallet)';
+        icon.textContent = '🔒';
+        log('⚠️ [Visibility API] Page transitioned to background (isPageInBackground = true).');
+      } else {
+        btn.classList.remove('active');
+        text.textContent = 'Simulate Phone Sleep / App Switch';
+        icon.textContent = '📱';
+        log('✅ [Visibility API] Tab focused! Socket wake-up fired via pusher.connect().');
+        document.getElementById('mockNotif').style.display = 'none';
+      }
+    }
+
+    function simulateEvent(type) {
+      if (type === 'detected') {
+        currentStep = 2;
+        document.getElementById('simStep1').className = 'step-circle completed';
+        document.getElementById('simStep1').textContent = '✓';
+        document.getElementById('simStep2').className = 'step-circle active';
+        log('📡 [WebSocket] Event received: status = "user-sell-processing". Store updated.');
+
+        if (isAway) {
+          triggerMockPush('Payment Detected (Step 2/3) - Bitnormous', 'We detected your transaction on the network. Confirming blocks...');
+        } else {
+          log('👀 [Visibility Guard] Push notification suppressed because customer is directly viewing the screen.');
+        }
+      } else if (type === 'completed') {
+        currentStep = 3;
+        document.getElementById('simStep2').className = 'step-circle completed';
+        document.getElementById('simStep2').textContent = '✓';
+        document.getElementById('simStep3').className = 'step-circle completed';
+        document.getElementById('simStep3').textContent = '✓';
+        log('🎉 [WebSocket] Event received: status = "user-sell-processed". Payment confirmed!');
+
+        if (isAway) {
+          triggerMockPush('Payment Confirmed! (Step 3/3) 🎉', 'Your payment of USD 50.00 is confirmed! Tap to view receipt.');
+        } else {
+          log('👀 [Visibility Guard] Push notification suppressed; Success Modal animated directly in view.');
+        }
+      }
+    }
+
+    function triggerMockPush(title, body) {
+      const box = document.getElementById('mockNotif');
+      document.getElementById('mockNotifTitle').textContent = title;
+      document.getElementById('mockNotifBody').textContent = body;
+      box.style.display = 'block';
+      log(`🔔 [Native Push Dispatched] To OS Lock Screen / Tray: "${title}"`);
+    }
+
+    function resetSim() {
+      currentStep = 1;
+      document.getElementById('simStep1').className = 'step-circle active';
+      document.getElementById('simStep1').textContent = '1';
+      document.getElementById('simStep2').className = 'step-circle';
+      document.getElementById('simStep2').textContent = '2';
+      document.getElementById('simStep3').className = 'step-circle';
+      document.getElementById('simStep3').textContent = '3';
+      document.getElementById('mockNotif').style.display = 'none';
+      log('🔄 [Reset] Simulator reloaded Step 3 state cleanly.');
+    }
+
+    const codeSnippets = {
+      store: `import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+export const useCheckoutStore = create<CheckoutState>()(
+  persist(
+    (set, get) => ({
+      step: 1,
+      merchantSlug: "",
+      sessionData: null,
+      confirmedPaymentAmount: 0,
+
+      setStep: (step) => set({ step }),
+      setSessionData: (sessionData) => set({ sessionData }),
+      resetForNewPayment: () => set({ step: 2, sessionData: null }),
+      submitPaymentData: () => set({ step: 3 }),
+    }),
+    {
+      name: "bitnormous_checkout_state",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);`,
+      guards: `// In Checkout.tsx
+useEffect(() => {
+  if (isPayFlow) {
+    const storedSlug = useCheckoutStore.getState().merchantSlug;
+    if (urlSlug && storedSlug && storedSlug.toLowerCase() !== urlSlug.toLowerCase()) {
+      useCheckoutStore.getState().resetForNewPayment();
+      useCheckoutStore.getState().setMerchantSlug(urlSlug);
+    } else if (step < 2) {
+      setStep(2);
+    }
+  }
+}, [isPayFlow, urlSlug]);`,
+      stepper: `// Pure derived state from single source of truth
+const paymentStatus = getStatusSlug(sessionData?.status);
+const cryptoAddress = sessionData?.address || sessionData?.receiving_address || null;
+
+usePaymentRealtime(sessionData?.channel, (status) => {
+  useCheckoutStore.getState().setSessionData({
+    ...useCheckoutStore.getState().sessionData,
+    status
+  });
+  notifyPaymentStatus(status);
+});`,
+      notif: `export const isPageInBackground = (): boolean => {
+  if (typeof document === "undefined") return false;
+  return document.visibilityState === "hidden" || !document.hasFocus();
+};
+
+export const notifyPaymentStatus = (status, amount) => {
+  if (!isPageInBackground()) return; // Gated!
+  
+  const notif = new Notification("Payment Detected - Bitnormous", {
+    body: "Confirming on network...",
+    icon: "/favicon.ico"
+  });
+  notif.onclick = () => window.focus();
+};`
+    };
+
+    function showCode(tab, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('codeBlock').textContent = codeSnippets[tab];
+    }
+
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('sidebarDrawer');
+      if (open) drawer.classList.add('open');
+      else drawer.classList.remove('open');
+    }
+  </script>
+</body>
+</html>

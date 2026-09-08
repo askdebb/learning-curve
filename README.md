@@ -1,4 +1,4 @@
-﻿# Learning Curve: Engineering Knowledge Base
+# Learning Curve: Engineering Knowledge Base
 
 Welcome to the **Learning Curve** repository. This is an independent, cross-project engineering archive that documents technical decisions, architectural trade-offs, security models, and deep-dive code patterns established across all development sessions.
 
@@ -9,6 +9,7 @@ Welcome to the **Learning Curve** repository. This is an independent, cross-proj
 | Date | Topic / Domain | Primary Technologies | Entry Link |
 |---|---|---|---|
 | **Sep 2026** | **Enterprise Authentication Architecture & Security Hardening** | React, TanStack Query, Yup, Tailwind CSS | [authentication-architecture.md](./entries/authentication-architecture.md) |
+| **Sep 2026** | **Crypto Stepper State Persistence, Socket Lifecycle, & Push Notifications** | React 19, Zustand (Persist), Laravel Echo, Web Notifications API | [checkout-stepper-and-notifications.md](./entries/checkout-stepper-and-notifications.md) |
 
 ---
 
