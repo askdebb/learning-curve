@@ -565,11 +565,11 @@
         <input type="text" id="searchInput" class="search-input" placeholder="Search architecture concepts, patterns, or tags..." oninput="filterCards()">
       </div>
       <div class="category-pills">
-        <button class="pill active" onclick="setCategory('all', this)">All Concepts (4)</button>
+        <button class="pill active" onclick="setCategory('all', this)">All Concepts (5)</button>
         <button class="pill" onclick="setCategory('security', this)">Security & Auth (1)</button>
-        <button class="pill" onclick="setCategory('react', this)">React & State (1)</button>
+        <button class="pill" onclick="setCategory('react', this)">React & State (2)</button>
         <button class="pill" onclick="setCategory('backend', this)">Backend & APIs (1)</button>
-        <button class="pill" onclick="setCategory('performance', this)">Performance (1)</button>
+        <button class="pill" onclick="setCategory('performance', this)">Performance (2)</button>
       </div>
     </div>
   </header>
@@ -606,6 +606,35 @@
           </a>
           <a href="entries/authentication-architecture.md" target="_blank" class="btn-spec" title="View Markdown Specification">
             <span>Spec 📄</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Card: Merchant API State Architecture & Render Protection (ACTIVE) -->
+      <article class="concept-card" data-category="react performance backend" data-keywords="api state zustand tanstack render protection memoization controller bitnormous">
+        <div class="card-top">
+          <div class="card-badge-row">
+            <span class="status-badge complete">● Architectural Standard</span>
+            <span class="card-date">Sep 2026</span>
+          </div>
+          <h3 class="card-title">Bitnormous Merchant API Architecture & Render Protection</h3>
+          <p class="card-desc">
+            Orchestrating 50 financial endpoints across 14 domains with 3-Tier State Taxonomy (Server State vs. Zustand drafts vs. Ephemeral), Three Pillars of Render Protection (useRef, useMemo, useCallback), and decoupled drawer stores.
+          </p>
+          <div class="tag-list">
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">TanStack v5</span>
+            <span class="tech-tag">Zustand</span>
+            <span class="tech-tag">Render Guard</span>
+            <span class="tech-tag">Axios</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <a href="entries/merchant-api-state-architecture.md" target="_blank" class="btn-playbook" style="flex: 2;">
+            <span>Read Architecture Spec 📄</span>
+          </a>
+          <a href="entries/01-global-storage-vs-server-cache.md" target="_blank" class="btn-spec" title="State Taxonomy">
+            <span>Taxonomy</span>
           </a>
         </div>
       </article>

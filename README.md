@@ -10,6 +10,7 @@ Welcome to the **Learning Curve** repository. This is an independent, cross-proj
 |---|---|---|---|
 | **Sep 2026** | **Enterprise Authentication Architecture & Security Hardening** | React, TanStack Query, Yup, Tailwind CSS | [authentication-architecture.md](./entries/authentication-architecture.md) |
 | **Sep 2026** | **Crypto Stepper State Persistence, Socket Lifecycle, & Push Notifications** | React 19, Zustand (Persist), Laravel Echo, Web Notifications API | [checkout-stepper-and-notifications.md](./entries/checkout-stepper-and-notifications.md) |
+| **Sep 2026** | **Bitnormous Merchant API Architecture, Render Protection & State Taxonomy** | React 19, TypeScript, TanStack Query v5, Zustand, Axios | [merchant-api-state-architecture.md](./entries/merchant-api-state-architecture.md) |
 
 ---
 
