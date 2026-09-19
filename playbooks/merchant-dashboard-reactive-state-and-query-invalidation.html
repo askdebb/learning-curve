@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Learning Curve — Merchant Dashboard Reactive State & Query Invalidation Playbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --surface: #0F172A;
+      --surface-hover: #1E293B;
+      --surface-card: rgba(15, 23, 42, 0.75);
+      --border: rgba(51, 65, 85, 0.6);
+      --border-accent: rgba(99, 102, 241, 0.4);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #6366F1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10B981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --rose: #F43F5E;
+      --rose-glow: rgba(244, 63, 94, 0.2);
+      --amber: #F59E0B;
+      --cyan: #06B6D4;
+      --code-bg: #030712;
+      --sidebar-width: 280px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      left: 20%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -200px;
+      right: 10%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .mobile-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mobile-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #FFF;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), #A855F7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .menu-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: #FFF;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(16px);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      flex-shrink: 0;
+      padding: 24px 16px;
+      z-index: 30;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 17px;
+      color: #FFF;
+      text-decoration: none;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-category {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin: 16px 8px 6px;
+      font-weight: 700;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: #CBD5E1;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #FFF;
+      border-left: 3px solid var(--accent);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px 48px 100px;
+      max-width: 1160px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-primary { background: rgba(99, 102, 241, 0.15); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #67E8F9; border: 1px solid rgba(6, 182, 212, 0.3); }
+
+    .doc-title {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      line-height: 1.25;
+      color: #FFF;
+      margin-bottom: 12px;
+    }
+
+    .doc-title span {
+      background: linear-gradient(135deg, #818CF8, #C084FC);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .doc-desc {
+      font-size: 15.5px;
+      color: #94A3B8;
+      max-width: 860px;
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+
+    .section-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 36px;
+      backdrop-filter: blur(16px);
+    }
+
+    .section-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: #FFF;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .compare-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .compare-header.positive { color: #34D399; }
+    .compare-header.negative { color: #F87171; }
+
+    /* Interactive Live Cards Replica */
+    .dashboard-preview-container {
+      background: #F4F4F5;
+      border-radius: 14px;
+      padding: 24px;
+      margin: 20px 0;
+      border: 1px solid #E4E4E7;
+    }
+
+    .preview-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .preview-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #18181B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cards-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .ui-metric-card {
+      background: #FFFFFF;
+      border: 1px solid #E4E4E7;
+      border-radius: 10px;
+      height: 95px;
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .ui-card-label {
+      font-size: 13px;
+      color: #71717A;
+      font-weight: 500;
+    }
+
+    .ui-card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .ui-card-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #18181B;
+      letter-spacing: -0.02em;
+    }
+
+    .ui-card-trend {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.25s ease;
+    }
+
+    .ui-trend-green { color: #22C55E; }
+    .ui-trend-red { color: #FF3B30; }
+    .ui-trend-equilibrium { color: #71717A; }
+
+    /* Interactive Controls Panel */
+    .controls-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-item label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .control-item input[type="range"] {
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .control-val-display {
+      font-size: 13px;
+      color: #FFF;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .preset-btn-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .pill-btn {
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      color: #FFF;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pill-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .pill-btn.equilibrium-btn {
+      background: rgba(113, 113, 122, 0.25);
+      border-color: #71717A;
+      color: #E4E4E7;
+    }
+
+    .pill-btn.equilibrium-btn:hover {
+      background: #71717A;
+      color: #FFF;
+    }
+
+    /* Cache Invalidation Visualizer */
+    .cache-map-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+
+    .cache-blocks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .cache-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cache-card.invalidating {
+      animation: pulseBorder 1.2s infinite;
+      border-color: #F59E0B;
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .cache-card.refetched {
+      border-color: #10B981;
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    @keyframes pulseBorder {
+      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    .cache-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .cache-card-status {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .trigger-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-trigger-btn {
+      background: linear-gradient(135deg, var(--accent), #7C3AED);
+      color: #FFF;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .action-trigger-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    .invalidation-log {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #A5B4FC;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    /* Code Blueprints */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: var(--surface-hover);
+      color: #FFF;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .code-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      color: #FFF;
+      background: var(--accent);
+    }
+
+    pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      color: #E2E8F0;
+      line-height: 1.6;
+      display: block;
+      overflow-x: auto;
+    }
+
+    /* Checklist */
+    .checklist-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .check-item:hover {
+      border-color: var(--border-accent);
+      background: var(--surface-hover);
+    }
+
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--emerald);
+      margin-top: 2px;
+      cursor: pointer;
+    }
+
+    .check-label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #FFF;
+    }
+
+    .check-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        left: 0;
+        transform: translateX(0);
+      }
+      .mobile-header { display: flex; }
+      .main-content { padding: 24px 16px 80px; }
+      .cards-row { grid-template-columns: 1fr 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .cards-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Mobile Top Bar -->
+  <header class="mobile-header">
+    <div class="mobile-brand">
+      <div class="brand-icon">⚡</div>
+      <span>Dashboard Reactive Architecture</span>
+    </div>
+    <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
+  </header>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="../index.html" class="brand-title">
+          <div class="brand-icon">⚡</div>
+          <div>
+            <div>Learning Curve</div>
+            <div class="brand-subtitle">Playbook Hub ↗</div>
+          </div>
+        </a>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-category">Architecture Overview</li>
+        <li><a href="#overview" class="nav-item active">📌 1. Executive Summary</a></li>
+        <li><a href="#equilibrium" class="nav-item">⚖️ 2. The 0% Equilibrium Paradox</a></li>
+        <li><a href="#cards-demo" class="nav-item">🧪 3. Live Card & Trend Simulator</a></li>
+
+        <li class="nav-category">State & Query Invalidation</li>
+        <li><a href="#root-mounting" class="nav-item">🏛️ 4. Root-Level Action Mounting</a></li>
+        <li><a href="#invalidation-map" class="nav-item">🔄 5. Cache Invalidation Topology</a></li>
+
+        <li class="nav-category">Code & Implementation</li>
+        <li><a href="#code-viewer" class="nav-item">💻 6. Production Blueprints</a></li>
+        <li><a href="#checklist" class="nav-item">✅ 7. Hardening Checklist</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="badge-bar">
+        <span class="badge badge-primary">React 19 & TanStack Query v5</span>
+        <span class="badge badge-emerald">Zustand Auto-Sync</span>
+        <span class="badge badge-amber">Equilibrium 0% Design</span>
+        <span class="badge badge-cyan">Zero TS Warnings</span>
+      </div>
+
+      <h1 class="doc-title">
+        Merchant Dashboard Reactive Architecture:<br>
+        <span>Query Invalidation, Root Store Sync & Equilibrium Engineering</span>
+      </h1>
+      <p class="doc-desc">
+        A deep-dive engineering playbook cataloging the transition of the Bitnormous Merchant Dashboard into a high-fidelity reactive portal: mounting root actions in layouts, centralizing TanStack cache keys, abstracting invalidations away from UI widgets, and engineering directionless 0% equilibrium micro-UI states.
+      </p>
+
+      <!-- Section 1: Executive Summary -->
+      <section id="overview" class="section-card">
+        <h2 class="section-heading">📌 1. Architectural Overhaul & Core Problems Solved</h2>
+        <div class="grid-2">
+          <div class="compare-card">
+            <div class="compare-header negative">
+              <span>❌ The Fragmented Legacy Pattern</span>
+              <span>Liabilities</span>
+            </div>
+            <ul style="font-size: 13px; color: var(--text-muted); padding-left: 18px; line-height: 1.7;">
+              <li>Data-fetching hooks (<code>useWalletsAction</code>) mounted in leaf pages; navigating unmounted queries and starved drawers.</li>
+              <li>UI components hardcoded raw string query keys in <code>queryClient.invalidateQueries({ queryKey: [...] })</code>.</li>
+              <li>Dead imperative code like <code>syncToStore</code> callbacks survived alongside declarative <code>useEffect</code> synchronization.</li>
+              <li>Dashboard metric cards were populated with static hardcoded numbers instead of real-time server streams.</li>
+              <li>Metrics with <strong>0% day-over-day change</strong> showed directional arrows, signaling false growth or decline.</li>
+            </ul>
+          </div>
+
+          <div class="compare-card">
+            <div class="compare-header positive">
+              <span>✅ The Production Standard</span>
+              <span>Hardened</span>
+            </div>
+            <ul style="font-size: 13px; color: var(--text-muted); padding-left: 18px; line-height: 1.7;">
+              <li><strong>Root-Level Mounting in <code>Layout.tsx</code>:</strong> Global stores (<code>useFiatBalanceStore</code>, <code>useWalletStore</code>) auto-hydrate once at the layout boundary.</li>
+              <li><strong>Centralized Key Factory (<code>queryKeys.ts</code>):</strong> Single source of truth for query scopes and parameter hashes.</li>
+              <li><strong>Dedicated Invalidation Hooks (<code>useInvalidateQueries.ts</code>):</strong> UI triggers semantic invalidators (e.g. <code>useInvalidateFiatPayouts()</code>) without touching keys.</li>
+              <li><strong>Real-time <code>useNormalDashboardMetrics</code>:</strong> Seamless aggregation of balances, pending queues, conversion rates, and failures.</li>
+              <li><strong>Equilibrium Micro-UI Logic:</strong> At 0% diff, arrows are suppressed, color shifts to neutral grey <code>#71717A</code>, and leading signs are stripped.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: The 0% Equilibrium Paradox -->
+      <section id="equilibrium" class="section-card">
+        <h2 class="section-heading">⚖️ 2. The 0% Equilibrium Paradox & Micro-UI Physics</h2>
+        <p style="color: var(--text-muted); margin-bottom: 18px;">
+          In quantitative analytics, <strong>0% change is not a positive or negative event</strong>—it is metric equilibrium. Rendering directional arrows or biased colors distorts merchant perception.
+        </p>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+          <h4 style="font-size: 14px; font-weight: 700; color: #FFF; margin-bottom: 12px;">The Three Rules of Equilibrium State UI</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+            <div style="background: var(--surface-card); padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+              <div style="color: #A5B4FC; font-weight: 700; font-size: 13px; margin-bottom: 4px;">1. Arrow Suppression</div>
+              <p style="font-size: 12px; color: var(--text-muted);">
+                When <code>trendNum === 0 || trendDirection === "none"</code>, hide both <code>FaArrowUp</code> and <code>FaArrowDown</code>.
+              </p>
+            </div>
+            <div style="background: var(--surface-card); padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+              <div style="color: #6EE7B7; font-weight: 700; font-size: 13px; margin-bottom: 4px;">2. Neutral Color Palette</div>
+              <p style="font-size: 12px; color: var(--text-muted);">
+                Equilibrium must never be tinted green (growth) or red (loss). It renders in muted slate-grey <code>#71717A</code>.
+              </p>
+            </div>
+            <div style="background: var(--surface-card); padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+              <div style="color: #FCD34D; font-weight: 700; font-size: 13px; margin-bottom: 4px;">3. Sign Normalization</div>
+              <p style="font-size: 12px; color: var(--text-muted);">
+                Strip leading <code>+</code> or <code>-</code> prefixes. Render a clean <code>0%</code> rather than <code>+0%</code> or <code>-0%</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Live Card Simulator -->
+      <section id="cards-demo" class="section-card">
+        <h2 class="section-heading">🧪 3. Interactive Normal Dashboard Metric Cards Simulator</h2>
+        <p style="color: var(--text-muted); margin-bottom: 14px;">
+          Adjust the parameters below to see the Bitnormous Merchant Dashboard metric cards react in real time. Notice how the trend arrow disappears and the tone shifts to neutral grey when at <strong>0% Equilibrium</strong>!
+        </p>
+
+        <!-- Live Replica Display -->
+        <div class="dashboard-preview-container">
+          <div class="preview-header-bar">
+            <span class="preview-title">Live Preview: Bitnormous Normal Dashboard</span>
+            <span style="font-size: 12px; color: #71717A; font-weight: 500;">Real-time React Components</span>
+          </div>
+
+          <div class="cards-row">
+            <!-- Balance Card -->
+            <div class="ui-metric-card">
+              <span class="ui-card-label">Balance</span>
+              <div class="ui-card-bottom">
+                <span class="ui-card-value" id="cardBalVal">GHS 12,450.00</span>
+                <span style="font-size: 12px; color: #A1A1AA;">Available</span>
+              </div>
+            </div>
+
+            <!-- Next Payouts Card -->
+            <div class="ui-metric-card">
+              <span class="ui-card-label">Next payouts</span>
+              <div class="ui-card-bottom">
+                <span class="ui-card-value" id="cardPayoutVal">GHS 2,800.00</span>
+                <span class="ui-card-trend" id="cardPayoutTrend">
+                  <span id="payoutTrendText">2 pending</span>
+                  <span id="payoutTrendArrow">↑</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Success Rate Card -->
+            <div class="ui-metric-card">
+              <span class="ui-card-label">Success Rate</span>
+              <div class="ui-card-bottom">
+                <span class="ui-card-value" id="cardSuccessVal">94%</span>
+                <span class="ui-card-trend" id="cardSuccessTrend">
+                  <span id="successTrendText">0%</span>
+                  <span id="successTrendArrow" style="display:none;">↑</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Failed Card -->
+            <div class="ui-metric-card">
+              <span class="ui-card-label">Failed</span>
+              <div class="ui-card-bottom">
+                <span class="ui-card-value" id="cardFailedVal">3</span>
+                <span class="ui-card-trend" id="cardFailedTrend">
+                  <span id="failedTrendText">0%</span>
+                  <span id="failedTrendArrow" style="display:none;">↑</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-panel">
+          <div class="controls-grid">
+            <div class="control-item">
+              <div style="display: flex; justify-content: space-between;">
+                <label>Withdrawable Balance (GHS)</label>
+                <span class="control-val-display" id="balDisp">12,450</span>
+              </div>
+              <input type="range" id="balInput" min="0" max="100000" step="500" value="12450" oninput="updateCards()">
+            </div>
+
+            <div class="control-item">
+              <div style="display: flex; justify-content: space-between;">
+                <label>Pending Payouts Count</label>
+                <span class="control-val-display" id="payoutCountDisp">2</span>
+              </div>
+              <input type="range" id="payoutInput" min="0" max="15" step="1" value="2" oninput="updateCards()">
+            </div>
+
+            <div class="control-item">
+              <div style="display: flex; justify-content: space-between;">
+                <label>Success Rate %</label>
+                <span class="control-val-display" id="successRateDisp">94%</span>
+              </div>
+              <input type="range" id="successInput" min="50" max="100" step="1" value="94" oninput="updateCards()">
+            </div>
+
+            <div class="control-item">
+              <div style="display: flex; justify-content: space-between;">
+                <label>Day-over-Day Differential</label>
+                <span class="control-val-display" id="diffDisp">0% (Equilibrium)</span>
+              </div>
+              <input type="range" id="diffInput" min="-25" max="25" step="1" value="0" oninput="updateCards()">
+            </div>
+
+            <div class="control-item">
+              <div style="display: flex; justify-content: space-between;">
+                <label>Failed Orders Count</label>
+                <span class="control-val-display" id="failedCountDisp">3</span>
+              </div>
+              <input type="range" id="failedInput" min="0" max="30" step="1" value="3" oninput="updateCards()">
+            </div>
+          </div>
+
+          <div class="preset-btn-bar">
+            <span style="font-size: 12px; color: var(--text-muted); align-self: center; font-weight: 600;">Presets:</span>
+            <button class="pill-btn equilibrium-btn" onclick="setDiff(0)">⚖️ Snap to 0% Equilibrium</button>
+            <button class="pill-btn" onclick="setDiff(8)">📈 Positive Growth (+8%)</button>
+            <button class="pill-btn" onclick="setDiff(-5)">📉 Negative Dip (-5%)</button>
+            <button class="pill-btn" onclick="setZeroPayouts()">🛑 0 Pending Payouts</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Root-Level Action Mounting -->
+      <section id="root-mounting" class="section-card">
+        <h2 class="section-heading">🏛️ 4. Root-Level Action Mounting Pattern</h2>
+        <p style="color: var(--text-muted); margin-bottom: 16px;">
+          By lifting the invocation of <code>useWalletsAction()</code> and <code>useFiatBalancesAction()</code> into the top-level <code>Layout.tsx</code> component, data hydration happens once at layout mount and keeps Zustand stores continuously synced across the entire session lifecycle:
+        </p>
+
+        <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px;">
+          <pre><code><span style="color:#7C3AED;">// src/components/Layout.tsx</span>
+<span style="color:#F43F5E;">export const</span> <span style="color:#60A5FA;">Layout</span> = () => {
+  <span style="color:#10B981;">// Mount actions globally at the root layout boundary:</span>
+  <span style="color:#F59E0B;">useFiatBalancesAction</span>();
+  <span style="color:#F59E0B;">useWalletsAction</span>();
+
+  <span style="color:#F43F5E;">return</span> (
+    &lt;<span style="color:#60A5FA;">div</span> <span style="color:#A78BFA;">className</span>=<span style="color:#34D399;">"flex h-screen overflow-hidden"</span>&gt;
+      &lt;<span style="color:#60A5FA;">Sidebar</span> /&gt;
+      &lt;<span style="color:#60A5FA;">div</span> <span style="color:#A78BFA;">className</span>=<span style="color:#34D399;">"flex flex-1 flex-col"</span>&gt;
+        &lt;<span style="color:#60A5FA;">Header</span> /&gt;
+        &lt;<span style="color:#60A5FA;">Outlet</span> /&gt;
+      &lt;/<span style="color:#60A5FA;">div</span>&gt;
+    &lt;/<span style="color:#60A5FA;">div</span>&gt;
+  );
+};</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 5: Cache Invalidation Topology -->
+      <section id="invalidation-map" class="section-card">
+        <h2 class="section-heading">🔄 5. Interactive Cache Invalidation Topology Visualizer</h2>
+        <p style="color: var(--text-muted); margin-bottom: 16px;">
+          Click the simulation triggers below to observe how dedicated invalidators selectively ripple through TanStack Query caches and trigger Zustand store reconciliations without polluting unrelated domains:
+        </p>
+
+        <div class="cache-map-container">
+          <div class="cache-blocks-grid">
+            <div class="cache-card" id="cacheFiatBal">
+              <div class="cache-card-title">💰 fiatBalances</div>
+              <div class="cache-card-status" id="statusFiatBal">Fresh (Stale in 5m)</div>
+            </div>
+
+            <div class="cache-card" id="cacheWallets">
+              <div class="cache-card-title">🪙 custodyWallets</div>
+              <div class="cache-card-status" id="statusWallets">Fresh (Synced to Zustand)</div>
+            </div>
+
+            <div class="cache-card" id="cachePayouts">
+              <div class="cache-card-title">📋 fiatPayouts</div>
+              <div class="cache-card-status" id="statusPayouts">Fresh (Pending Filtered)</div>
+            </div>
+
+            <div class="cache-card" id="cacheOverview">
+              <div class="cache-card-title">📊 overview (30d)</div>
+              <div class="cache-card-status" id="statusOverview">Fresh (Analytics Synced)</div>
+            </div>
+          </div>
+
+          <div class="trigger-btn-row">
+            <button class="action-trigger-btn" onclick="triggerInvalidation('payout')">
+              ⚡ Simulate Payout Requested
+            </button>
+            <button class="action-trigger-btn" onclick="triggerInvalidation('crypto')">
+              ⚡ Simulate Crypto Deposit Received
+            </button>
+            <button class="action-trigger-btn" onclick="triggerInvalidation('global')">
+              ⚡ Simulate Global Dashboard Refresh
+            </button>
+          </div>
+
+          <div class="invalidation-log" id="invalLog">
+            [System Ready] TanStack Query Cache and Zustand Stores synchronized.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: Code Blueprints -->
+      <section id="code-viewer" class="section-card">
+        <h2 class="section-heading">💻 6. Production Code Blueprints</h2>
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('queryKeys', this)">queryKeys.ts</button>
+          <button class="tab-btn" onclick="switchTab('invalidators', this)">useInvalidateQueries.ts</button>
+          <button class="tab-btn" onclick="switchTab('metrics', this)">useNormalDashboardMetrics.ts</button>
+          <button class="tab-btn" onclick="switchTab('cards', this)">DashboardCards.tsx</button>
+        </div>
+
+        <div class="code-box">
+          <button class="copy-btn" onclick="copyCode()">Copy Code 📋</button>
+          <pre><code id="codeBlock"></code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Hardening Checklist -->
+      <section id="checklist" class="section-card">
+        <h2 class="section-heading">✅ 7. Production Hardening Checklist</h2>
+        <div class="checklist-group">
+          <label class="check-item">
+            <input type="checkbox" checked disabled>
+            <div>
+              <div class="check-label">Root-Level Action Mounting</div>
+              <div class="check-sub">All high-level financial actions (wallets, balances) mount in Layout.tsx so drawers and headers never encounter empty state.</div>
+            </div>
+          </label>
+
+          <label class="check-item">
+            <input type="checkbox" checked disabled>
+            <div>
+              <div class="check-label">Centralized Type-Safe queryKeys Factory</div>
+              <div class="check-sub">Zero magic string keys in UI components. All keys defined centrally with `as const` tuples.</div>
+            </div>
+          </label>
+
+          <label class="check-item">
+            <input type="checkbox" checked disabled>
+            <div>
+              <div class="check-label">Semantic Invalidation Hooks</div>
+              <div class="check-sub">Buttons invoke semantic invalidators (`useInvalidateFiatPayouts()`) rather than managing queryClient instances.</div>
+            </div>
+          </label>
+
+          <label class="check-item">
+            <input type="checkbox" checked disabled>
+            <div>
+              <div class="check-label">Directionless 0% Equilibrium Presentation</div>
+              <div class="check-sub">When trend is 0%, hide directional arrows, strip plus/minus signs, and render in neutral grey `#71717A`.</div>
+            </div>
+          </label>
+
+          <label class="check-item">
+            <input type="checkbox" checked disabled>
+            <div>
+              <div class="check-label">Zero Unused Variables / TS6133 Cleanliness</div>
+              <div class="check-sub">Removed lingering unused variables (`isCountDone`, `numAmount`) ensuring 0 warnings during `yarn build`.</div>
+            </div>
+          </label>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // 1. Live Cards Simulator
+    function updateCards() {
+      const bal = parseFloat(document.getElementById('balInput').value);
+      const payouts = parseInt(document.getElementById('payoutInput').value);
+      const successRate = parseInt(document.getElementById('successInput').value);
+      const diff = parseInt(document.getElementById('diffInput').value);
+      const failed = parseInt(document.getElementById('failedInput').value);
+
+      document.getElementById('balDisp').textContent = bal.toLocaleString('en-US');
+      document.getElementById('payoutCountDisp').textContent = payouts;
+      document.getElementById('successRateDisp').textContent = successRate + '%';
+      document.getElementById('failedCountDisp').textContent = failed;
+
+      // Balance
+      document.getElementById('cardBalVal').textContent = 'GHS ' + bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      // Next Payouts
+      const payoutVal = payouts * 1400;
+      document.getElementById('cardPayoutVal').textContent = 'GHS ' + payoutVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      
+      const payoutTrendElem = document.getElementById('cardPayoutTrend');
+      const payoutText = document.getElementById('payoutTrendText');
+      const payoutArrow = document.getElementById('payoutTrendArrow');
+
+      if (payouts === 0) {
+        payoutText.textContent = '0%';
+        payoutArrow.style.display = 'none';
+        payoutTrendElem.className = 'ui-card-trend ui-trend-equilibrium';
+      } else {
+        payoutText.textContent = payouts + ' pending';
+        payoutArrow.style.display = 'inline';
+        payoutArrow.textContent = '↑';
+        payoutTrendElem.className = 'ui-card-trend ui-trend-green';
+      }
+
+      // Success Rate & Diff
+      document.getElementById('cardSuccessVal').textContent = successRate + '%';
+      const diffDisp = document.getElementById('diffDisp');
+      const successTrendElem = document.getElementById('cardSuccessTrend');
+      const successText = document.getElementById('successTrendText');
+      const successArrow = document.getElementById('successTrendArrow');
+
+      if (diff === 0) {
+        diffDisp.textContent = '0% (Equilibrium)';
+        successText.textContent = '0%';
+        successArrow.style.display = 'none';
+        successTrendElem.className = 'ui-card-trend ui-trend-equilibrium';
+      } else if (diff > 0) {
+        diffDisp.textContent = '+' + diff + '% (Growth)';
+        successText.textContent = '+' + diff + '%';
+        successArrow.style.display = 'inline';
+        successArrow.textContent = '↑';
+        successTrendElem.className = 'ui-card-trend ui-trend-green';
+      } else {
+        diffDisp.textContent = diff + '% (Dip)';
+        successText.textContent = diff + '%';
+        successArrow.style.display = 'inline';
+        successArrow.textContent = '↓';
+        successTrendElem.className = 'ui-card-trend ui-trend-red';
+      }
+
+      // Failed Card
+      document.getElementById('cardFailedVal').textContent = failed;
+      const failedTrendElem = document.getElementById('cardFailedTrend');
+      const failedText = document.getElementById('failedTrendText');
+      const failedArrow = document.getElementById('failedTrendArrow');
+
+      const failedPct = Math.round((failed / (failed + 50)) * 100);
+      if (failed === 0 || failedPct === 0) {
+        failedText.textContent = '0%';
+        failedArrow.style.display = 'none';
+        failedTrendElem.className = 'ui-card-trend ui-trend-equilibrium';
+      } else {
+        failedText.textContent = '+' + failedPct + '%';
+        failedArrow.style.display = 'inline';
+        failedArrow.textContent = '↑';
+        failedTrendElem.className = 'ui-card-trend ui-trend-red';
+      }
+    }
+
+    function setDiff(val) {
+      document.getElementById('diffInput').value = val;
+      updateCards();
+    }
+
+    function setZeroPayouts() {
+      document.getElementById('payoutInput').value = 0;
+      updateCards();
+    }
+
+    // 2. Cache Invalidation Simulation
+    function triggerInvalidation(type) {
+      const log = document.getElementById('invalLog');
+      const now = new Date().toLocaleTimeString();
+
+      if (type === 'payout') {
+        const payoutsCard = document.getElementById('cachePayouts');
+        const balCard = document.getElementById('cacheFiatBal');
+
+        payoutsCard.classList.add('invalidating');
+        balCard.classList.add('invalidating');
+        log.innerHTML = `[${now}] ⚡ useInvalidateFiatPayouts() invoked.<br>[${now}] 🔄 Invalidating queryKeys.fiatPayouts & queryKeys.fiatBalances...<br>` + log.innerHTML;
+
+        setTimeout(() => {
+          payoutsCard.classList.remove('invalidating');
+          payoutsCard.classList.add('refetched');
+          balCard.classList.remove('invalidating');
+          balCard.classList.add('refetched');
+          log.innerHTML = `[${now}] ✅ Re-fetched pending payouts and updated withdrawable balance.<br>` + log.innerHTML;
+          setTimeout(() => {
+            payoutsCard.classList.remove('refetched');
+            balCard.classList.remove('refetched');
+          }, 1500);
+        }, 800);
+      } else if (type === 'crypto') {
+        const wCard = document.getElementById('cacheWallets');
+        wCard.classList.add('invalidating');
+        log.innerHTML = `[${now}] ⚡ useInvalidateWallets() invoked.<br>[${now}] 🔄 Invalidating queryKeys.custodyWallets...<br>` + log.innerHTML;
+
+        setTimeout(() => {
+          wCard.classList.remove('invalidating');
+          wCard.classList.add('refetched');
+          log.innerHTML = `[${now}] ✅ Custody wallets query re-fetched; auto-synced into useWalletStore.<br>` + log.innerHTML;
+          setTimeout(() => wCard.classList.remove('refetched'), 1500);
+        }, 800);
+      } else if (type === 'global') {
+        document.querySelectorAll('.cache-card').forEach(c => c.classList.add('invalidating'));
+        log.innerHTML = `[${now}] ⚡ useInvalidateDashboard() invoked.<br>[${now}] 🔄 Invalidating balances, wallets, payouts, and overview in parallel...<br>` + log.innerHTML;
+
+        setTimeout(() => {
+          document.querySelectorAll('.cache-card').forEach(c => {
+            c.classList.remove('invalidating');
+            c.classList.add('refetched');
+          });
+          log.innerHTML = `[${now}] ✅ All dashboard query keys synchronized; UI updated.<br>` + log.innerHTML;
+          setTimeout(() => {
+            document.querySelectorAll('.cache-card').forEach(c => c.classList.remove('refetched'));
+          }, 1500);
+        }, 900);
+      }
+    }
+
+    // 3. Code Blueprints
+    const snippets = {
+      queryKeys: `// src/actions/queryKeys.ts
+export const queryKeys = {
+  fiatBalances: ["fiatBalances"] as const,
+  custodyWallets: ["custodyWallets"] as const,
+  fiatPayouts: {
+    all: ["fiatPayouts"] as const,
+    list: (params?: Record<string, any>) => ["fiatPayouts", params] as const,
+    detail: (id: string | number) => ["fiatPayouts", id] as const,
+  },
+  withdrawals: {
+    all: ["withdrawals"] as const,
+    list: (params?: Record<string, any>) => ["withdrawals", params] as const,
+    detail: (id: string | number) => ["withdrawals", id] as const,
+  },
+  transactions: {
+    ledger: (params?: Record<string, any>) => ["ledgerTransactions", params] as const,
+  },
+  overview: (businessId?: string, rangeDays?: number) =>
+    ["overview", businessId, rangeDays] as const,
+} as const;`,
+
+      invalidators: `// src/actions/useInvalidateQueries.ts
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { queryKeys } from "./queryKeys";
+
+export const useInvalidateDashboard = () => {
+  const queryClient = useQueryClient();
+  return useCallback(() => {
+    return Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.fiatBalances }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.custodyWallets }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.fiatPayouts.all }),
+      queryClient.invalidateQueries({ queryKey: ["overview"] }),
+    ]);
+  }, [queryClient]);
+};
+
+export const useInvalidateFiatPayouts = () => {
+  const queryClient = useQueryClient();
+  return useCallback(() => {
+    return Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.fiatPayouts.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.fiatBalances }),
+    ]);
+  }, [queryClient]);
+};`,
+
+      metrics: `// src/hooks/useNormalDashboardMetrics.ts
+import { useMemo } from "react";
+import { useFiatBalanceStore } from "@/store/useFiatBalanceStore";
+import { useFiatPayoutsAction } from "@/actions/fiatPayouts";
+import { useOverview } from "@/actions/developer";
+import useCurrentBusiness from "@/hooks/useCurrentBusiness";
+import { formatFiatAmount } from "@/helpers";
+import type { DashboardMetric } from "@/types/dashboard";
+
+export const useNormalDashboardMetrics = () => {
+  const isBalanceLoaded = useFiatBalanceStore((s) => s.isLoaded);
+  const isBalanceLoading = useFiatBalanceStore((s) => s.isLoading);
+  const getWithdrawable = useFiatBalanceStore((s) => s.getWithdrawable);
+  const activeCurrency = useFiatBalanceStore((s) => s.activeCurrency);
+
+  const { payouts, isLoading: isPayoutsLoading } = useFiatPayoutsAction({ status: "pending" });
+  const { business, isLoading: isBusinessLoading } = useCurrentBusiness();
+  const { data: overview, isLoading: isOverviewLoading } = useOverview(business?.id, 30);
+
+  // Equilibrium resolution:
+  const successTrendDir: "up" | "down" | "none" =
+    successTrendNum === 0 ? "none" : successTrend.startsWith("-") ? "down" : "up";
+
+  return { metrics };
+};`,
+
+      cards: `// src/components/dashboard/DashboardCards.tsx
+const MetricCard = ({
+  label,
+  tone = "green",
+  trend,
+  trendDirection = "up",
+  value,
+  isLoading: isLoadingProp,
+}: MetricCardProps) => {
+  const { num: trendNum } = parseValue(trend || "");
+  // Equilibrium detection:
+  const isEquilibrium = trend ? trendNum === 0 || trendDirection === "none" : false;
+  const showArrow = !isEquilibrium && trendDirection !== "none";
+  const displayTrend = trend ? (isEquilibrium ? trend.replace(/^[+-]/, "") : trend) : "";
+  const TrendIcon = trendDirection === "down" ? FaArrowDown : FaArrowUp;
+  const trendToneColor = isEquilibrium
+    ? "text-[#71717A]"
+    : tone === "green"
+    ? "text-[#22C55E]"
+    : "text-[#FF3B30]";
+
+  return (
+    <article className="flex h-[91px] flex-col justify-between rounded-[10px] border border-[#E4E4E7] bg-white px-6 py-[15px]">
+      <p>{label}</p>
+      <div className="flex items-end justify-between gap-4">
+        <CountUpValue value={displayValue} />
+        {trend && (
+          <p className={\`flex shrink-0 items-center gap-1 \${trendToneColor}\`}>
+            <CountUpValue value={displayTrend} />
+            {showArrow && <TrendIcon className="h-2.5 w-2.5" />}
+          </p>
+        )}
+      </div>
+    </article>
+  );
+};`
+    };
+
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('codeBlock').textContent = snippets[name];
+    }
+
+    function copyCode() {
+      const code = document.getElementById('codeBlock').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied! ✅';
+        setTimeout(() => btn.textContent = 'Copy Code 📋', 2000);
+      });
+    }
+
+    // Init
+    switchTab('queryKeys', document.querySelector('.tab-btn'));
+    updateCards();
+  </script>
+</body>
+</html>

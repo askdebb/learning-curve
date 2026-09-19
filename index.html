@@ -565,11 +565,11 @@
         <input type="text" id="searchInput" class="search-input" placeholder="Search architecture concepts, patterns, or tags..." oninput="filterCards()">
       </div>
       <div class="category-pills">
-        <button class="pill active" onclick="setCategory('all', this)">All Concepts (5)</button>
+        <button class="pill active" onclick="setCategory('all', this)">All Concepts (6)</button>
         <button class="pill" onclick="setCategory('security', this)">Security & Auth (1)</button>
-        <button class="pill" onclick="setCategory('react', this)">React & State (2)</button>
-        <button class="pill" onclick="setCategory('backend', this)">Backend & APIs (1)</button>
-        <button class="pill" onclick="setCategory('performance', this)">Performance (2)</button>
+        <button class="pill" onclick="setCategory('react', this)">React & State (3)</button>
+        <button class="pill" onclick="setCategory('backend', this)">Backend & APIs (2)</button>
+        <button class="pill" onclick="setCategory('performance', this)">Performance (3)</button>
       </div>
     </div>
   </header>
@@ -581,6 +581,35 @@
     </div>
 
     <div class="concept-grid" id="conceptGrid">
+      <!-- Card: Merchant Dashboard Reactive State & Query Invalidation (NEW ACTIVE) -->
+      <article class="concept-card" data-category="react performance backend" data-keywords="dashboard query invalidation keys zustand sync equilibrium 0% arrow countup bitnormous merchant">
+        <div class="card-top">
+          <div class="card-badge-row">
+            <span class="status-badge complete">● Interactive Playbook</span>
+            <span class="card-date">Sep 2026</span>
+          </div>
+          <h3 class="card-title">Merchant Dashboard Reactive State, Query Invalidation & Equilibrium Design</h3>
+          <p class="card-desc">
+            Decoupling UI from TanStack Query keys via centralized factories and semantic invalidators, mounting root actions in Layout for automated Zustand hydration, and engineering directionless 0% equilibrium micro-UI physics.
+          </p>
+          <div class="tag-list">
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">TanStack Query v5</span>
+            <span class="tech-tag">Zustand v5</span>
+            <span class="tech-tag">Query Keys</span>
+            <span class="tech-tag">Equilibrium UI</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <a href="playbooks/merchant-dashboard-reactive-state-and-query-invalidation.html" class="btn-playbook">
+            <span>Launch Playbook ⚡</span>
+          </a>
+          <a href="entries/merchant-dashboard-reactive-state-and-query-invalidation.md" target="_blank" class="btn-spec" title="View Markdown Specification">
+            <span>Spec 📄</span>
+          </a>
+        </div>
+      </article>
+
       <!-- Card 1: Authentication Architecture (ACTIVE) -->
       <article class="concept-card" data-category="security react performance" data-keywords="authentication security owasp react tanstack yup autofill uncontrolled keystroke">
         <div class="card-top">
