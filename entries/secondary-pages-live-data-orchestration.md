@@ -187,7 +187,38 @@ When an operator is inspecting an audit log in `AuditLogDetailInspector`, backgr
 
 ---
 
-## 5. Verification & Clean Build
+## 5. Centralized Helper Architecture & Developer Mode Navigation Preservation
+
+### A. The Helper Extraction Pattern
+Defining inline formatting functions inside React component bodies or page scopes introduces code duplication, test fragmentation, and bundle bloat. We centralized all utilities into `@/helpers/`:
+- **`auditLogUtils.tsx`**: Category visual tokens (`getAuditCategoryConfig`), table row pills (`getAuditCategoryBadge`), status dots (`getAuditStatusDot`), and telemetry badge decorators (`getAuditStatusBadge`).
+- **`developerUtils.ts`**: Consolidated `formatMoney`, `trimCryptoAmount`, `prettyPrintJson`, `formatPercentFraction`, and `formatShortDate` across Developer views (`Transactions.tsx`, `Metrics.tsx`, `Logs.tsx`).
+- **`listUtils.ts`**: Centralized `formatCustomerField` ensuring standard `"N/A"` fallbacks across table cells and exports.
+- **`index.ts`**: Unified re-export hub for effortless import paths throughout the application.
+
+### B. Additive Developer Mode Navigation
+Navigation models must follow the **Additive Superset Principle**:
+When switching between merchant personas (e.g. Normal Mode vs Developer Mode), core business capabilities must never disappear. 
+In `sidebarConfig.ts`, `Customers` (`/customers`) and `Business Account` (`/get-started`) were retained under the `INTEGRATION` group in Developer Mode, allowing engineers to test checkout records and view merchant credentials without toggling between modes.
+
+---
+
+## 6. High-Assurance Security Architecture & Type Contracts
+
+### A. CSV Formula & Macro Injection Defense (OWASP / CWE-1236)
+In `escapeCsvValue`, cell strings exported to spreadsheet software (Excel, LibreOffice, Google Sheets) are sanitized. Any value starting with formula execution triggers (`=`, `+`, `-`, `@`, `\t`, `\r`) is safely prefixed with an apostrophe (`'`), preventing DDE command execution or malicious hyperlink triggering when merchants download transaction and customer records.
+
+### B. Recursive Privacy & Sensitive Credential Redaction
+In `sanitizeAuditPayload`, telemetry payloads are recursively scrubbed before operator inspection or clipboard export:
+1. **Internal ID Stripping**: Database-internal identifiers (`user_id`, `userId`) are omitted entirely, protecting multi-tenant integrity.
+2. **Credential Redaction**: Tokens, passwords, cookies, and secret keys matching sensitive security patterns are masked with `"••••••••"`, preventing credential leakage in client-side telemetry views.
+
+### C. Generic Component Type Safety (`<Segmented<T>>`)
+Passing React state dispatchers (`Dispatch<SetStateAction<T>>`) to generic callbacks expecting `(value: T) => void` causes TypeScript TS2322 errors when array options widen to `string`. Explicit parameterization `<Segmented<ReportingWindow>>` and arrow-wrapped handlers guarantee compile-time type safety.
+
+---
+
+## 7. Verification & Clean Build
 
 All components passed strict TypeScript compilation (`tsc -b`) and Vite production bundling with **0 errors**.
 
