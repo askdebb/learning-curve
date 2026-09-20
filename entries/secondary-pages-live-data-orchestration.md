@@ -100,6 +100,94 @@ Selecting any audit log in the chronicle transitions the inspection deck into a 
 
 ---
 
-## 4. Verification & Clean Build
+## 4. The Balances Fiat Paradigm: Eliminating Auto-Refresh in Favor of Reactive Query Invalidation
+
+### Why Interval Polling & Auto-Refresh Fall Short
+Historically, developers often resort to periodic background timers (e.g. `refetchInterval: 15_000`) or window focus re-fetching (`refetchOnWindowFocus: true`) in an attempt to keep administrative views fresh. In a high-traffic fintech dashboard, this pattern presents severe drawbacks:
+1. **Visual Flicker & Render Thrashing**: Polling intervals trigger background state updates while the operator is inspecting a row or typing in a search bar, resulting in unexpected scroll jumps or component remounts.
+2. **Bandwidth & Rate Limit Waste**: An operator leaving an audit log tab open generates dozens of unneeded requests per hour when nothing has changed.
+3. **Redundant Manual Reload Buttons**: Placing a "Reload" button in secondary table toolbars shifts the burden onto the user, exposing an architectural admission that the system cannot reactively self-synchronize.
+
+### The Event-Driven Invalidation Architectural Contract
+Adopting the **Balances Fiat Paradigm** (proven in `useFiatBalancesAction`), queries operate with stable cache durations (`staleTime: 5 mins`, `refetchOnWindowFocus: false`, `refetchInterval: false`). The cache is **exclusively and predictably invalidated at the exact mutation source** where transactional data originates:
+
+```mermaid
+flowchart TD
+    subgraph Operational_Mutations["Mutations (Where Data Originates)"]
+        Payout["Fiat Payout Action"]
+        Deposit["Fiat Deposit Action"]
+        Ramp["Ramp Order (Create/Cancel)"]
+        Checkout["Checkout Session Action"]
+        Transfer["Transfer Action"]
+        Swap["Swap Action"]
+        WebhookPing["Webhook Test / Ping / Delete"]
+        TeamAction["Add / Remove Member"]
+        RecipientAction["Create / Delete Recipient"]
+    end
+
+    subgraph Query_Invalidation["Targeted Query Invalidation Layer"]
+        InvLedger["invalidateQueries('ledgerTransactions')"]
+        InvBalances["invalidateQueries('fiatBalances')"]
+        InvPayments["invalidateQueries('developer', 'payments')"]
+        InvDeliveries["invalidateQueries('developer', 'deliveries')"]
+        InvMembers["invalidateQueries('developer', 'members')"]
+        InvRecipients["invalidateQueries('recipients')"]
+    end
+
+    subgraph Reactive_Views["Reactive Consumer Views"]
+        AuditLogsView["Audit Logs Page (Chronicle & Inspector)"]
+        CustomersView["Customers Directory (Live Merge)"]
+        DashboardView["Financial & Developer Dashboard Telemetry"]
+    end
+
+    Payout --> InvLedger
+    Payout --> InvBalances
+    Deposit --> InvLedger
+    Deposit --> InvBalances
+    Ramp --> InvLedger
+    Ramp --> InvBalances
+    Checkout --> InvPayments
+    Checkout --> InvLedger
+    Transfer --> InvLedger
+    Swap --> InvLedger
+    WebhookPing --> InvDeliveries
+    TeamAction --> InvMembers
+    RecipientAction --> InvRecipients
+
+    InvLedger --> AuditLogsView
+    InvDeliveries --> AuditLogsView
+    InvPayments --> AuditLogsView
+    InvMembers --> AuditLogsView
+
+    InvPayments --> CustomersView
+    InvRecipients --> CustomersView
+
+    InvBalances --> DashboardView
+    InvPayments --> DashboardView
+```
+
+### Complete Invalidation Matrix
+
+| Operational Mutation | Trigger Action | Query Keys Invalidated | Impacted Consumer Views |
+| :--- | :--- | :--- | :--- |
+| **Fiat Payout** | `useCreateFiatPayoutAction` | `fiatPayouts`, `fiatBalances`, `ledgerTransactions` | Payouts Table, Fiat Balances, Ledger, Audit Logs |
+| **Fiat Deposit** | `useCreateFiatDepositAction` | `fiatDeposits`, `fiatBalances`, `ledgerTransactions` | Deposits, Fiat Balances, Ledger, Audit Logs |
+| **Ramp Order** | `useCreateRampOrderAction`, `useCancelRampOrderAction` | `rampOrders`, `fiatBalances`, `custodyWallets`, `wallets`, `ledgerTransactions` | Ramp Orders, Balances, Ledger, Audit Logs |
+| **Checkout Session** | `useCreatePaymentSessionAction` | `["developer", "payments"]`, `["developer", "overview"]`, `ledgerTransactions` | Payments, Customers, Metrics, Audit Logs |
+| **Transfers & Swaps** | `useCreateTransferAction`, `useExecuteSwapAction` | `transfers`, `swaps`, `fiatBalances`, `custodyWallets`, `ledgerTransactions` | Transfers, Swaps, Balances, Ledger, Audit Logs |
+| **Webhook Delivery / Test** | `useSendTestEventAction`, `useDeleteWebhookAction` | `webhookDeliveries`, `["developer", "deliveries"]`, `webhooks`, `["developer", "webhooks"]` | Webhooks Table, Delivery Log, Audit Logs |
+| **Team Membership** | `useAddMember`, `useRemoveMember` | `["developer", "members"]` | Team Access Table, Audit Logs Access Events |
+| **Saved Recipient** | `useCreateRecipientAction`, `useDeleteRecipientAction` | `recipients` | Address Book, Customers Directory |
+
+### Zero-Flicker Selection State Preservation
+When an operator is inspecting an audit log in `AuditLogDetailInspector`, background invalidations must not jarringly clear the selected log or reset scroll positions. In `AuditLogs.tsx`:
+1. **Reactive ID Synchronization**: When `liveLogs` updates in the background, an effect locates the matching entry (`liveLogs.find(l => l.id === selectedLog.id)`) and updates the inspection deck seamlessly.
+2. **Intentional Resets**: The selection card resets gracefully only when the operator explicitly changes the pagination page, applies a search filter, changes the sort direction, or switches businesses.
+3. **Manual Reload Elimination**: The redundant reload button has been cleanly purged from `ListToolbar`.
+
+---
+
+## 5. Verification & Clean Build
 
 All components passed strict TypeScript compilation (`tsc -b`) and Vite production bundling with **0 errors**.
+
