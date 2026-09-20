@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Learning Curve — Financial Dashboard Chart Data Orchestration Playbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --surface: #0F172A;
+      --surface-hover: #1E293B;
+      --surface-card: rgba(15, 23, 42, 0.75);
+      --border: rgba(51, 65, 85, 0.6);
+      --border-accent: rgba(99, 102, 241, 0.4);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #6366F1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10B981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --rose: #F43F5E;
+      --rose-glow: rgba(244, 63, 94, 0.2);
+      --purple: #3B1791;
+      --code-bg: #030712;
+      --sidebar-width: 280px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      left: 20%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -200px;
+      right: 10%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .layout-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: var(--sidebar-width);
+      border-right: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      text-decoration: none;
+      color: #FFF;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #A855F7);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .brand-text {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: var(--surface-hover);
+      color: #FFF;
+      border-left: 2px solid var(--accent);
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 40px 48px;
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .badge-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .badge-pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-pill.status {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34D399;
+    }
+
+    .badge-pill.tech {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #818CF8;
+    }
+
+    .header-title {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #FFFFFF 30%, #CBD5E1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-desc {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    /* Interactive Simulation Section */
+    .interactive-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(16px);
+    }
+
+    .interactive-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .interactive-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .timeframe-pills {
+      display: flex;
+      gap: 8px;
+      background: rgba(3, 7, 18, 0.6);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .tf-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tf-btn.active {
+      background: var(--accent);
+      color: #FFF;
+    }
+
+    /* Live Mini Bar Chart Simulation */
+    .chart-canvas {
+      height: 220px;
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      padding: 20px 10px 10px 30px;
+      position: relative;
+      border-left: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-top: 20px;
+    }
+
+    .y-axis-labels {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .chart-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .chart-bar {
+      width: 100%;
+      max-width: 38px;
+      background: #F0E5FC;
+      border-radius: 6px 6px 0 0;
+      transition: height 0.4s ease, background-color 0.2s;
+      cursor: pointer;
+    }
+
+    .chart-bar.highlighted {
+      background: #3B1791;
+    }
+
+    .bar-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #E2E8F0;
+      overflow-x: auto;
+      margin: 18px 0 28px 0;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #FFF;
+      margin: 36px 0 14px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .layout-container { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .main-content { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div class="layout-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="../index.html" class="brand-group">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <div class="brand-text">Learning Curve</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Engineering Hub</div>
+        </div>
+      </a>
+
+      <div class="nav-label">Table of Contents</div>
+      <ul class="nav-list">
+        <li><a href="#simulator" class="nav-link active">🎮 Chart Simulator</a></li>
+        <li><a href="#problem" class="nav-link">🎯 Architecture Problem</a></li>
+        <li><a href="#axis-math" class="nav-link">📐 Responsive Axis Math</a></li>
+        <li><a href="#windowing" class="nav-link">🗓️ Date Windowing</a></li>
+        <li><a href="#dual-mode" class="nav-link">🔄 Dual-Mode Telemetry</a></li>
+        <li><a href="#code" class="nav-link">💻 Orchestrator Hook</a></li>
+      </ul>
+
+      <div class="nav-label">Quick Actions</div>
+      <a href="../index.html" class="nav-link">← Return to Hub</a>
+      <a href="../entries/financial-dashboard-chart-data-orchestration.md" target="_blank" class="nav-link">📄 Open Raw Markdown</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="badge-bar">
+        <span class="badge-pill status">● Production Standard</span>
+        <span class="badge-pill tech">React 19</span>
+        <span class="badge-pill tech">Recharts</span>
+        <span class="badge-pill tech">TanStack v5</span>
+      </div>
+
+      <h1 class="header-title">Financial Dashboard Chart Data Orchestration: Multi-Timeframe Series & Responsive Axis Scaling</h1>
+      <p class="header-desc">
+        Eliminating mock charts by creating an append-only ledger aggregator with dynamic date windowing (Monthly, Quarterly, Yearly), magnitude-aware axis scaling math, and dual-mode Developer vs. Business telemetry.
+      </p>
+
+      <!-- Section: Interactive Simulator -->
+      <section id="simulator" class="interactive-card">
+        <div class="interactive-header">
+          <div class="interactive-title">
+            <span>🎮 Interactive Multi-Timeframe Chart Simulator</span>
+          </div>
+          <div class="timeframe-pills">
+            <button class="tf-btn active" onclick="switchTimeframe('monthly', this)">Monthly</button>
+            <button class="tf-btn" onclick="switchTimeframe('quarterly', this)">Quarterly</button>
+            <button class="tf-btn" onclick="switchTimeframe('yearly', this)">Yearly</button>
+            <button class="tf-btn" onclick="switchTimeframe('dev', this)">Dev (Requests)</button>
+          </div>
+        </div>
+
+        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+          Active Mode: <strong id="modeTitle" style="color: #38BDF8;">Monthly Revenue (Last 7 Months)</strong>
+          &nbsp;|&nbsp; Highlighted: <strong id="highlightValue" style="color: #34D399;">GHS 4,500</strong>
+        </div>
+
+        <div class="chart-canvas" id="chartCanvas">
+          <div class="y-axis-labels">
+            <span id="yMax">5k</span>
+            <span id="yMid2">3.3k</span>
+            <span id="yMid1">1.6k</span>
+            <span>0</span>
+          </div>
+          <!-- Bars dynamically inserted via JS -->
+        </div>
+      </section>
+
+      <!-- Section: Architecture Problem -->
+      <section id="problem">
+        <h2 class="section-title">🎯 1. The Architectural Challenge</h2>
+        <p>
+          Financial dashboards must show operational history without lag or data distortion. Key challenges solved in this orchestrator:
+        </p>
+        <ul style="margin: 14px 0 20px 24px; color: var(--text-muted);">
+          <li><strong>Moving Beyond Mock Series:</strong> Real financial ledgers record single transactions (e.g. $10, $500), not pre-baked monthly totals.</li>
+          <li><strong>Responsive Axis Calculation:</strong> Avoid clipping high revenue bars or collapsing low revenue bars by automatically determining dynamic ticks.</li>
+          <li><strong>Zero Layout Shift (CLS):</strong> Matching skeleton loaders prevent jumps while queries are resolving in the background.</li>
+        </ul>
+      </section>
+
+      <!-- Section: Axis Math -->
+      <section id="axis-math">
+        <h2 class="section-title">📐 2. Responsive Axis Scaling Math</h2>
+        <pre class="code-block"><code>const calculateAxisTicks = (maxVal: number) => {
+  if (maxVal <= 0) return { yAxisMax: 1000, ticks: [0, 250, 500, 750, 1000] };
+  
+  const magnitude = Math.pow(10, Math.floor(Math.log10(maxVal)));
+  const normalized = maxVal / magnitude;
+  let factor = normalized > 5 ? 1.2 : normalized > 2 ? 1.3 : 1.5;
+
+  const targetMax = Math.ceil((maxVal * factor) / (magnitude / 2)) * (magnitude / 2);
+  const yAxisMax = Math.max(targetMax, 100);
+  const tickStep = yAxisMax / 3;
+
+  return {
+    yAxisMax,
+    ticks: [0, Math.round(tickStep), Math.round(tickStep * 2), Math.round(yAxisMax)]
+  };
+};</code></pre>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const datasets = {
+      monthly: [
+        { label: "MAR", val: 1200 },
+        { label: "APR", val: 1900 },
+        { label: "MAY", val: 800 },
+        { label: "JUN", val: 2400 },
+        { label: "JUL", val: 3100 },
+        { label: "AUG", val: 2800 },
+        { label: "SEP", val: 4500, highlight: true }
+      ],
+      quarterly: [
+        { label: "Q4-25", val: 6200 },
+        { label: "Q1-26", val: 8900 },
+        { label: "Q2-26", val: 11400 },
+        { label: "Q3-26", val: 14200, highlight: true }
+      ],
+      yearly: [
+        { label: "2023", val: 24000 },
+        { label: "2024", val: 38000 },
+        { label: "2025", val: 51000 },
+        { label: "2026", val: 68000, highlight: true }
+      ],
+      dev: [
+        { label: "MON", val: 142 },
+        { label: "TUE", val: 230 },
+        { label: "WED", val: 310 },
+        { label: "THU", val: 280 },
+        { label: "FRI", val: 420 },
+        { label: "SAT", val: 190 },
+        { label: "SUN", val: 360, highlight: true }
+      ]
+    };
+
+    function switchTimeframe(tf, btn) {
+      document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const data = datasets[tf];
+      const maxVal = Math.max(...data.map(d => d.val));
+      const isDev = tf === 'dev';
+
+      document.getElementById('modeTitle').textContent = isDev ? "Daily API Request Activity" : `${tf.charAt(0).toUpperCase() + tf.slice(1)} Revenue`;
+      const highItem = data.find(d => d.highlight) || data[data.length - 1];
+      document.getElementById('highlightValue').textContent = isDev ? `${highItem.val} calls` : `GHS ${highItem.val.toLocaleString()}`;
+
+      // Axis math
+      const yMax = Math.ceil(maxVal * 1.2);
+      document.getElementById('yMax').textContent = yMax >= 1000 ? `${(yMax / 1000).toFixed(1)}k` : yMax;
+      document.getElementById('yMid2').textContent = yMax >= 1000 ? `${(yMax * 0.66 / 1000).toFixed(1)}k` : Math.round(yMax * 0.66);
+      document.getElementById('yMid1').textContent = yMax >= 1000 ? `${(yMax * 0.33 / 1000).toFixed(1)}k` : Math.round(yMax * 0.33);
+
+      const canvas = document.getElementById('chartCanvas');
+      // Clear old bars except y-axis
+      canvas.querySelectorAll('.chart-bar-wrap').forEach(el => el.remove());
+
+      data.forEach(item => {
+        const wrap = document.createElement('div');
+        wrap.className = 'chart-bar-wrap';
+        const pct = Math.max(8, Math.round((item.val / yMax) * 100));
+
+        wrap.innerHTML = `
+          <div class="chart-bar ${item.highlight ? 'highlighted' : ''}" style="height: ${pct}%;"></div>
+          <span class="bar-label">${item.label}</span>
+        `;
+        canvas.appendChild(wrap);
+      });
+    }
+
+    switchTimeframe('monthly', document.querySelector('.tf-btn.active'));
+  </script>
+</body>
+</html>
