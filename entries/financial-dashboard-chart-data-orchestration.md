@@ -136,8 +136,20 @@ Similarly aggregates transactions into rolling 4-quarter (`Q1` to `Q4`) and 4-ye
 
 ---
 
-## 6. Skeleton Loading States & Resilience
+## 6. Dual-Mode Skeleton Loading States & Zero-CLS Layout Physics
 
-Both `RevenueChart` and `SuccessRateChart` now accept an `isLoading` prop:
-- When background network queries are in-flight, a pulse skeleton renders matching the exact geometry of the chart (axes, bars, and center rings), preventing layout shift (CLS).
-- When zero transactions exist, charts render a clean empty baseline rather than crashing or throwing `NaN` errors.
+Both `RevenueChart` and `SuccessRateChart` accept an `isLoading` prop and implement context-aware skeleton geometry to maintain zero Cumulative Layout Shift (CLS):
+
+### 6.1 Normal Business Mode Skeleton
+- **Header:** Title skeleton (`Total revenue`) and pill dropdown placeholder (`Monthly / Quarterly / Yearly`).
+- **Body:** 7 vertical animated bars with `rounded-t-[7px]` matching the exact aspect ratio of the underlying Recharts `BarChart`.
+
+### 6.2 Developer API Mode Skeleton
+- **Header:** Title skeleton (`Request Activity`) and Week-over-Week trend badge placeholder with arrow circle and `VS LAST WEEK` pill.
+- **Body:** Custom responsive SVG line & area skeleton:
+  - Dashed CartesianGrid guidelines matching `strokeDasharray="6 8"`.
+  - Linear SVG path connecting 7 data points with subtle gradient area fill underneath (`#devLineSkeletonGrad`).
+  - Circular vertex dots (`r="4.5"`) positioned at each coordinate.
+  - Aligned X-axis placeholder labels.
+
+When background network queries resolve, the real chart replaces the skeleton with zero dimensional jump or visual popping.
