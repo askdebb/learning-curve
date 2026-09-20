@@ -898,6 +898,11 @@ export function verifyWebhookSignature(payload: string, signature: string, secre
       const data = entriesData[slug];
       if (!data) return;
 
+      // Stop any active text-to-speech audio
+      if (window.MintlifyComponents && window.MintlifyComponents.ttsManager) {
+        window.MintlifyComponents.ttsManager.stop();
+      }
+
       currentSlug = slug;
 
       // Update URL query without page reload

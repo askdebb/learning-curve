@@ -1209,3 +1209,96 @@ details[open] .mint-accordion-summary::after {
   color: var(--mint-text-muted);
 }
 
+/* ==========================================================================
+   Text-to-Speech (TTS) Audio Controls & Animation
+   ========================================================================== */
+.mint-tts-btn,
+.mint-callout-audio-btn,
+.mint-section-audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34D399;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  backdrop-filter: blur(8px);
+}
+
+.mint-tts-btn:hover,
+.mint-callout-audio-btn:hover,
+.mint-section-audio-btn:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(16, 185, 129, 0.6);
+  color: #6EE7B7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.mint-tts-btn.is-speaking,
+.mint-callout-audio-btn.is-speaking,
+.mint-section-audio-btn.is-speaking {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.5);
+  color: #FDA4AF;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.3);
+}
+
+.mint-tts-btn.is-speaking:hover,
+.mint-callout-audio-btn.is-speaking:hover,
+.mint-section-audio-btn.is-speaking:hover {
+  background: rgba(244, 63, 94, 0.25);
+  border-color: rgba(244, 63, 94, 0.7);
+  color: #FFF;
+}
+
+/* Equalizer Soundwaves */
+.mint-tts-waves {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  margin-left: 2px;
+}
+
+.mint-tts-wave-bar {
+  width: 2px;
+  height: 100%;
+  background: currentColor;
+  border-radius: 1px;
+  animation: mintWave 0.8s ease-in-out infinite alternate;
+}
+
+.mint-tts-wave-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.mint-tts-wave-bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes mintWave {
+  0% {
+    height: 3px;
+  }
+  100% {
+    height: 12px;
+  }
+}
+
+/* Active Audio Section Glow */
+.mint-tts-active {
+  position: relative;
+  outline: 2px solid rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.25) !important;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+

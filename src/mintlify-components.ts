@@ -2,16 +2,55 @@
  * Learning Curve — Mintlify Documentation Component System (TypeScript)
  * Declarative, pure component functions rendering architecture documentation, reflections, code tabs, and audio controls.
  */
-// Helper: Escape HTML entities to prevent XSS
-function escapeHtml(str = "") {
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+import {
+  CalloutProps,
+  CodeBlockProps,
+  StepsProps,
+  ResourceCardData,
+  ResourceGridProps,
+  BreadcrumbProps,
+  PagerProps,
+  DocViewerProps,
+  DocEntry,
+  TTSState,
+  TTSButtonProps,
+} from "./types";
+
+declare global {
+  interface Window {
+    MintlifyComponents?: {
+      CalloutComponent: typeof CalloutComponent;
+      CodeBlockComponent: typeof CodeBlockComponent;
+      StepsComponent: typeof StepsComponent;
+      ResourceCardComponent: typeof ResourceCardComponent;
+      ResourceGridComponent: typeof ResourceGridComponent;
+      BreadcrumbComponent: typeof BreadcrumbComponent;
+      PagerComponent: typeof PagerComponent;
+      FeedbackWidgetComponent: typeof FeedbackWidgetComponent;
+      DocViewerComponent: typeof DocViewerComponent;
+      TTSButtonComponent: typeof TTSButtonComponent;
+      ttsManager: TextToSpeechManager;
+      copyCode: typeof copyCode;
+      copyPageUrl: typeof copyPageUrl;
+      handleFeedback: typeof handleFeedback;
+    };
+    loadDocEntry?: (slug: string) => void;
+  }
 }
+
+// Helper: Escape HTML entities to prevent XSS
+export function escapeHtml(str: string = ""): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 // ============================================================================
 // Text-to-Speech (TTS) Engine & Component
 // ============================================================================
-function TTSButtonComponent(props) {
-    const { targetId, label = "Listen", className = "mint-tts-btn" } = props;
-    return `
+
+export function TTSButtonComponent(props: TTSButtonProps): string {
+  const { targetId, label = "Listen", className = "mint-tts-btn" } = props;
+  return `
     <button class="${className}" data-tts-target="${targetId}" data-original-label="${escapeHtml(label)}" aria-label="Listen to this section" type="button">
       <span class="mint-tts-icon" aria-hidden="true">🎙️</span>
       <span class="mint-tts-label">${escapeHtml(label)}</span>
@@ -23,148 +62,179 @@ function TTSButtonComponent(props) {
     </button>
   `;
 }
-class TextToSpeechManager {
-    activeTargetId = null;
-    activeButtonEl = null;
-    activeTargetEl = null;
-    state = "idle";
-    currentUtterance = null;
-    constructor() {
-        this.initDelegation();
+
+export class TextToSpeechManager {
+  private activeTargetId: string | null = null;
+  private activeButtonEl: HTMLElement | null = null;
+  private activeTargetEl: HTMLElement | null = null;
+  private state: TTSState = "idle";
+  private currentUtterance: SpeechSynthesisUtterance | null = null;
+
+  constructor() {
+    this.initDelegation();
+  }
+
+  private initDelegation(): void {
+    if (typeof document === "undefined") return;
+
+    document.addEventListener("click", (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      const btn = target.closest("[data-tts-target]") as HTMLElement | null;
+      if (!btn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const targetId = btn.getAttribute("data-tts-target");
+      if (targetId) {
+        this.toggle(targetId, btn);
+      }
+    });
+
+    window.addEventListener("beforeunload", () => this.stop());
+  }
+
+  public toggle(targetId: string, buttonEl?: HTMLElement): void {
+    if (this.state === "playing" && this.activeTargetId === targetId) {
+      this.stop();
+    } else {
+      this.play(targetId, buttonEl);
     }
-    initDelegation() {
-        if (typeof document === "undefined")
-            return;
-        document.addEventListener("click", (e) => {
-            const target = e.target;
-            if (!target)
-                return;
-            const btn = target.closest("[data-tts-target]");
-            if (!btn)
-                return;
-            e.preventDefault();
-            e.stopPropagation();
-            const targetId = btn.getAttribute("data-tts-target");
-            if (targetId) {
-                this.toggle(targetId, btn);
-            }
-        });
-        window.addEventListener("beforeunload", () => this.stop());
+  }
+
+  public play(targetId: string, buttonEl?: HTMLElement): void {
+    if (!("speechSynthesis" in window)) {
+      alert("Text-to-Speech is not supported in this browser.");
+      return;
     }
-    toggle(targetId, buttonEl) {
-        if (this.state === "playing" && this.activeTargetId === targetId) {
-            this.stop();
-        }
-        else {
-            this.play(targetId, buttonEl);
-        }
+
+    this.stop();
+
+    const targetEl = document.getElementById(targetId) || (document.querySelector(`[id="${targetId}"]`) as HTMLElement | null);
+    const resolvedBtn = buttonEl || (document.querySelector(`[data-tts-target="${targetId}"]`) as HTMLElement | null);
+
+    if (!targetEl) {
+      console.warn(`[TTS] Target section #${targetId} not found.`);
+      return;
     }
-    play(targetId, buttonEl) {
-        if (!("speechSynthesis" in window)) {
-            alert("Text-to-Speech is not supported in this browser.");
-            return;
-        }
-        this.stop();
-        const targetEl = document.getElementById(targetId) || document.querySelector(`[id="${targetId}"]`);
-        const resolvedBtn = buttonEl || document.querySelector(`[data-tts-target="${targetId}"]`);
-        if (!targetEl) {
-            console.warn(`[TTS] Target section #${targetId} not found.`);
-            return;
-        }
-        const textToRead = this.extractReadableText(targetEl);
-        if (!textToRead) {
-            console.warn(`[TTS] No readable text found in #${targetId}`);
-            return;
-        }
-        const utterance = new SpeechSynthesisUtterance(textToRead);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        // Pick best natural English voice if available
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha")))
-            || voices.find(v => v.lang.startsWith("en"));
-        if (preferredVoice) {
-            utterance.voice = preferredVoice;
-        }
-        this.activeTargetId = targetId;
-        this.activeButtonEl = resolvedBtn;
-        this.activeTargetEl = targetEl;
-        this.currentUtterance = utterance;
-        utterance.onstart = () => {
-            this.state = "playing";
-            this.updateButtonUI(true);
-            targetEl.classList.add("mint-tts-active");
-        };
-        utterance.onend = () => {
-            this.cleanup();
-        };
-        utterance.onerror = (e) => {
-            console.warn("[TTS] Speech error:", e);
-            this.cleanup();
-        };
-        window.speechSynthesis.speak(utterance);
+
+    const textToRead = this.extractReadableText(targetEl);
+    if (!textToRead) {
+      console.warn(`[TTS] No readable text found in #${targetId}`);
+      return;
     }
-    stop() {
-        if (typeof window !== "undefined" && "speechSynthesis" in window) {
-            window.speechSynthesis.cancel();
-        }
-        this.cleanup();
+
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    // Pick best natural English voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha")))
+      || voices.find(v => v.lang.startsWith("en"));
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
     }
-    cleanup() {
-        this.state = "idle";
-        this.updateButtonUI(false);
-        if (this.activeTargetEl) {
-            this.activeTargetEl.classList.remove("mint-tts-active");
-        }
-        this.activeTargetId = null;
-        this.activeButtonEl = null;
-        this.activeTargetEl = null;
-        this.currentUtterance = null;
+
+    this.activeTargetId = targetId;
+    this.activeButtonEl = resolvedBtn;
+    this.activeTargetEl = targetEl;
+    this.currentUtterance = utterance;
+
+    utterance.onstart = () => {
+      this.state = "playing";
+      this.updateButtonUI(true);
+      targetEl.classList.add("mint-tts-active");
+    };
+
+    utterance.onend = () => {
+      this.cleanup();
+    };
+
+    utterance.onerror = (e) => {
+      console.warn("[TTS] Speech error:", e);
+      this.cleanup();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  public stop(): void {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
     }
-    updateButtonUI(isPlaying) {
-        if (!this.activeButtonEl)
-            return;
-        const iconEl = this.activeButtonEl.querySelector(".mint-tts-icon");
-        const labelEl = this.activeButtonEl.querySelector(".mint-tts-label");
-        const wavesEl = this.activeButtonEl.querySelector(".mint-tts-waves");
-        if (isPlaying) {
-            this.activeButtonEl.classList.add("is-speaking");
-            if (iconEl)
-                iconEl.textContent = "⏹️";
-            if (labelEl)
-                labelEl.textContent = "Stop";
-            if (wavesEl)
-                wavesEl.style.display = "inline-flex";
-        }
-        else {
-            this.activeButtonEl.classList.remove("is-speaking");
-            if (iconEl)
-                iconEl.textContent = "🎙️";
-            if (labelEl) {
-                const originalLabel = this.activeButtonEl.getAttribute("data-original-label") || "Listen";
-                labelEl.textContent = originalLabel;
-            }
-            if (wavesEl)
-                wavesEl.style.display = "none";
-        }
+    this.cleanup();
+  }
+
+  private cleanup(): void {
+    this.state = "idle";
+    this.updateButtonUI(false);
+
+    if (this.activeTargetEl) {
+      this.activeTargetEl.classList.remove("mint-tts-active");
     }
-    extractReadableText(container) {
-        const clone = container.cloneNode(true);
-        clone.querySelectorAll("button, .mint-code-header, .mint-toc, script, style, .mint-feedback-box, .mint-resource-card").forEach(el => el.remove());
-        let text = clone.textContent || "";
-        return text.replace(/\s+/g, " ").trim();
+
+    this.activeTargetId = null;
+    this.activeButtonEl = null;
+    this.activeTargetEl = null;
+    this.currentUtterance = null;
+  }
+
+  private updateButtonUI(isPlaying: boolean): void {
+    if (!this.activeButtonEl) return;
+
+    const iconEl = this.activeButtonEl.querySelector(".mint-tts-icon") as HTMLElement | null;
+    const labelEl = this.activeButtonEl.querySelector(".mint-tts-label") as HTMLElement | null;
+    const wavesEl = this.activeButtonEl.querySelector(".mint-tts-waves") as HTMLElement | null;
+
+    if (isPlaying) {
+      this.activeButtonEl.classList.add("is-speaking");
+      if (iconEl) iconEl.textContent = "⏹️";
+      if (labelEl) labelEl.textContent = "Stop";
+      if (wavesEl) wavesEl.style.display = "inline-flex";
+    } else {
+      this.activeButtonEl.classList.remove("is-speaking");
+      if (iconEl) iconEl.textContent = "🎙️";
+      if (labelEl) {
+        const originalLabel = this.activeButtonEl.getAttribute("data-original-label") || "Listen";
+        labelEl.textContent = originalLabel;
+      }
+      if (wavesEl) wavesEl.style.display = "none";
     }
+  }
+
+  private extractReadableText(container: HTMLElement): string {
+    const clone = container.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll("button, .mint-code-header, .mint-toc, script, style, .mint-feedback-box, .mint-resource-card").forEach(el => el.remove());
+    let text = clone.textContent || "";
+    return text.replace(/\s+/g, " ").trim();
+  }
 }
-const ttsManager = new TextToSpeechManager();
+
+export const ttsManager = new TextToSpeechManager();
+
 // ============================================================================
 // Mintlify Documentation Components
 // ============================================================================
+
 // 1. Callout Component (Reflections, Notes, Tips, Warnings, Danger)
-function CalloutComponent(props = {}) {
-    const { type = "note", icon = "ℹ️", title = "", content = "", whatHappened = "", whyItFailed = "", takeaway = "", targetId = "", } = props;
-    if (type === "reflection") {
-        const sectionId = targetId || "reflection";
-        return `
+export function CalloutComponent(props: CalloutProps = {}): string {
+  const {
+    type = "note",
+    icon = "ℹ️",
+    title = "",
+    content = "",
+    whatHappened = "",
+    whyItFailed = "",
+    takeaway = "",
+    targetId = "",
+  } = props;
+
+  if (type === "reflection") {
+    const sectionId = targetId || "reflection";
+    return `
       <div class="mint-callout mint-callout-reflection" id="${sectionId}" role="region" aria-label="Engineering Reflection">
         <span class="mint-callout-icon" aria-hidden="true">${icon || "💡"}</span>
         <div class="mint-callout-content" style="width: 100%;">
@@ -178,10 +248,12 @@ function CalloutComponent(props = {}) {
         </div>
       </div>
     `;
-    }
-    const sectionId = targetId || "summary";
-    const hasAudio = type === "note" && targetId === "summary";
-    return `
+  }
+
+  const sectionId = targetId || "summary";
+  const hasAudio = type === "note" && targetId === "summary";
+
+  return `
     <div class="mint-callout mint-callout-${type}" id="${sectionId}" role="alert">
       <span class="mint-callout-icon" aria-hidden="true">${icon}</span>
       <div class="mint-callout-content" style="width: 100%;">
@@ -196,12 +268,13 @@ function CalloutComponent(props = {}) {
     </div>
   `;
 }
+
 // 2. Code Block Component with File Tabs and Copy Button
-function CodeBlockComponent(props) {
-    const { tabs = [], id = "codeBlock_0" } = props;
-    if (!tabs || tabs.length === 0)
-        return "";
-    return `
+export function CodeBlockComponent(props: CodeBlockProps): string {
+  const { tabs = [], id = "codeBlock_0" } = props;
+  if (!tabs || tabs.length === 0) return "";
+
+  return `
     <div class="mint-code-box" id="${id}">
       <div class="mint-code-header">
         <div class="mint-code-tabs">
@@ -221,12 +294,13 @@ function CodeBlockComponent(props) {
     </div>
   `;
 }
+
 // 3. Steps Component (Sequential Implementation Pipeline)
-function StepsComponent(props) {
-    const { steps = [] } = props;
-    if (!steps || steps.length === 0)
-        return "";
-    return `
+export function StepsComponent(props: StepsProps): string {
+  const { steps = [] } = props;
+  if (!steps || steps.length === 0) return "";
+
+  return `
     <section class="mint-steps" aria-label="Implementation Steps">
       ${steps.map((step, idx) => `
         <div class="mint-step">
@@ -238,11 +312,19 @@ function StepsComponent(props) {
     </section>
   `;
 }
+
 // 4. Resource Card Component
-function ResourceCardComponent(props) {
-    const res = "resource" in props ? props.resource : props;
-    const { title = "", domain = "", desc = "", url = "#", icon = "📖", } = res;
-    return `
+export function ResourceCardComponent(props: { resource: ResourceCardData } | ResourceCardData): string {
+  const res = "resource" in props ? props.resource : props;
+  const {
+    title = "",
+    domain = "",
+    desc = "",
+    url = "#",
+    icon = "📖",
+  } = res;
+
+  return `
     <a href="${url}" target="_blank" rel="noopener noreferrer" class="mint-resource-card" aria-label="${escapeHtml(title)} on ${domain}">
       <div>
         <div class="mint-resource-header">
@@ -259,12 +341,13 @@ function ResourceCardComponent(props) {
     </a>
   `;
 }
+
 // 5. Resource Grid Component
-function ResourceGridComponent(props) {
-    const { resources = [] } = props;
-    if (!resources || resources.length === 0)
-        return "";
-    return `
+export function ResourceGridComponent(props: ResourceGridProps): string {
+  const { resources = [] } = props;
+  if (!resources || resources.length === 0) return "";
+
+  return `
     <section class="mint-resources-section" id="sectionResources" aria-labelledby="resourcesHeading">
       <h2 class="mint-section-heading" id="resourcesHeading">
         <span>📚 Extra Resources & Authoritative References</span>
@@ -278,10 +361,11 @@ function ResourceGridComponent(props) {
     </section>
   `;
 }
+
 // 6. Breadcrumb Component
-function BreadcrumbComponent(props) {
-    const { current = "Documentation", parent = "Documentation", parentUrl = "/specs" } = props;
-    return `
+export function BreadcrumbComponent(props: BreadcrumbProps): string {
+  const { current = "Documentation", parent = "Documentation", parentUrl = "/specs" } = props;
+  return `
     <nav class="mint-breadcrumbs" aria-label="Breadcrumb">
       <a href="/">Learning Curve</a>
       <span aria-hidden="true">/</span>
@@ -291,10 +375,12 @@ function BreadcrumbComponent(props) {
     </nav>
   `;
 }
+
 // 7. Pager Component (Previous / Next Article)
-function PagerComponent(props) {
-    const { prev = null, next = null } = props;
-    return `
+export function PagerComponent(props: PagerProps): string {
+  const { prev = null, next = null } = props;
+
+  return `
     <nav class="mint-pager" aria-label="Documentation Pagination">
       ${prev ? `
         <a href="/docs?entry=${prev.slug}" class="mint-pager-btn" data-pager-slug="${prev.slug}">
@@ -315,9 +401,10 @@ function PagerComponent(props) {
     </nav>
   `;
 }
+
 // 8. Feedback Widget Component
-function FeedbackWidgetComponent() {
-    return `
+export function FeedbackWidgetComponent(): string {
+  return `
     <div class="mint-feedback-box" role="region" aria-label="Page Feedback">
       <span class="mint-feedback-text">Was this documentation and reflection helpful?</span>
       <div class="mint-feedback-actions">
@@ -327,12 +414,13 @@ function FeedbackWidgetComponent() {
     </div>
   `;
 }
+
 // 9. Master Document Viewer Component (Orchestrates All Subcomponents)
-function DocViewerComponent(props) {
-    const { doc, prevDoc = null, nextDoc = null } = props;
-    if (!doc)
-        return `<div class="mint-callout mint-callout-warning">Document not found.</div>`;
-    return `
+export function DocViewerComponent(props: DocViewerProps): string {
+  const { doc, prevDoc = null, nextDoc = null } = props;
+  if (!doc) return `<div class="mint-callout mint-callout-warning">Document not found.</div>`;
+
+  return `
     <!-- 1. Breadcrumbs -->
     ${BreadcrumbComponent({ current: doc.title })}
 
@@ -373,21 +461,21 @@ function DocViewerComponent(props) {
         title: "Context & Problem Statement",
         content: escapeHtml(doc.desc),
         targetId: "summary",
-    })}
+      })}
     </section>
 
     <!-- 4. Engineering Reflection Callout -->
     ${doc.reflection ? `
       <section id="reflection" style="margin-bottom: 36px;">
         ${CalloutComponent({
-        type: "reflection",
-        icon: "💡",
-        title: doc.reflection.title,
-        whatHappened: doc.reflection.whatHappened,
-        whyItFailed: doc.reflection.whyItFailed,
-        takeaway: doc.reflection.takeaway,
-        targetId: "reflection",
-    })}
+          type: "reflection",
+          icon: "💡",
+          title: doc.reflection.title,
+          whatHappened: doc.reflection.whatHappened,
+          whyItFailed: doc.reflection.whyItFailed,
+          takeaway: doc.reflection.takeaway,
+          targetId: "reflection",
+        })}
       </section>
     ` : ""}
 
@@ -422,85 +510,88 @@ function DocViewerComponent(props) {
     ${FeedbackWidgetComponent()}
   `;
 }
+
 // Component Interactive Helpers
-function copyCode(btn, containerId) {
-    const box = document.getElementById(containerId);
-    if (!box)
-        return;
-    const activePanel = box.querySelector('pre[data-code-panel]:not([style*="none"]) code');
-    if (!activePanel)
-        return;
-    navigator.clipboard.writeText(activePanel.textContent || "").then(() => {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = "<span>✅ Copied!</span>";
-        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
-    });
+export function copyCode(btn: HTMLElement, containerId: string): void {
+  const box = document.getElementById(containerId);
+  if (!box) return;
+
+  const activePanel = box.querySelector('pre[data-code-panel]:not([style*="none"]) code');
+  if (!activePanel) return;
+
+  navigator.clipboard.writeText(activePanel.textContent || "").then(() => {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "<span>✅ Copied!</span>";
+    setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+  });
 }
-function copyPageUrl(btn) {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        const original = btn.innerHTML;
-        btn.innerHTML = "<span>✅ Link Copied!</span>";
-        setTimeout(() => { btn.innerHTML = original; }, 2000);
-    });
+
+export function copyPageUrl(btn: HTMLElement): void {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = "<span>✅ Link Copied!</span>";
+    setTimeout(() => { btn.innerHTML = original; }, 2000);
+  });
 }
-function handleFeedback(val) {
-    const box = document.querySelector(".mint-feedback-box");
-    if (!box)
-        return;
-    if (val === "yes") {
-        box.innerHTML = '<span style="color: #34D399; font-weight: 600;">🎉 Thank you! Glad this reflection was valuable for your engineering work.</span>';
-    }
-    else {
-        box.innerHTML = '<span style="color: #FBBF24; font-weight: 600;">🙏 Thanks for the feedback! We will add deeper technical trade-off matrices.</span>';
-    }
+
+export function handleFeedback(val: string): void {
+  const box = document.querySelector(".mint-feedback-box");
+  if (!box) return;
+  if (val === "yes") {
+    box.innerHTML = '<span style="color: #34D399; font-weight: 600;">🎉 Thank you! Glad this reflection was valuable for your engineering work.</span>';
+  } else {
+    box.innerHTML = '<span style="color: #FBBF24; font-weight: 600;">🙏 Thanks for the feedback! We will add deeper technical trade-off matrices.</span>';
+  }
 }
+
 // Delegated Event Listeners for Tab Switching and Pager Navigation
 if (typeof document !== "undefined") {
-    document.addEventListener("click", function (e) {
-        const target = e.target;
-        if (!target)
-            return;
-        // 1. Tab Switching
-        const tabBtn = target.closest(".mint-code-tab");
-        if (tabBtn) {
-            const box = tabBtn.closest(".mint-code-box");
-            if (!box)
-                return;
-            const idx = tabBtn.getAttribute("data-tab-idx");
-            box.querySelectorAll(".mint-code-tab").forEach(t => t.classList.remove("active"));
-            tabBtn.classList.add("active");
-            box.querySelectorAll("pre[data-code-panel]").forEach(p => {
-                p.style.display = p.getAttribute("data-code-panel") === idx ? "block" : "none";
-            });
-            return;
-        }
-        // 2. Pager Navigation Interception
-        const pagerBtn = target.closest("[data-pager-slug]");
-        if (pagerBtn && typeof window.loadDocEntry === "function") {
-            e.preventDefault();
-            const slug = pagerBtn.getAttribute("data-pager-slug");
-            if (slug) {
-                window.loadDocEntry(slug);
-            }
-        }
-    });
+  document.addEventListener("click", function(e: MouseEvent) {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+
+    // 1. Tab Switching
+    const tabBtn = target.closest(".mint-code-tab") as HTMLElement | null;
+    if (tabBtn) {
+      const box = tabBtn.closest(".mint-code-box");
+      if (!box) return;
+      const idx = tabBtn.getAttribute("data-tab-idx");
+      box.querySelectorAll(".mint-code-tab").forEach(t => t.classList.remove("active"));
+      tabBtn.classList.add("active");
+      box.querySelectorAll("pre[data-code-panel]").forEach(p => {
+        (p as HTMLElement).style.display = p.getAttribute("data-code-panel") === idx ? "block" : "none";
+      });
+      return;
+    }
+
+    // 2. Pager Navigation Interception
+    const pagerBtn = target.closest("[data-pager-slug]") as HTMLElement | null;
+    if (pagerBtn && typeof window.loadDocEntry === "function") {
+      e.preventDefault();
+      const slug = pagerBtn.getAttribute("data-pager-slug");
+      if (slug) {
+        window.loadDocEntry(slug);
+      }
+    }
+  });
 }
+
 // Global Browser Export
 if (typeof window !== "undefined") {
-    window.MintlifyComponents = {
-        CalloutComponent,
-        CodeBlockComponent,
-        StepsComponent,
-        ResourceCardComponent,
-        ResourceGridComponent,
-        BreadcrumbComponent,
-        PagerComponent,
-        FeedbackWidgetComponent,
-        DocViewerComponent,
-        TTSButtonComponent,
-        ttsManager,
-        copyCode,
-        copyPageUrl,
-        handleFeedback,
-    };
+  window.MintlifyComponents = {
+    CalloutComponent,
+    CodeBlockComponent,
+    StepsComponent,
+    ResourceCardComponent,
+    ResourceGridComponent,
+    BreadcrumbComponent,
+    PagerComponent,
+    FeedbackWidgetComponent,
+    DocViewerComponent,
+    TTSButtonComponent,
+    ttsManager,
+    copyCode,
+    copyPageUrl,
+    handleFeedback,
+  };
 }
