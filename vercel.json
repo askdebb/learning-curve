@@ -1,4 +1,7 @@
 {
+  "framework": null,
+  "buildCommand": null,
+  "installCommand": "echo 'Static deployment ready'",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
