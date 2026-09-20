@@ -1100,3 +1100,112 @@ details[open] .mint-accordion-summary::after {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   Shared Component Architecture Styles (components.js)
+   ========================================================================== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--mint-border);
+  padding: 14px 24px;
+}
+
+.navbar-content {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #FFF;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--mint-indigo), #A855F7);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  box-shadow: 0 4px 14px var(--mint-indigo-glow);
+}
+
+.brand-text {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.brand-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #818CF8;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.nav-link-item {
+  color: var(--mint-text-muted);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-link-item:hover,
+.nav-link-item.active {
+  color: #FFF;
+}
+
+.github-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mint-surface);
+  border: 1px solid var(--mint-border);
+  color: #FFF;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.github-btn:hover {
+  background: var(--mint-surface-hover);
+  border-color: var(--mint-indigo);
+  transform: translateY(-1px);
+}
+
+.footer {
+  border-top: 1px solid var(--mint-border);
+  background: rgba(15, 23, 42, 0.85);
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--mint-text-muted);
+}
+

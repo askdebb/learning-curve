@@ -128,83 +128,9 @@
       </div>
     </aside>
 
-    <!-- Center Documentation Reader -->
-    <main class="mint-content-area">
-      <!-- Breadcrumb -->
-      <nav class="mint-breadcrumbs" aria-label="Breadcrumb">
-        <a href="/">Learning Curve</a>
-        <span>/</span>
-        <a href="/specs">Documentation</a>
-        <span>/</span>
-        <span id="breadcrumbCurrent" style="color: #FFF; font-weight: 500;">Next Payouts Metric Modeling</span>
-      </nav>
-
-      <!-- Document Header -->
-      <article class="mint-doc-header">
-        <div class="mint-doc-meta-row">
-          <span class="mint-doc-badge" id="badgeCategory">💳 FinTech Rails</span>
-          <span class="mint-doc-badge" id="badgeReadingTime">⏱️ 6 min read</span>
-          <span class="mint-doc-badge" id="badgeStatus">● Production Standard</span>
-          <span class="mint-doc-badge" id="badgeVerified">Verified: Sep 2026</span>
-        </div>
-        <h1 class="mint-doc-title" id="docTitle">Next Payouts Metric Modeling & Plain-Language FinTech Architecture</h1>
-        <p class="mint-doc-description" id="docDesc">
-          Batch pipeline aggregation (pending + processing), dynamic multi-currency scoping, directionless 0% equilibrium handling, and plain-English financial metrics.
-        </p>
-
-        <!-- Quick Action Bar -->
-        <div class="mint-doc-actions">
-          <a id="btnPlaybook" href="/playbooks/next-payouts-metric-modeling-and-plain-english-fintech.html" class="mint-action-btn mint-action-btn-primary">
-            <span>🎮 Launch Playbook Simulator</span>
-          </a>
-          <button class="mint-action-btn" onclick="copyPageUrl()">
-            <span id="copyUrlBtnText">📋 Copy Link</span>
-          </button>
-          <a id="btnRawMd" href="/entries/next-payouts-metric-modeling-and-plain-english-fintech.md" target="_blank" class="mint-action-btn">
-            <span>📄 Raw Markdown Spec</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- Main Rendered Content Container -->
-      <div id="docBody">
-        <!-- Dynamically injected doc content -->
-      </div>
-
-      <!-- Extra Resources Section -->
-      <section class="mint-resources-section" id="sectionResources">
-        <h2 class="mint-section-heading">
-          <span>📚 Extra Resources & Authoritative References</span>
-        </h2>
-        <p class="mint-section-subhead">
-          Authoritative technical specifications, official RFCs, and engineering guides to explore and deepen your understanding:
-        </p>
-
-        <div class="mint-resources-grid" id="resourcesGrid">
-          <!-- Dynamically populated resource cards -->
-        </div>
-      </section>
-
-      <!-- Pager -->
-      <div class="mint-pager">
-        <a href="#" class="mint-pager-btn" id="pagerPrev" style="visibility: hidden;">
-          <span class="mint-pager-label">← Previous Topic</span>
-          <span class="mint-pager-title" id="pagerPrevTitle">Previous</span>
-        </a>
-        <a href="#" class="mint-pager-btn" id="pagerNext" style="text-align: right;">
-          <span class="mint-pager-label">Next Topic →</span>
-          <span class="mint-pager-title" id="pagerNextTitle">Next</span>
-        </a>
-      </div>
-
-      <!-- Feedback Widget -->
-      <div class="mint-feedback-box">
-        <span class="mint-feedback-text">Was this documentation and reflection helpful?</span>
-        <div class="mint-feedback-actions">
-          <button class="mint-feedback-btn" onclick="handleFeedback('yes')">👍 Yes</button>
-          <button class="mint-feedback-btn" onclick="handleFeedback('no')">👎 Needs improvement</button>
-        </div>
-      </div>
+    <!-- Center Documentation Reader (Component Mount) -->
+    <main class="mint-content-area" id="docViewerContainer">
+      <!-- MintlifyComponents.DocViewerComponent mounts here -->
     </main>
 
     <!-- Right Sidebar (Table of Contents & Quick Resources) -->
@@ -214,10 +140,9 @@
         <ul class="mint-toc-list" id="tocList">
           <li><a href="#summary" class="mint-toc-link active">1. Executive Summary & Problem</a></li>
           <li><a href="#reflection" class="mint-toc-link">2. 💡 Engineering Reflection</a></li>
-          <li><a href="#architecture" class="mint-toc-link">3. Payout Rail Lifecycle</a></li>
-          <li><a href="#implementation" class="mint-toc-link">4. Step-by-Step Implementation</a></li>
-          <li><a href="#code" class="mint-toc-link">5. Production Code Pattern</a></li>
-          <li><a href="#sectionResources" class="mint-toc-link">6. 📚 Extra Resources & RFCs</a></li>
+          <li><a href="#implementation" class="mint-toc-link">3. Step-by-Step Implementation</a></li>
+          <li><a href="#code" class="mint-toc-link">4. Production Code Pattern</a></li>
+          <li><a href="#sectionResources" class="mint-toc-link">5. 📚 Extra Resources & RFCs</a></li>
         </ul>
       </div>
 
@@ -232,6 +157,10 @@
     </aside>
   </div>
 
+  <!-- Core Reusable Component Library -->
+  <script src="/components.js"></script>
+  <!-- Mintlify Component System -->
+  <script src="/mintlify-components.js"></script>
   <!-- Command Palette Script -->
   <script src="/command-palette.js"></script>
 
@@ -975,168 +904,47 @@ export function verifyWebhookSignature(payload: string, signature: string, secre
       const newUrl = window.location.pathname + "?entry=" + slug;
       window.history.pushState({ slug: slug }, "", newUrl);
 
-      // Update Header
-      document.getElementById("breadcrumbCurrent").textContent = data.title;
-      document.getElementById("docTitle").textContent = data.title;
-      document.getElementById("docDesc").textContent = data.desc;
-      document.getElementById("badgeCategory").textContent = data.category;
-      document.getElementById("badgeReadingTime").textContent = data.readingTime;
-      document.getElementById("badgeStatus").textContent = data.status;
-      document.getElementById("badgeVerified").textContent = data.verified;
-
-      // Action links
-      document.getElementById("btnPlaybook").href = data.playbook;
-      document.getElementById("btnRawMd").href = data.rawMd;
-      document.getElementById("tocPlaybookLink").href = data.playbook;
-
       // Update Active Navigation Item in Sidebar
       document.querySelectorAll(".mint-nav-item").forEach(item => {
         item.classList.toggle("active", item.getAttribute("data-slug") === slug);
       });
 
-      // Render Center Content Body
-      let bodyHtml = `
-        <!-- Summary Section -->
-        <section id="summary" style="margin-bottom: 32px;">
-          <div class="mint-callout mint-callout-note">
-            <span class="mint-callout-icon">ℹ️</span>
-            <div class="mint-callout-content">
-              <strong>Context & Problem Statement:</strong> ${data.desc}
-            </div>
-          </div>
-        </section>
+      // Calculate prev & next documents
+      const slugs = Object.keys(entriesData);
+      const currentIndex = slugs.indexOf(slug);
+      const prevDoc = currentIndex > 0 ? { slug: slugs[currentIndex - 1], ...entriesData[slugs[currentIndex - 1]] } : null;
+      const nextDoc = currentIndex < slugs.length - 1 ? { slug: slugs[currentIndex + 1], ...entriesData[slugs[currentIndex + 1]] } : null;
 
-        <!-- Engineering Reflection Section -->
-        <section id="reflection" style="margin-bottom: 36px;">
-          <div class="mint-callout mint-callout-reflection">
-            <span class="mint-callout-icon">💡</span>
-            <div class="mint-callout-content">
-              <div class="mint-callout-title">${data.reflection.title}</div>
-              <p style="margin-bottom: 8px;"><strong>What was at stake:</strong> ${data.reflection.whatHappened}</p>
-              <p style="margin-bottom: 8px;"><strong>Why the initial approach failed:</strong> ${data.reflection.whyItFailed}</p>
-              <p><strong>Architectural Takeaway:</strong> ${data.reflection.takeaway}</p>
-            </div>
-          </div>
-        </section>
+      // Render Document via Pure Mintlify Component Architecture
+      const container = document.getElementById("docViewerContainer");
+      if (container && window.MintlifyComponents) {
+        container.innerHTML = MintlifyComponents.DocViewerComponent({
+          doc: data,
+          prevDoc,
+          nextDoc,
+        });
+      }
 
-        <!-- Implementation Steps -->
-        <section id="implementation" style="margin-bottom: 36px;">
-          <h2 class="mint-section-heading">⚡ Implementation Pipeline</h2>
-          <div class="mint-steps">
-            ${data.steps.map((step, idx) => `
-              <div class="mint-step">
-                <div class="mint-step-number">${idx + 1}</div>
-                <div class="mint-step-title">${step.title}</div>
-                <div class="mint-step-body">${step.body}</div>
-              </div>
-            `).join('')}
-          </div>
-        </section>
-
-        <!-- Code Snippets with File Header & Copy Button -->
-        <section id="code" style="margin-bottom: 36px;">
-          <h2 class="mint-section-heading">💻 Production Code Pattern</h2>
-          ${data.codeTabs.map((tab, idx) => `
-            <div class="mint-code-box">
-              <div class="mint-code-header">
-                <div class="mint-code-tabs">
-                  <span class="mint-code-tab active">${tab.name}</span>
-                </div>
-                <button class="mint-code-copy-btn" onclick="copyCodeSnippet(this, ${idx})">
-                  <span>📋 Copy Code</span>
-                </button>
-              </div>
-              <pre class="mint-code-pre"><code id="codeSnippet_${idx}">${escapeHtml(tab.code)}</code></pre>
-            </div>
-          `).join('')}
-        </section>
-      `;
-
-      document.getElementById("docBody").innerHTML = bodyHtml;
-
-      // Render Extra Resources Grid
-      const resourcesContainer = document.getElementById("resourcesGrid");
-      resourcesContainer.innerHTML = data.resources.map(res => `
-        <a href="${res.url}" target="_blank" rel="noopener noreferrer" class="mint-resource-card">
-          <div>
-            <div class="mint-resource-header">
-              <span class="mint-resource-icon">${res.icon}</span>
-              <span class="mint-resource-domain">${res.domain}</span>
-            </div>
-            <h3 class="mint-resource-title" style="margin-top: 10px;">${res.title}</h3>
-            <p class="mint-resource-desc" style="margin-top: 6px;">${res.desc}</p>
-          </div>
-          <div class="mint-resource-link">
-            <span>Read Specification</span>
-            <span>↗</span>
-          </div>
-        </a>
-      `).join('');
-
-      // Update Pager
-      updatePager(slug);
+      // Update Right Sidebar Quick Action links
+      const tocPlaybookLink = document.getElementById("tocPlaybookLink");
+      if (tocPlaybookLink) {
+        tocPlaybookLink.href = data.playbook || "#";
+        tocPlaybookLink.style.display = data.playbook ? "flex" : "none";
+      }
 
       // Scroll smoothly to top
       window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Refresh scroll spy targets
+      setTimeout(() => {
+        if (window.tocObserver) {
+          document.querySelectorAll("section[id]").forEach(sec => window.tocObserver.observe(sec));
+        }
+      }, 150);
     }
 
-    function updatePager(slug) {
-      const slugs = Object.keys(entriesData);
-      const currentIndex = slugs.indexOf(slug);
-
-      const prevBtn = document.getElementById("pagerPrev");
-      const nextBtn = document.getElementById("pagerNext");
-
-      if (currentIndex > 0) {
-        const prevSlug = slugs[currentIndex - 1];
-        prevBtn.style.visibility = "visible";
-        document.getElementById("pagerPrevTitle").textContent = entriesData[prevSlug].title;
-        prevBtn.onclick = (e) => { e.preventDefault(); loadEntry(prevSlug); };
-      } else {
-        prevBtn.style.visibility = "hidden";
-      }
-
-      if (currentIndex < slugs.length - 1) {
-        const nextSlug = slugs[currentIndex + 1];
-        nextBtn.style.visibility = "visible";
-        document.getElementById("pagerNextTitle").textContent = entriesData[nextSlug].title;
-        nextBtn.onclick = (e) => { e.preventDefault(); loadEntry(nextSlug); };
-      } else {
-        nextBtn.style.visibility = "hidden";
-      }
-    }
-
-    function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-
-    function copyCodeSnippet(btn, index) {
-      const codeEl = document.getElementById("codeSnippet_" + index);
-      if (!codeEl) return;
-      navigator.clipboard.writeText(codeEl.textContent).then(() => {
-        btn.innerHTML = "<span>✅ Copied!</span>";
-        setTimeout(() => {
-          btn.innerHTML = "<span>📋 Copy Code</span>";
-        }, 2000);
-      });
-    }
-
-    function copyPageUrl() {
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        const btn = document.getElementById("copyUrlBtnText");
-        btn.textContent = "✅ Link Copied!";
-        setTimeout(() => { btn.textContent = "📋 Copy Link"; }, 2000);
-      });
-    }
-
-    function handleFeedback(val) {
-      const box = document.querySelector(".mint-feedback-box");
-      if (val === "yes") {
-        box.innerHTML = '<span style="color: #34D399; font-weight: 600;">🎉 Thank you! Glad this reflection was valuable for your engineering work.</span>';
-      } else {
-        box.innerHTML = '<span style="color: #FBBF24; font-weight: 600;">🙏 Thanks for the feedback! We will add deeper technical trade-off matrices.</span>';
-      }
-    }
+    // Expose for component delegation
+    window.loadDocEntry = loadEntry;
 
     // Initialize Navigation Listeners
     document.addEventListener("DOMContentLoaded", function() {
@@ -1174,6 +982,7 @@ export function verifyWebhookSignature(payload: string, signature: string, secre
           }
         });
       }, { threshold: 0.3 });
+      window.tocObserver = observer;
 
       setTimeout(() => {
         document.querySelectorAll("section[id]").forEach(sec => observer.observe(sec));

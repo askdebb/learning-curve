@@ -426,33 +426,8 @@
   <div class="ambient-glow"></div>
   <div class="ambient-glow-2"></div>
 
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="navbar-content">
-      <a href="/" class="nav-brand">
-        <div class="brand-icon">⚡</div>
-        <div>
-          <span class="brand-text">Learning Curve</span>
-          <span class="brand-tag">Engineering Hub</span>
-        </div>
-      </a>
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <button class="mint-search-trigger" style="width: auto; padding: 6px 14px;" data-open-cmd>
-          <span>🔍 Quick Search</span>
-          <span class="mint-kbd">⌘K</span>
-        </button>
-        <div class="nav-links">
-          <a href="/docs" class="nav-link-item" style="color: #34D399; font-weight: 700;">📚 Docs (Mintlify)</a>
-          <a href="/timeline" class="nav-link-item">🗓️ Timeline</a>
-          <a href="/playbooks" class="nav-link-item">🎮 Playbooks</a>
-          <a href="/specs" class="nav-link-item">📄 Specs</a>
-          <a href="https://github.com/askdebb/learning-curve" target="_blank" class="github-btn">
-            <span>GitHub ↗</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <!-- Navbar Component Mount -->
+  <div data-component="navbar"></div>
 
   <!-- Hero Header -->
   <header class="hero">
@@ -638,11 +613,11 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>Learning Curve • Personal Engineering Playbook & Knowledge Repository • Automatically Synced to Vercel</p>
-  </footer>
+  <!-- Footer Component Mount -->
+  <div data-component="footer"></div>
 
+  <!-- Component System & Search -->
+  <script src="/components.js"></script>
   <script src="/command-palette.js"></script>
 </body>
 </html>

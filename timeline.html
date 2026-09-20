@@ -329,25 +329,8 @@
 <body>
   <div class="ambient-glow"></div>
 
-  <nav class="navbar">
-    <div class="navbar-content">
-      <a href="/" class="nav-brand">
-        <span>⚡ Learning Curve</span>
-      </a>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <button class="mint-search-trigger" style="width: auto; padding: 6px 14px;" data-open-cmd>
-          <span>🔍 Quick Search</span>
-          <span class="mint-kbd">⌘K</span>
-        </button>
-        <a href="/docs" class="back-btn" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);">
-          <span>📚 Mintlify Docs</span>
-        </a>
-        <a href="/" class="back-btn">
-          <span>← Return to Hub</span>
-        </a>
-      </div>
-    </div>
-  </nav>
+  <!-- Navbar Component Mount -->
+  <div data-component="navbar" data-active="timeline"></div>
 
   <main class="page-container">
     <header class="page-header">
@@ -565,10 +548,11 @@
     </div>
   </main>
 
-  <footer class="footer">
-    <p>Learning Curve • Session Chronology & Timeline Route • Automatically Synced to Vercel</p>
-  </footer>
+  <!-- Footer Component Mount -->
+  <div data-component="footer" data-subtitle="Session Chronology & Timeline Route"></div>
 
+  <!-- Component System & Search -->
+  <script src="/components.js"></script>
   <script src="/command-palette.js"></script>
   <script>
     function filterTimeline() {
