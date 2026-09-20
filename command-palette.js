@@ -400,7 +400,7 @@
   });
 
   // Attach to any search triggers on the page
-  document.addEventListener("DOMContentLoaded", function() {
+  function initPalette() {
     injectPalette();
     document.querySelectorAll(".mint-search-trigger, [data-open-cmd]").forEach(el => {
       el.addEventListener("click", function(e) {
@@ -408,7 +408,13 @@
         openPalette();
       });
     });
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPalette);
+  } else {
+    initPalette();
+  }
 
   // Expose global controller
   window.MintPalette = {
