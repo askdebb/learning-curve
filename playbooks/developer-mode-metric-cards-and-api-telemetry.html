@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Learning Curve — Developer Mode Metric Cards & Telemetry Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --surface: #0F172A;
+      --surface-hover: #1E293B;
+      --surface-card: rgba(15, 23, 42, 0.75);
+      --border: rgba(51, 65, 85, 0.6);
+      --border-accent: rgba(99, 102, 241, 0.4);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #6366F1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10B981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --rose: #F43F5E;
+      --rose-glow: rgba(244, 63, 94, 0.2);
+      --purple: #3B1791;
+      --code-bg: #030712;
+      --sidebar-width: 280px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      left: 20%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -200px;
+      right: 10%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .layout-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: var(--sidebar-width);
+      border-right: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      text-decoration: none;
+      color: #FFF;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366F1, #4338CA);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 18px 0 8px 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #FFF;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #A5B4FC;
+      border-left: 3px solid var(--accent);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      max-width: 1160px;
+      padding: 40px 48px 100px;
+      margin: 0 auto;
+    }
+
+    .badge-route {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #A5B4FC;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    .header-title {
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 820px;
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    /* Cards & Containers */
+    .glass-panel {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      margin-bottom: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Simulator Controls */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .control-group {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .control-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .control-input {
+      width: 100%;
+      background: #030712;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #FFF;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+    }
+
+    .control-input:focus {
+      border-color: var(--accent);
+    }
+
+    .select-input {
+      width: 100%;
+      background: #030712;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #FFF;
+      padding: 8px 12px;
+      font-size: 13.5px;
+      outline: none;
+    }
+
+    /* Live Preview Widgets */
+    .preview-section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #A5B4FC;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metric-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .sim-card {
+      background: #FFFFFF;
+      border: 1px solid #E4E4E7;
+      border-radius: 10px;
+      padding: 15px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 91px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .sim-card-label {
+      color: #3B1791;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .sim-card-body {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .sim-card-val {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #353535;
+      line-height: 1;
+    }
+
+    .sim-card-trend {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      line-height: 1;
+    }
+
+    .trend-green { color: #22C55E; }
+    .trend-red { color: #FF3B30; }
+    .trend-neutral { color: #71717A; }
+
+    /* Extra Dev Cards Simulation */
+    .extra-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .sim-panel-white {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(13,10,44,0.08);
+      color: #1E1B39;
+    }
+
+    .sim-header-sm {
+      border-bottom: 1px solid #E5E5EF;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .sim-header-sm p {
+      font-size: 12px;
+      color: #9291A5;
+      margin-bottom: 2px;
+    }
+
+    .sim-header-sm h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1E1B39;
+    }
+
+    .progress-item {
+      margin-bottom: 16px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #615E83;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-bg {
+      height: 12px;
+      width: 100%;
+      background: #F3F4F6;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,0.08), rgba(255,255,255,0.08) 4px, transparent 4px, transparent 8px);
+    }
+
+    .status-row-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #F8FAFC;
+      margin-bottom: 12px;
+    }
+
+    .status-row-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #3B1791;
+    }
+
+    .status-row-sub {
+      font-size: 11px;
+      color: #9291A5;
+    }
+
+    .status-badge-live {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* Plain English Formulas */
+    .formula-card {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .formula-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #A5B4FC;
+      margin-bottom: 8px;
+    }
+
+    .formula-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: #FFF;
+      background: rgba(3, 7, 18, 0.6);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .formula-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Code Blocks */
+    .code-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .code-top {
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    pre {
+      padding: 16px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #E2E8F0;
+      line-height: 1.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .layout-container { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .main-content { padding: 24px; }
+    }
+  </style>
+  <link rel="stylesheet" href="/mintlify.css">
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div class="layout-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="/" class="brand-group">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>Learning Curve</h1>
+          <p>Engineering Knowledge</p>
+        </div>
+      </a>
+
+      <div style="margin-bottom: 16px;">
+        <button class="mint-search-trigger" data-open-cmd style="width: 100%;">
+          <span>🔍 Quick Search</span>
+          <span class="mint-kbd">⌘K</span>
+        </button>
+      </div>
+
+      <nav class="nav-links">
+        <a href="/" class="nav-item">🏠 Central Hub</a>
+        <a href="/docs" class="nav-item">📚 Mintlify Docs</a>
+        <a href="/timeline" class="nav-item">⏱️ Chronological Timeline</a>
+        <a href="/playbooks" class="nav-item active">⚡ Interactive Playbooks</a>
+        <a href="/specs" class="nav-item">📐 System Specs & APIs</a>
+
+        <div class="nav-label">Domain Routes</div>
+        <a href="/react" class="nav-item">⚛️ React & State</a>
+        <a href="/fintech" class="nav-item">💳 FinTech & Payouts</a>
+        <a href="/security" class="nav-item">🛡️ Auth & Security</a>
+        <a href="/backend" class="nav-item">🔌 API & Webhooks</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="badge-route">ENGINEERING PLAYBOOK • REACT QUERY & TELEMETRY</div>
+      <h1 class="header-title">Developer Mode Metric Cards & Telemetry Architecture</h1>
+      <p class="header-subtitle">
+        Orchestrating live API telemetry from <code>GET /user/businesses/{id}/developer-overview</code>, enforcing the 0% Directionless Equilibrium rule, and modeling real-time rate limits and environment verification.
+      </p>
+
+      <!-- Section 1: Live Interactive Test-Bench -->
+      <section class="glass-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>🧪</span> Interactive Telemetry & Equilibrium Simulator
+          </div>
+          <span style="font-size: 12px; color: #34D399; font-weight: 600;">● Live Micro-State</span>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px;">
+          Adjust checkout volumes, webhook health, and merchant verification status below. Watch how the 4 developer metric cards calculate Week-over-Week velocity, enforce 0% equilibrium with neutral grey styling, and dynamically adapt API capacity bars.
+        </p>
+
+        <div class="controls-grid">
+          <div class="control-group">
+            <label class="control-label">This Week Payment Requests</label>
+            <input type="number" id="simThisWeek" class="control-input" value="124" oninput="runSimulation()">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Previous Week Payment Requests</label>
+            <input type="number" id="simPrevWeek" class="control-input" value="124" oninput="runSimulation()">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Completed / Success Payments</label>
+            <input type="number" id="simSuccess" class="control-input" value="118" oninput="runSimulation()">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Webhook Deliveries Dispatched</label>
+            <input type="number" id="simWhDeliv" class="control-input" value="842" oninput="runSimulation()">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Failed Webhook Deliveries</label>
+            <input type="number" id="simWhFail" class="control-input" value="0" oninput="runSimulation()">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Active Endpoints / Failing</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="number" id="simActiveEp" class="control-input" value="2" placeholder="Active" oninput="runSimulation()">
+              <input type="number" id="simFailEp" class="control-input" value="0" placeholder="Failing" oninput="runSimulation()">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">LIVE Mode Status</label>
+            <select id="simLiveEnabled" class="select-input" onchange="runSimulation()">
+              <option value="false">Locked (Sandbox Only)</option>
+              <option value="true">Connected (Production Active)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Merchant KYC Status</label>
+            <select id="simBusinessStatus" class="select-input" onchange="runSimulation()">
+              <option value="active">Active / Verified</option>
+              <option value="under_review">Under Review</option>
+              <option value="pending">Pending Documents</option>
+              <option value="suspended">Suspended / Disabled</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="preview-section-title">
+          <span>⚡ Live Metric Cards Preview (Developer Mode)</span>
+        </div>
+
+        <!-- 4 Developer Metric Cards -->
+        <div class="metric-cards-grid">
+          <!-- Card 1: Total Requests -->
+          <div class="sim-card">
+            <div class="sim-card-label">Total Requests</div>
+            <div class="sim-card-body">
+              <div class="sim-card-val" id="card1Val">124</div>
+              <div class="sim-card-trend trend-neutral" id="card1Trend">
+                <span id="card1TrendText">0%</span>
+                <span id="card1TrendIcon"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Success Requests -->
+          <div class="sim-card">
+            <div class="sim-card-label">Success Requests</div>
+            <div class="sim-card-body">
+              <div class="sim-card-val" id="card2Val">118</div>
+              <div class="sim-card-trend trend-green" id="card2Trend">
+                <span id="card2TrendText">+4%</span>
+                <span id="card2TrendIcon">↑</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Events Delivered -->
+          <div class="sim-card">
+            <div class="sim-card-label">Events Delivered</div>
+            <div class="sim-card-body">
+              <div class="sim-card-val" id="card3Val">842</div>
+              <div class="sim-card-trend trend-neutral" id="card3Trend">
+                <span id="card3TrendText">0% fail rate</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Active Endpoints -->
+          <div class="sim-card">
+            <div class="sim-card-label">Active Endpoints</div>
+            <div class="sim-card-body">
+              <div class="sim-card-val" id="card4Val">2</div>
+              <div class="sim-card-trend trend-green" id="card4Trend">
+                <span id="card4TrendText">2 live</span>
+                <span id="card4TrendIcon">↑</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-section-title">
+          <span>📊 Live Extra Cards Simulation (API Usage & Environment Status)</span>
+        </div>
+
+        <!-- Extra Cards -->
+        <div class="extra-cards-grid">
+          <!-- API Usage Overview -->
+          <div class="sim-panel-white">
+            <div class="sim-header-sm">
+              <p>Statistics</p>
+              <h3>API Usage Overview</h3>
+            </div>
+            <div class="progress-item">
+              <div class="progress-top">
+                <span>Rate Limit</span>
+                <span id="progRateVal" style="color: #3B1791; font-weight: 600;">124/1000</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="progRateBar" class="progress-bar-fill" style="width: 12.4%; background: #3B1791;"></div>
+              </div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-top">
+                <span>Request Today</span>
+                <span id="progTodayVal">10.0%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="progTodayBar" class="progress-bar-fill" style="width: 10.0%; background: #4A3AFF;"></div>
+              </div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-top">
+                <span>Monthly Quota Usage</span>
+                <span id="progMonthlyVal">9.6%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="progMonthlyBar" class="progress-bar-fill" style="width: 9.6%; background: #4A3AFF;"></div>
+              </div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-top">
+                <span>Total Dispatched</span>
+                <span id="progTotalVal">966</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="progTotalBar" class="progress-bar-fill" style="width: 3.8%; background: #4A3AFF;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Environment Status -->
+          <div class="sim-panel-white">
+            <div class="sim-header-sm">
+              <p>Statistics</p>
+              <h3>Environment Status</h3>
+            </div>
+            <div class="status-row-item">
+              <div>
+                <div class="status-row-title">Sandbox</div>
+                <div class="status-row-sub">All systems operational</div>
+              </div>
+              <span class="status-badge-live" style="color: #00D930; background: #E5FBEA;">CONNECTED</span>
+            </div>
+            <div class="status-row-item">
+              <div>
+                <div class="status-row-title">LIVE</div>
+                <div class="status-row-sub" id="envLiveSub">KYC & 2FA required</div>
+              </div>
+              <span class="status-badge-live" id="envLiveBadge" style="color: #F59E0B; background: #FEF3C7;">LOCKED</span>
+            </div>
+            <div class="status-row-item">
+              <div>
+                <div class="status-row-title" style="color: #1E1B39;">Verification Status</div>
+                <div class="status-row-sub" id="envVerifySub">Verified merchant account</div>
+              </div>
+              <span class="status-badge-live" id="envVerifyBadge" style="color: #00D930; background: #E5FBEA;">VERIFIED</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Mathematical Modeling in Plain English -->
+      <section class="glass-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📐</span> Mathematical Modeling & Velocity Rules (In Plain English)
+          </div>
+        </div>
+
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
+          To ensure clarity for developers, accounting teams, and auditors, all velocity and health formulas are documented in plain English without cryptic syntax or Greek notation.
+        </p>
+
+        <div class="formula-card">
+          <div class="formula-title">1. Week-over-Week Request Velocity Formula</div>
+          <div class="formula-text">
+            Difference Percentage = ((This Week Total Requests - Previous Week Total Requests) / Previous Week Total Requests) * 100
+          </div>
+          <p class="formula-desc">
+            <strong>Plain English Rule:</strong> If the difference percentage is exactly 0%, it represents equilibrium. The user interface renders a neutral grey tone (<code>#71717A</code>) with zero arrows. If previous week was 0 but this week has requests, velocity is reported as +100% growth.
+          </p>
+        </div>
+
+        <div class="formula-card">
+          <div class="formula-title">2. Webhook Event Delivery Failure Rate</div>
+          <div class="formula-text">
+            Failure Rate Percentage = (Failed Events Count / Total Deliveries Count) * 100
+          </div>
+          <p class="formula-desc">
+            <strong>Plain English Rule:</strong> If zero events have failed, the card displays <code>0% fail rate</code> in neutral grey equilibrium. If even a single event fails, the tone immediately shifts to alert red (<code>#FF3B30</code>) to alert the developer to check endpoint logs.
+          </p>
+        </div>
+
+        <div class="formula-card">
+          <div class="formula-title">3. Active vs. Failing Endpoint Health Status</div>
+          <div class="formula-text">
+            Health Indicator = If Failing Endpoints > 0 Then "X failing" (Red) Else "Y live" (Green)
+          </div>
+          <p class="formula-desc">
+            <strong>Plain English Rule:</strong> A developer must know at a glance if their webhook endpoints are operational. If any endpoint exhibits consecutive delivery failures, the metric card prominently highlights the number of failing endpoints.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 3: Architecture & Implementation Walkthrough -->
+      <section class="glass-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>💻</span> Clean Architecture & Code Snippets
+          </div>
+        </div>
+
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
+          The implementation separates data ingestion, business math, and UI rendering into dedicated modules:
+        </p>
+
+        <div class="code-box">
+          <div class="code-top">
+            <span>src/hooks/useDeveloperDashboardMetrics.ts</span>
+            <span>TypeScript</span>
+          </div>
+          <pre><code>export const useDeveloperDashboardMetrics = () => {
+  const { business, isLoading: isBusinessLoading } = useCurrentBusiness();
+  const { data: overview, isLoading: isOverviewLoading } = useOverview(business?.id, 30);
+  const isLoading = isBusinessLoading || isOverviewLoading;
+
+  const metrics: DashboardMetric[] = useMemo(() => {
+    const pmts = overview?.payments;
+    const wh = overview?.webhooks;
+    const daily = pmts?.daily ?? [];
+
+    // 1. Total Requests Week-over-Week velocity
+    const totalRequests = pmts?.total ?? 0;
+    const thisWeekTotal = daily.slice(-7).reduce((acc, d) => acc + (d.total || 0), 0);
+    const prevWeekTotal = daily.slice(-14, -7).reduce((acc, d) => acc + (d.total || 0), 0);
+    const totalDiffPct = prevWeekTotal > 0
+      ? Math.round(((thisWeekTotal - prevWeekTotal) / prevWeekTotal) * 100)
+      : thisWeekTotal > 0 ? 100 : 0;
+    
+    // Directionless 0% equilibrium
+    const totalTrend = totalDiffPct === 0 ? "0%" : `${totalDiffPct > 0 ? "+" : ""}${totalDiffPct}%`;
+    const totalTrendDir: "up" | "down" | "none" = totalDiffPct === 0 ? "none" : totalDiffPct > 0 ? "up" : "down";
+
+    // 2. Success Requests
+    const successRequests = pmts?.completed ?? 0;
+    // ...
+    return [
+      { id: "total-requests", label: "Total Requests", value: totalRequests.toLocaleString(), trend: totalTrend, trendDirection: totalTrendDir, tone: totalTrendDir === "down" ? "red" : "green", isLoading },
+      { id: "success-requests", label: "Success Requests", value: successRequests.toLocaleString(), ... },
+      { id: "events-delivered", label: "Events Delivered", value: (wh?.deliveries ?? 0).toLocaleString(), ... },
+      { id: "active-endpoints", label: "Active Endpoints", value: String(wh?.active_endpoints ?? 0), ... }
+    ];
+  }, [overview, isLoading]);
+
+  return { metrics, overview, business, isLoading };
+};</code></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/command-palette.js"></script>
+  <script>
+    function runSimulation() {
+      const thisWeek = parseInt(document.getElementById('simThisWeek').value) || 0;
+      const prevWeek = parseInt(document.getElementById('simPrevWeek').value) || 0;
+      const success = parseInt(document.getElementById('simSuccess').value) || 0;
+      const whDeliv = parseInt(document.getElementById('simWhDeliv').value) || 0;
+      const whFail = parseInt(document.getElementById('simWhFail').value) || 0;
+      const activeEp = parseInt(document.getElementById('simActiveEp').value) || 0;
+      const failEp = parseInt(document.getElementById('simFailEp').value) || 0;
+      const isLive = document.getElementById('simLiveEnabled').value === 'true';
+      const bStatus = document.getElementById('simBusinessStatus').value;
+
+      // Card 1: Total Requests
+      document.getElementById('card1Val').textContent = thisWeek.toLocaleString();
+      let totalDiffPct = 0;
+      if (prevWeek > 0) {
+        totalDiffPct = Math.round(((thisWeek - prevWeek) / prevWeek) * 100);
+      } else if (thisWeek > 0) {
+        totalDiffPct = 100;
+      }
+      const c1Trend = document.getElementById('card1Trend');
+      const c1Text = document.getElementById('card1TrendText');
+      const c1Icon = document.getElementById('card1TrendIcon');
+      if (totalDiffPct === 0) {
+        c1Trend.className = 'sim-card-trend trend-neutral';
+        c1Text.textContent = '0%';
+        c1Icon.textContent = '';
+      } else if (totalDiffPct > 0) {
+        c1Trend.className = 'sim-card-trend trend-green';
+        c1Text.textContent = `+${totalDiffPct}%`;
+        c1Icon.textContent = '↑';
+      } else {
+        c1Trend.className = 'sim-card-trend trend-red';
+        c1Text.textContent = `${totalDiffPct}%`;
+        c1Icon.textContent = '↓';
+      }
+
+      // Card 2: Success Requests
+      document.getElementById('card2Val').textContent = success.toLocaleString();
+      const succPct = thisWeek > 0 ? Math.round((success / thisWeek) * 100) : 0;
+      const c2Trend = document.getElementById('card2Trend');
+      const c2Text = document.getElementById('card2TrendText');
+      const c2Icon = document.getElementById('card2TrendIcon');
+      c2Trend.className = 'sim-card-trend trend-green';
+      c2Text.textContent = `${succPct}% rate`;
+      c2Icon.textContent = '↑';
+
+      // Card 3: Events Delivered
+      document.getElementById('card3Val').textContent = whDeliv.toLocaleString();
+      const c3Trend = document.getElementById('card3Trend');
+      const c3Text = document.getElementById('card3TrendText');
+      const failRate = whDeliv > 0 ? ((whFail / whDeliv) * 100).toFixed(1) : "0.0";
+      if (whFail === 0) {
+        c3Trend.className = 'sim-card-trend trend-neutral';
+        c3Text.textContent = '0% fail rate';
+      } else {
+        c3Trend.className = 'sim-card-trend trend-red';
+        c3Text.textContent = `${failRate}% fail rate`;
+      }
+
+      // Card 4: Active Endpoints
+      document.getElementById('card4Val').textContent = activeEp.toString();
+      const c4Trend = document.getElementById('card4Trend');
+      const c4Text = document.getElementById('card4TrendText');
+      const c4Icon = document.getElementById('card4TrendIcon');
+      if (failEp > 0) {
+        c4Trend.className = 'sim-card-trend trend-red';
+        c4Text.textContent = `${failEp} failing`;
+        c4Icon.textContent = '↓';
+      } else if (activeEp > 0) {
+        c4Trend.className = 'sim-card-trend trend-green';
+        c4Text.textContent = `${activeEp} live`;
+        c4Icon.textContent = '↑';
+      } else {
+        c4Trend.className = 'sim-card-trend trend-neutral';
+        c4Text.textContent = '0 live';
+        c4Icon.textContent = '';
+      }
+
+      // Extra Cards: API Usage Overview
+      const totalDispatched = thisWeek + whDeliv;
+      const rateVal = Math.min(thisWeek, 1000);
+      const ratePct = Math.min(100, ((rateVal / 1000) * 100).toFixed(1));
+      document.getElementById('progRateVal').textContent = `${rateVal}/1000`;
+      document.getElementById('progRateBar').style.width = `${ratePct}%`;
+
+      const reqTodayPct = totalDispatched > 0 ? ((thisWeek / totalDispatched) * 100).toFixed(1) : "0.0";
+      document.getElementById('progTodayVal').textContent = `${reqTodayPct}%`;
+      document.getElementById('progTodayBar').style.width = `${Math.min(100, reqTodayPct)}%`;
+
+      const monthlyQuotaPct = Math.min(100, ((totalDispatched / 10000) * 100).toFixed(1));
+      document.getElementById('progMonthlyVal').textContent = `${monthlyQuotaPct}%`;
+      document.getElementById('progMonthlyBar').style.width = `${monthlyQuotaPct}%`;
+
+      document.getElementById('progTotalVal').textContent = totalDispatched.toLocaleString();
+      const totalTierPct = Math.min(100, ((totalDispatched / 25000) * 100).toFixed(1));
+      document.getElementById('progTotalBar').style.width = `${totalTierPct}%`;
+
+      // Environment Status
+      const envLiveSub = document.getElementById('envLiveSub');
+      const envLiveBadge = document.getElementById('envLiveBadge');
+      if (isLive) {
+        envLiveSub.textContent = 'Production keys active';
+        envLiveBadge.textContent = 'CONNECTED';
+        envLiveBadge.style.color = '#00D930';
+        envLiveBadge.style.background = '#E5FBEA';
+      } else {
+        envLiveSub.textContent = 'KYC & 2FA required';
+        envLiveBadge.textContent = 'LOCKED';
+        envLiveBadge.style.color = '#F59E0B';
+        envLiveBadge.style.background = '#FEF3C7';
+      }
+
+      const envVerifySub = document.getElementById('envVerifySub');
+      const envVerifyBadge = document.getElementById('envVerifyBadge');
+      if (bStatus === 'active') {
+        envVerifySub.textContent = 'Verified merchant account';
+        envVerifyBadge.textContent = 'VERIFIED';
+        envVerifyBadge.style.color = '#00D930';
+        envVerifyBadge.style.background = '#E5FBEA';
+      } else if (bStatus === 'under_review') {
+        envVerifySub.textContent = 'Compliance review in progress';
+        envVerifyBadge.textContent = 'IN REVIEW';
+        envVerifyBadge.style.color = '#3B82F6';
+        envVerifyBadge.style.background = '#EFF6FF';
+      } else if (bStatus === 'pending') {
+        envVerifySub.textContent = 'Pending document submission';
+        envVerifyBadge.textContent = 'PENDING';
+        envVerifyBadge.style.color = '#F59E0B';
+        envVerifyBadge.style.background = '#FEF3C7';
+      } else {
+        envVerifySub.textContent = 'Not submitted';
+        envVerifyBadge.textContent = 'DISABLED';
+        envVerifyBadge.style.color = '#9291A5';
+        envVerifyBadge.style.background = '#F3F4F6';
+      }
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', runSimulation);
+  </script>
+</body>
+</html>

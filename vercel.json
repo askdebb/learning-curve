@@ -2,6 +2,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/docs", "destination": "/docs.html" },
     { "source": "/timeline", "destination": "/timeline.html" },
     { "source": "/playbooks", "destination": "/playbooks.html" },
     { "source": "/specs", "destination": "/specs.html" },

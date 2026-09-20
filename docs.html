@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Curve — Mintlify Documentation Engine & Engineering Reflections</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/mintlify.css">
+</head>
+<body class="mintlify-body">
+  <div class="mint-ambient"></div>
+  <div class="mint-ambient-2"></div>
+
+  <!-- Mintlify Top Sticky Navigation -->
+  <header class="mint-navbar">
+    <div class="mint-nav-inner">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="/" class="mint-brand-group">
+          <div class="mint-brand-icon">⚡</div>
+          <div>
+            <span class="mint-brand-name">Learning Curve</span>
+            <span class="mint-brand-badge">Mintlify Docs</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Command Palette Search Trigger -->
+      <button class="mint-search-trigger" id="globalSearchBtn" aria-label="Search documentation">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span>🔍</span>
+          <span>Search docs, reflections, RFCs...</span>
+        </div>
+        <span class="mint-kbd">⌘K</span>
+      </button>
+
+      <!-- Nav Links -->
+      <nav class="mint-nav-actions">
+        <a href="/timeline" class="mint-nav-link">🗓️ Timeline</a>
+        <a href="/playbooks" class="mint-nav-link">🎮 Playbooks</a>
+        <a href="/specs" class="mint-nav-link">📄 Specs</a>
+        <a href="https://github.com/askdebb/learning-curve" target="_blank" rel="noopener noreferrer" class="mint-btn-pill">
+          GitHub ↗
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 3-Column Mintlify Layout -->
+  <div class="mint-layout">
+    <!-- Left Navigation Sidebar -->
+    <aside class="mint-sidebar" id="mintSidebar">
+      <div>
+        <div class="mint-sidebar-section-title">
+          <span>💳 FinTech & Payout Rails</span>
+        </div>
+        <a class="mint-nav-item" data-slug="next-payouts-metric-modeling-and-plain-english-fintech">
+          <span class="mint-nav-item-text">Next Payouts Metric Modeling</span>
+          <span class="mint-tag mint-tag-fintech">HOT</span>
+        </a>
+        <a class="mint-nav-item" data-slug="financial-dashboard-chart-data-orchestration">
+          <span class="mint-nav-item-text">Financial Chart Scaling</span>
+          <span class="mint-tag mint-tag-fintech">RECHARTS</span>
+        </a>
+      </div>
+
+      <div>
+        <div class="mint-sidebar-section-title">
+          <span>⚛️ React 19 & State</span>
+        </div>
+        <a class="mint-nav-item" data-slug="merchant-dashboard-reactive-state-and-query-invalidation">
+          <span class="mint-nav-item-text">Merchant Reactive State & Keys</span>
+          <span class="mint-tag mint-tag-react">ZUSTAND</span>
+        </a>
+        <a class="mint-nav-item" data-slug="merchant-api-state-architecture">
+          <span class="mint-nav-item-text">3-Tier State Taxonomy</span>
+          <span class="mint-tag mint-tag-react">REACT 19</span>
+        </a>
+        <a class="mint-nav-item" data-slug="01-global-storage-vs-server-cache">
+          <span class="mint-nav-item-text">Global Storage vs Server Cache</span>
+          <span class="mint-tag mint-tag-react">SPEC</span>
+        </a>
+        <a class="mint-nav-item" data-slug="02-preventing-rerenders-in-query-hooks">
+          <span class="mint-nav-item-text">Preventing Re-renders in Hooks</span>
+          <span class="mint-tag mint-tag-react">PERF</span>
+        </a>
+      </div>
+
+      <div>
+        <div class="mint-sidebar-section-title">
+          <span>🔒 Security & Hardening</span>
+        </div>
+        <a class="mint-nav-item" data-slug="authentication-architecture">
+          <span class="mint-nav-item-text">Enterprise Authentication Arch</span>
+          <span class="mint-tag mint-tag-security">OWASP</span>
+        </a>
+      </div>
+
+      <div>
+        <div class="mint-sidebar-section-title">
+          <span>🔄 Realtime & WebSockets</span>
+        </div>
+        <a class="mint-nav-item" data-slug="checkout-stepper-and-notifications">
+          <span class="mint-nav-item-text">Crypto Stepper & Socket Push</span>
+          <span class="mint-tag mint-tag-new">PUSH API</span>
+        </a>
+      </div>
+
+      <div>
+        <div class="mint-sidebar-section-title">
+          <span>🗺️ System Specs & APIs</span>
+        </div>
+        <a class="mint-nav-item" data-slug="03-component-endpoint-mapping">
+          <span class="mint-nav-item-text">Component-to-API Mapping</span>
+          <span class="mint-tag mint-tag-new">TAXONOMY</span>
+        </a>
+        <a class="mint-nav-item" data-slug="merchant-api-integration-guide">
+          <span class="mint-nav-item-text">Merchant API Integration</span>
+          <span class="mint-tag mint-tag-new">GUIDE</span>
+        </a>
+      </div>
+
+      <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--mint-border);">
+        <div style="font-size: 11px; color: var(--mint-text-subtle); line-height: 1.5;">
+          💡 Tip: Press <span class="mint-kbd">⌘K</span> anytime to search all architecture specs and external RFCs.
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Documentation Reader -->
+    <main class="mint-content-area">
+      <!-- Breadcrumb -->
+      <nav class="mint-breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Learning Curve</a>
+        <span>/</span>
+        <a href="/specs">Documentation</a>
+        <span>/</span>
+        <span id="breadcrumbCurrent" style="color: #FFF; font-weight: 500;">Next Payouts Metric Modeling</span>
+      </nav>
+
+      <!-- Document Header -->
+      <article class="mint-doc-header">
+        <div class="mint-doc-meta-row">
+          <span class="mint-doc-badge" id="badgeCategory">💳 FinTech Rails</span>
+          <span class="mint-doc-badge" id="badgeReadingTime">⏱️ 6 min read</span>
+          <span class="mint-doc-badge" id="badgeStatus">● Production Standard</span>
+          <span class="mint-doc-badge" id="badgeVerified">Verified: Sep 2026</span>
+        </div>
+        <h1 class="mint-doc-title" id="docTitle">Next Payouts Metric Modeling & Plain-Language FinTech Architecture</h1>
+        <p class="mint-doc-description" id="docDesc">
+          Batch pipeline aggregation (pending + processing), dynamic multi-currency scoping, directionless 0% equilibrium handling, and plain-English financial metrics.
+        </p>
+
+        <!-- Quick Action Bar -->
+        <div class="mint-doc-actions">
+          <a id="btnPlaybook" href="/playbooks/next-payouts-metric-modeling-and-plain-english-fintech.html" class="mint-action-btn mint-action-btn-primary">
+            <span>🎮 Launch Playbook Simulator</span>
+          </a>
+          <button class="mint-action-btn" onclick="copyPageUrl()">
+            <span id="copyUrlBtnText">📋 Copy Link</span>
+          </button>
+          <a id="btnRawMd" href="/entries/next-payouts-metric-modeling-and-plain-english-fintech.md" target="_blank" class="mint-action-btn">
+            <span>📄 Raw Markdown Spec</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Main Rendered Content Container -->
+      <div id="docBody">
+        <!-- Dynamically injected doc content -->
+      </div>
+
+      <!-- Extra Resources Section -->
+      <section class="mint-resources-section" id="sectionResources">
+        <h2 class="mint-section-heading">
+          <span>📚 Extra Resources & Authoritative References</span>
+        </h2>
+        <p class="mint-section-subhead">
+          Authoritative technical specifications, official RFCs, and engineering guides to explore and deepen your understanding:
+        </p>
+
+        <div class="mint-resources-grid" id="resourcesGrid">
+          <!-- Dynamically populated resource cards -->
+        </div>
+      </section>
+
+      <!-- Pager -->
+      <div class="mint-pager">
+        <a href="#" class="mint-pager-btn" id="pagerPrev" style="visibility: hidden;">
+          <span class="mint-pager-label">← Previous Topic</span>
+          <span class="mint-pager-title" id="pagerPrevTitle">Previous</span>
+        </a>
+        <a href="#" class="mint-pager-btn" id="pagerNext" style="text-align: right;">
+          <span class="mint-pager-label">Next Topic →</span>
+          <span class="mint-pager-title" id="pagerNextTitle">Next</span>
+        </a>
+      </div>
+
+      <!-- Feedback Widget -->
+      <div class="mint-feedback-box">
+        <span class="mint-feedback-text">Was this documentation and reflection helpful?</span>
+        <div class="mint-feedback-actions">
+          <button class="mint-feedback-btn" onclick="handleFeedback('yes')">👍 Yes</button>
+          <button class="mint-feedback-btn" onclick="handleFeedback('no')">👎 Needs improvement</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Sidebar (Table of Contents & Quick Resources) -->
+    <aside class="mint-toc">
+      <div>
+        <div class="mint-toc-title">On This Page</div>
+        <ul class="mint-toc-list" id="tocList">
+          <li><a href="#summary" class="mint-toc-link active">1. Executive Summary & Problem</a></li>
+          <li><a href="#reflection" class="mint-toc-link">2. 💡 Engineering Reflection</a></li>
+          <li><a href="#architecture" class="mint-toc-link">3. Payout Rail Lifecycle</a></li>
+          <li><a href="#implementation" class="mint-toc-link">4. Step-by-Step Implementation</a></li>
+          <li><a href="#code" class="mint-toc-link">5. Production Code Pattern</a></li>
+          <li><a href="#sectionResources" class="mint-toc-link">6. 📚 Extra Resources & RFCs</a></li>
+        </ul>
+      </div>
+
+      <div class="mint-toc-extra-box">
+        <div class="mint-toc-extra-title">⚡ Quick Actions</div>
+        <ul class="mint-toc-extra-list">
+          <li><a href="#sectionResources" class="mint-toc-extra-link">🌐 View Official RFCs</a></li>
+          <li><a id="tocPlaybookLink" href="#" class="mint-toc-extra-link">🎮 Open Interactive Lab</a></li>
+          <li><a href="/specs" class="mint-toc-extra-link">📄 Return to Specs Hub</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Command Palette Script -->
+  <script src="/command-palette.js"></script>
+
+  <!-- Mintlify Engine Logic & Dataset -->
+  <script>
+    // Knowledge Base Dataset: All 10 Entries with Reflection Callouts, Code Blocks, and Authoritative Extra Resources
+    const entriesData = {
+      "next-payouts-metric-modeling-and-plain-english-fintech": {
+        title: "Next Payouts Metric Modeling & Plain-Language FinTech Architecture",
+        desc: "Batch pipeline aggregation (pending + processing), dynamic multi-currency scoping, directionless 0% equilibrium handling, and plain-English financial metrics.",
+        category: "💳 FinTech Rails",
+        readingTime: "⏱️ 6 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/next-payouts-metric-modeling-and-plain-english-fintech.html",
+        rawMd: "/entries/next-payouts-metric-modeling-and-plain-english-fintech.md",
+        reflection: {
+          title: "Hard-Learned Lesson: 0% Equilibrium & FinTech Notation Trap",
+          whatHappened: "In early iterations, the Next Payouts metric card displayed a raw count ('2 pending') rather than the financial percentage trend requested by stakeholders. Furthermore, whenever payout volume didn't change from the prior settlement, the UI defaulted to an upward green arrow (+0% ↑), misleading merchants into believing their payout volume was increasing.",
+          whyItFailed: "Using naive LaTeX mathematical formulas in engineering documentation alienated frontend engineers and product compliance auditors. More critically, directional arrows imply momentum: in financial rail engineering, 0% change is mathematically neutral equilibrium and MUST render without any directional arrow or colored bias.",
+          takeaway: "1. Always combine both 'pending' and 'processing' states for in-flight liabilities. 2. Filter strictly by active dashboard currency to prevent summing cross-currency balances (e.g. GHS with NGN). 3. Adhere to the 0% equilibrium rule: zero change is directionless."
+        },
+        steps: [
+          { title: "Define In-Flight Pipeline State", body: "Aggregate both `pending` (in-queue) and `processing` (dispatched to banking/MoMo partner rails) as the in-flight liability total." },
+          { title: "Enforce Currency Scoping", body: "Filter payout items by `item.currency === activeCurrency` before running mathematical reductions to prevent cross-currency balance pollution." },
+          { title: "Calculate Velocity Trend", body: "Compare current pending volume against the most recent settled volume using `((Current - Settled) / Settled) * 100`." },
+          { title: "Implement Equilibrium Zero Guard", body: "If percentage change is exactly 0%, render neutral gray text with `direction: none` and remove all arrows." }
+        ],
+        codeTabs: [
+          {
+            name: "useNormalDashboardMetrics.ts",
+            code: `export const useNormalDashboardMetrics = (activeCurrency: string = "GHS") => {
+  const { payouts, isPayoutsLoading } = usePayoutsAction();
+
+  const { pendingPayoutTotal, nextPayoutsTrend, nextPayoutsTrendDir, nextPayoutsTone } = useMemo(() => {
+    // 1. Currency-scoped filter
+    const scoped = payouts.filter(p => p.currency === activeCurrency);
+    
+    // 2. In-flight liability aggregation (pending + processing)
+    const pendingTotal = scoped
+      .filter(p => p.status === "pending" || p.status === "processing")
+      .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+      
+    const formattedTotal = \`\${activeCurrency} \${pendingTotal.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}\`;
+
+    // 3. Compare with most recent settled payout
+    const settled = scoped
+      .filter(p => p.status === "settled")
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    if (settled.length === 0) {
+      return { pendingPayoutTotal: formattedTotal, nextPayoutsTrend: "0%", nextPayoutsTrendDir: "none", nextPayoutsTone: "gray" };
+    }
+
+    const prevAmount = parseFloat(settled[0].amount) || 0;
+    if (prevAmount === 0) {
+      return { pendingPayoutTotal: formattedTotal, nextPayoutsTrend: "+100%", nextPayoutsTrendDir: "up", nextPayoutsTone: "green" };
+    }
+
+    // 4. Directionless 0% Equilibrium Standard
+    const diffPct = Math.round(((pendingTotal - prevAmount) / prevAmount) * 100);
+    if (diffPct === 0) {
+      return { pendingPayoutTotal: formattedTotal, nextPayoutsTrend: "0%", nextPayoutsTrendDir: "none", nextPayoutsTone: "gray" };
+    }
+
+    return {
+      pendingPayoutTotal: formattedTotal,
+      nextPayoutsTrend: \`\${diffPct > 0 ? "+" : ""}\${diffPct}%\`,
+      nextPayoutsTrendDir: diffPct > 0 ? "up" : "down",
+      nextPayoutsTone: diffPct > 0 ? "green" : "red",
+    };
+  }, [payouts, activeCurrency]);
+
+  return { pendingPayoutTotal, nextPayoutsTrend, nextPayoutsTrendDir, nextPayoutsTone };
+};`
+          }
+        ],
+        resources: [
+          {
+            title: "ISO 20022 Financial Services Messaging",
+            domain: "iso20022.org",
+            desc: "Universal standard for financial industry message schemes, payment initiation, clearing and settlement.",
+            url: "https://www.iso20022.org/",
+            icon: "🏛️"
+          },
+          {
+            title: "Stripe Connect: Payouts & Settlement Lifecycle",
+            domain: "docs.stripe.com",
+            desc: "Architectural blueprint on in-flight payout states, balance transaction types, and bank reconciliation.",
+            url: "https://docs.stripe.com/payouts",
+            icon: "💳"
+          },
+          {
+            title: "GhIPSS Instant Pay & Mobile Money Rail Protocols",
+            domain: "ghipss.net",
+            desc: "Technical standard for clearing interoperable bank transfers and telecom mobile money settlements.",
+            url: "https://www.ghipss.net/",
+            icon: "📱"
+          },
+          {
+            title: "Martin Fowler: Accounting Patterns & Money Representation",
+            domain: "martinfowler.com",
+            desc: "Software architecture patterns for ledger entry models, two-phase commits, and rounding precision.",
+            url: "https://martinfowler.com/eaaCatalog/money.html",
+            icon: "📖"
+          }
+        ]
+      },
+
+      "financial-dashboard-chart-data-orchestration": {
+        title: "Financial Dashboard Chart Data Orchestration & Responsive Axis Scaling",
+        desc: "Rolling ledger date windowing (Monthly, Quarterly, Yearly) with responsive magnitude-aware axis scaling and dual-mode Developer vs. Business telemetry.",
+        category: "📈 Data Visualization",
+        readingTime: "⏱️ 5 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/financial-dashboard-chart-data-orchestration.html",
+        rawMd: "/entries/financial-dashboard-chart-data-orchestration.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Fixed Axis Labels & Recharts SVG Clipping",
+          whatHappened: "When merchants toggled the date range filter from 'This Month' (30 days) to 'This Year' (365 days), Recharts rendered all 365 date labels on the X-axis, creating an illegible black smear of overlapping text. Concurrently, large revenue amounts (e.g. GHS 1,450,000) overflowed the Y-axis boundary and clipped out of view.",
+          whyItFailed: "Relying on Recharts default auto-scaling fails on dynamic financial datasets. A production chart requires magnitude-aware tick intervals (e.g., show every 5th day on month view, but only quarterly month names on year view), and dynamic left margin padding based on maximum revenue digits.",
+          takeaway: "1. Calculate `interval` dynamically based on dataset length. 2. Format Y-axis ticks with compact notation ('GHS 1.4M', 'GHS 250K'). 3. Expand left padding automatically when currency amounts exceed 6 figures."
+        },
+        steps: [
+          { title: "Compute Rolling Date Ledger", body: "Generate continuous day series matching the selected filter (30d, 90d, 365d), zero-filling missing transaction days." },
+          { title: "Calculate Magnitude-Aware Interval", body: "Derive `Math.ceil(data.length / targetTickCount)` so the X-axis always renders exactly 6-8 legible labels regardless of duration." },
+          { title: "Apply Compact Number Formatting", body: "Use `Intl.NumberFormat('en', { notation: 'compact' })` for Y-axis currency ticks." },
+          { title: "Dual Telemetry Switch", body: "Allow developers to inspect raw latency and data points while business users view aggregated revenue trends." }
+        ],
+        codeTabs: [
+          {
+            name: "RevenueChart.tsx",
+            code: `export const RevenueChart = ({ data, range }: { data: ChartPoint[]; range: 'month' | 'quarter' | 'year' }) => {
+  // 1. Calculate dynamic X-axis tick interval
+  const tickInterval = useMemo(() => {
+    if (range === 'month') return 4; // Every 5 days
+    if (range === 'quarter') return 14; // Every 2 weeks
+    return 30; // Monthly labels
+  }, [range]);
+
+  // 2. Magnitude-aware compact formatting
+  const formatYAxis = useCallback((value: number) => {
+    if (value >= 1_000_000) return \`\${(value / 1_000_000).toFixed(1)}M\`;
+    if (value >= 1_000) return \`\${(value / 1_000).toFixed(0)}K\`;
+    return value.toString();
+  }, []);
+
+  return (
+    <ResponsiveContainer width="100%" height={320}>
+      <AreaChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
+        <XAxis dataKey="date" interval={tickInterval} stroke="#64748B" tick={{ fill: '#94A3B8', fontSize: 12 }} />
+        <YAxis tickFormatter={formatYAxis} stroke="#64748B" tick={{ fill: '#94A3B8', fontSize: 12 }} />
+        <Tooltip content={<CustomChartTooltip />} />
+        <Area type="monotone" dataKey="amount" stroke="#10B981" fillOpacity={1} fill="url(#colorRevenue)" />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+};`
+          }
+        ],
+        resources: [
+          {
+            title: "Recharts ResponsiveContainer & SVG Scaling",
+            domain: "recharts.org",
+            desc: "Official API guide on container aspect ratios, debounce timeouts, and resize observers.",
+            url: "https://recharts.org/en-US/api/ResponsiveContainer",
+            icon: "📊"
+          },
+          {
+            title: "D3.js: Scale Linear & Nice Ticks Algorithm",
+            domain: "d3js.org",
+            desc: "Mathematical foundation for generating human-readable tick intervals across arbitrary ranges.",
+            url: "https://d3js.org/d3-scale/linear",
+            icon: "📈"
+          },
+          {
+            title: "Highcharts: Handling Large Time Series Datasets",
+            domain: "highcharts.com",
+            desc: "Techniques for data grouping, point decimation, and rolling financial ledger windowing.",
+            url: "https://www.highcharts.com/docs/advanced-chart-features/data-grouping",
+            icon: "📉"
+          }
+        ]
+      },
+
+      "merchant-dashboard-reactive-state-and-query-invalidation": {
+        title: "Merchant Dashboard Reactive State, Query Invalidation & Equilibrium UI",
+        desc: "Centralized queryKeys factories, root store auto-sync, granular cache invalidation, and directionless 0% equilibrium micro-UI physics.",
+        category: "⚛️ React 19 & State",
+        readingTime: "⏱️ 7 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/merchant-dashboard-reactive-state-and-query-invalidation.html",
+        rawMd: "/entries/merchant-dashboard-reactive-state-and-query-invalidation.md",
+        reflection: {
+          title: "Hard-Learned Lesson: The 'Invalidate Everything' Performance Trap",
+          whatHappened: "Initially, when a merchant completed a payout or deposit, the action hook executed `queryClient.invalidateQueries()`, causing every single query on the screen (transactions, balance, charts, profile, exchange rates) to simultaneously refetch over the network.",
+          whyItFailed: "Over-invalidation causes network thread saturation, mobile battery drain, and visible table flicker. It also risks race conditions where an outdated query response overwrites an in-flight optimistic update.",
+          takeaway: "1. Build a centralized `queryKeys` factory with hierarchical array tuples. 2. Invalidate only the exact branch affected (e.g. `queryKeys.payouts.all()` and `queryKeys.balances.all()`). 3. Synchronize immutable server responses directly into Zustand root stores."
+        },
+        steps: [
+          { title: "Define Central Query Key Factory", body: "Organize query keys into structured tuples like `['payouts', activeCurrency, { page, status }]`." },
+          { title: "Targeted Invalidation on Mutation", body: "On payout submission, invalidate only `queryKeys.payouts.all()` and `queryKeys.balances.all()`." },
+          { title: "Zustand Root Store Auto-Hydration", body: "Listen to server state arrival and auto-hydrate client-side preferences without manual event dispatching." }
+        ],
+        codeTabs: [
+          {
+            name: "queryKeys.ts",
+            code: `export const queryKeys = {
+  payouts: {
+    all: () => ['payouts'] as const,
+    list: (currency: string, filters: Record<string, any>) => ['payouts', currency, filters] as const,
+    detail: (id: string) => ['payouts', 'detail', id] as const,
+  },
+  balances: {
+    all: () => ['balances'] as const,
+    byCurrency: (currency: string) => ['balances', currency] as const,
+  },
+  rates: {
+    live: (pair: string) => ['rates', pair] as const,
+  }
+};`
+          },
+          {
+            name: "useCreatePayoutMutation.ts",
+            code: `export const useCreatePayoutMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: PayoutPayload) => api.post('/payouts', payload),
+    onSuccess: (data, variables) => {
+      // ✅ Precise invalidation: Refetches payouts list and balances only!
+      queryClient.invalidateQueries({ queryKey: queryKeys.payouts.all() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.balances.byCurrency(variables.currency) });
+    }
+  });
+};`
+          }
+        ],
+        resources: [
+          {
+            title: "TkDodo: Effective React Query Keys Architecture",
+            domain: "tkdodo.eu",
+            desc: "Best practice guide on constructing query key factories, colocation, and mutation invalidation.",
+            url: "https://tkdodo.eu/blog/effective-react-query-keys",
+            icon: "🔑"
+          },
+          {
+            title: "TanStack Query v5: Query Invalidation Reference",
+            domain: "tanstack.com",
+            desc: "Official documentation on exact vs fuzzy query matching and active vs inactive refetching.",
+            url: "https://tanstack.com/query/v5/docs/framework/react/guides/query-invalidation",
+            icon: "⚡"
+          },
+          {
+            title: "Zustand v5: Slice Pattern & Auto-Hydration",
+            domain: "zustand.docs.pmnd.rs",
+            desc: "Organizing scalable client state stores without circular dependencies.",
+            url: "https://zustand.docs.pmnd.rs/guides/slices-pattern",
+            icon: "🐻"
+          }
+        ]
+      },
+
+      "authentication-architecture": {
+        title: "Enterprise Authentication Architecture & Security Hardening",
+        desc: "OWASP user enumeration mitigation, uncontrolled input keystroke render protection, unified phone/email parsing, and Yup validation pipelines.",
+        category: "🔒 Security & Hardening",
+        readingTime: "⏱️ 8 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/authentication-architecture.html",
+        rawMd: "/entries/authentication-architecture.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Controlled Input Keystroke Thrashing & Enumeration Traps",
+          whatHappened: "Originally, the sign-in form stored email and password in React controlled state (`useState`), causing the entire authentication layout to re-render on every single keystroke. Simultaneously, server error messages returned 'User with this email not found' vs. 'Invalid password'.",
+          whyItFailed: "1. Keystroke re-renders caused input stuttering on low-end mobile devices and during browser password autofill. 2. Returning different error messages for non-existent users vs wrong passwords violated OWASP standards by allowing attackers to enumerate registered customer accounts.",
+          takeaway: "1. Use uncontrolled inputs (`useRef`) to isolate keystrokes entirely from the React render pipeline. 2. Implement the Generic Notice Standard: always return 'The email or password you entered is incorrect' regardless of whether the user exists. 3. Validate phone and email formats client-side with Yup before hitting auth endpoints."
+        },
+        steps: [
+          { title: "Switch to Uncontrolled Form", body: "Bind inputs via `useRef` so typing generates zero React re-renders, protecting mobile frame rates." },
+          { title: "Dynamic Identifier Detection", body: "Check `identifier.includes('@')` to dynamically route between `SigninWithEmailRules` and `SigninWithPhoneRules`." },
+          { title: "OWASP Generic Error Guard", body: "Normalize all 401, 404, and 422 credential errors to the exact same generic string." },
+          { title: "Autofill Background Color Fix", body: "Prevent browser autofill yellow/blue styling using `autofill:shadow-[inset_0_0_0_1000px_#FFFEFE]`." }
+        ],
+        codeTabs: [
+          {
+            name: "SignInForm.tsx",
+            code: `export const SignInForm = () => {
+  const { signIn, isPending, globalError } = useAuth();
+  const identifierRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const idVal = identifierRef.current?.value || "";
+    const passVal = passwordRef.current?.value || "";
+    await signIn(idVal, passVal);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {globalError && (
+        <div className="p-3 text-sm bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-lg">
+          {globalError}
+        </div>
+      )}
+      <input ref={identifierRef} type="text" placeholder="Email or Phone Number" className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white" />
+      <input ref={passwordRef} type="password" placeholder="Password" className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white" />
+      <button type="submit" disabled={isPending} className="w-full py-2.5 bg-indigo-600 font-semibold rounded-lg hover:bg-indigo-500 transition">
+        {isPending ? "Authenticating..." : "Sign In"}
+      </button>
+    </form>
+  );
+};`
+          },
+          {
+            name: "useAuth.ts",
+            code: `export function useAuth() {
+  const [globalError, setGlobalError] = useState<string | null>(null);
+  const signInMutation = useSignInAction();
+
+  const signIn = useCallback(async (identifier: string, pass: string) => {
+    setGlobalError(null);
+    const validation = validateAuthInput(identifier, pass);
+    if (!validation.isValid) {
+      // ✅ OWASP Generic Message Protection
+      setGlobalError("The email or password you entered is incorrect");
+      return false;
+    }
+
+    try {
+      await signInMutation.mutateAsync(validation.payload);
+      return true;
+    } catch {
+      setGlobalError("The email or password you entered is incorrect");
+      return false;
+    }
+  }, [signInMutation]);
+
+  return { signIn, globalError, isPending: signInMutation.isPending };
+}`
+          }
+        ],
+        resources: [
+          {
+            title: "OWASP Authentication Cheat Sheet",
+            domain: "owasp.org",
+            desc: "Comprehensive guidelines on secure credential transmission, rate limiting, and password reset workflows.",
+            url: "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+            icon: "🛡️"
+          },
+          {
+            title: "OWASP User Enumeration Prevention Guide",
+            domain: "owasp.org",
+            desc: "Mitigation strategies for timing attacks, generic error messages, and account registration enumeration.",
+            url: "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/03-Identity_Management_Testing/04-Testing_for_Account_Enumeration_and_Guessable_User_Account",
+            icon: "🔒"
+          },
+          {
+            title: "RFC 6749: OAuth 2.0 Authorization Framework",
+            domain: "datatracker.ietf.org",
+            desc: "The definitive IETF specification for token issuance, bearer access, and authorization code flows.",
+            url: "https://datatracker.ietf.org/doc/html/rfc6749",
+            icon: "📜"
+          },
+          {
+            title: "RFC 7636: Proof Key for Code Exchange (PKCE)",
+            domain: "datatracker.ietf.org",
+            desc: "Security enhancement standard preventing authorization code interception in public clients.",
+            url: "https://datatracker.ietf.org/doc/html/rfc7636",
+            icon: "📜"
+          }
+        ]
+      },
+
+      "merchant-api-state-architecture": {
+        title: "Bitnormous Merchant API Architecture, Render Protection & State Taxonomy",
+        desc: "3-Tier State Taxonomy (Server State vs. Zustand drafts vs. Ephemeral), Three Pillars of Render Protection, and decoupled drawer store orchestrators.",
+        category: "⚛️ React 19 & State",
+        readingTime: "⏱️ 8 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/merchant-api-state-architecture.html",
+        rawMd: "/entries/merchant-api-state-architecture.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Passing Direct Query Callbacks & Infinite Loops",
+          whatHappened: "Consumer components frequently passed inline arrow functions directly into custom action hooks (`useWalletsAction(wallets => setList(wallets))`). Because inline functions get recreated on every render, adding them to hook `useEffect` dependency arrays caused devastating infinite re-render loops.",
+          whyItFailed: "React determines hook effect execution by reference equality (`===`). A new arrow function reference triggers the effect, which calls the state setter, triggering a component re-render, creating a fresh function reference, ad infinitum.",
+          takeaway: "1. Store callback references inside `useRef` (`successCallbackRef.current = callback`) and remove callbacks from `useEffect` dependencies. 2. Wrap derived arrays and calculations in `useMemo`. 3. Wrap helper selectors in `useCallback` to preserve reference stability across renders."
+        },
+        steps: [
+          { title: "Pillar 1: Stable Callback Refs", body: "Capture incoming callbacks inside mutable `useRef` objects to decouple consumer re-renders from hook effect cycles." },
+          { title: "Pillar 2: Memoized Data Slices", body: "Extract data arrays via `useMemo(() => query.data?.data ?? [], [query.data?.data])` to prevent array reference instability." },
+          { title: "Pillar 3: Selector Stability", body: "Memoize helper methods (`getAvailableBalance`, `findWallet`) using `useCallback`." }
+        ],
+        codeTabs: [
+          {
+            name: "useWalletsAction.ts",
+            code: `export const useWalletsAction = (
+  successCallback?: (wallets: CustodyWalletItem[]) => void,
+  errorCallback?: (error: any) => void,
+) => {
+  // Pillar 1: Stable Callback References via useRef
+  const successCallbackRef = useRef(successCallback);
+  successCallbackRef.current = successCallback;
+
+  const errorCallbackRef = useRef(errorCallback);
+  errorCallbackRef.current = errorCallback;
+
+  const query = useQuery({
+    queryKey: ['wallets'],
+    queryFn: () => api.get('/wallets'),
+  });
+
+  useEffect(() => {
+    if (query.isSuccess && query.data?.data) {
+      successCallbackRef.current?.(query.data.data);
+    }
+  }, [query.isSuccess, query.data]); // ✅ Decoupled from callback identity!
+
+  // Pillar 2: Memoized Data Slices
+  const wallets = useMemo(() => query.data?.data ?? [], [query.data?.data]);
+
+  // Pillar 3: Stable Selectors via useCallback
+  const getWallet = useCallback((currency: string) => {
+    return wallets.find(w => w.currency === currency);
+  }, [wallets]);
+
+  return { wallets, getWallet, isLoading: query.isLoading };
+};`
+          }
+        ],
+        resources: [
+          {
+            title: "React Official Docs: Escape Hatches & useRef",
+            domain: "react.dev",
+            desc: "Deep dive on storing mutable information that doesn't trigger component re-renders.",
+            url: "https://react.dev/reference/react/useRef",
+            icon: "⚛️"
+          },
+          {
+            title: "Kent C. Dodds: When to useMemo and useCallback",
+            domain: "kentcdodds.com",
+            desc: "Authoritative analysis on computational cost vs reference equality in React.",
+            url: "https://kentcdodds.com/blog/usememo-and-usecallback",
+            icon: "📖"
+          },
+          {
+            title: "Chrome DevTools: Profiling React Performance",
+            domain: "developer.chrome.com",
+            desc: "Step-by-step guide to tracking flame charts, render durations, and memory allocations.",
+            url: "https://developer.chrome.com/docs/devtools/performance/",
+            icon: "🛠️"
+          }
+        ]
+      },
+
+      "checkout-stepper-and-notifications": {
+        title: "Crypto Stepper State Persistence, Socket Lifecycle & Push Notifications",
+        desc: "Simulates mobile browser tab suspension, localStorage state recovery, background socket reconnects, and context-aware native Web Push notifications.",
+        category: "🔄 Realtime & WebSockets",
+        readingTime: "⏱️ 7 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/checkout-stepper-and-notifications.html",
+        rawMd: "/entries/checkout-stepper-and-notifications.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Mobile Tab Freezing & Lost Checkout State",
+          whatHappened: "When buyers switched away from the crypto checkout page to open their banking or crypto wallet app (e.g. Binance or MetaMask) to complete payment, mobile operating systems (iOS Safari & Android Chrome) aggressively suspended the browser tab. When returning, the entire checkout wizard reset back to step 1.",
+          whyItFailed: "Relying on standard React component state or ephemeral memory is fatal in mobile crypto workflows. Once backgrounded, browsers terminate active WebSocket sockets and garbage collect unpersisted JavaScript heaps.",
+          takeaway: "1. Persist wizard state in `localStorage` with TTL expiration. 2. Listen to `visibilitychange` events to gracefully reconnect sockets when returning to the tab. 3. Dispatch native Web Push notifications when a background payment is confirmed so the user knows to return."
+        },
+        steps: [
+          { title: "Zustand Persist with Storage Fallback", body: "Serialize active step, quote ID, and locked exchange rates to `localStorage` wrapped in a `try/catch` quota guard." },
+          { title: "Tab Visibility Change Listener", body: "Re-establish WebSocket subscriptions immediately when `document.visibilityState === 'visible'`." },
+          { title: "Web Notification Permission Request", body: "Request `Notification.requestPermission()` at checkout start so confirmations trigger even while tab is in background." }
+        ],
+        codeTabs: [
+          {
+            name: "useCheckoutStepper.ts",
+            code: `export const useCheckoutStore = create<CheckoutState>()(
+  persist(
+    (set) => ({
+      activeStep: 1,
+      paymentId: null,
+      lockedQuote: null,
+      setStep: (step) => set({ activeStep: step }),
+      setPayment: (id, quote) => set({ paymentId: id, lockedQuote: quote }),
+      reset: () => set({ activeStep: 1, paymentId: null, lockedQuote: null }),
+    }),
+    {
+      name: "bitnormous_checkout_draft",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);`
+          }
+        ],
+        resources: [
+          {
+            title: "W3C Web Push & Notification API Specification",
+            domain: "w3.org",
+            desc: "Official standard for presenting asynchronous background notifications across desktop and mobile.",
+            url: "https://www.w3.org/TR/push-api/",
+            icon: "🔔"
+          },
+          {
+            title: "RFC 6455: The WebSocket Protocol",
+            domain: "datatracker.ietf.org",
+            desc: "IETF protocol standard for full-duplex communication over single TCP connections.",
+            url: "https://datatracker.ietf.org/doc/html/rfc6455",
+            icon: "📜"
+          },
+          {
+            title: "MDN: Page Visibility API",
+            domain: "developer.mozilla.org",
+            desc: "Guide to detecting background tab suspension and managing socket reconnection lifecycles.",
+            url: "https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API",
+            icon: "🌐"
+          }
+        ]
+      },
+
+      "01-global-storage-vs-server-cache": {
+        title: "Global Storage vs. Server State Cache Architecture",
+        desc: "Establishing the rigid architectural boundary between Server State (TanStack Query), Global Client State (Zustand), and Ephemeral Local State.",
+        category: "🗄️ Architecture Specs",
+        readingTime: "⏱️ 5 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/merchant-api-state-architecture.html",
+        rawMd: "/entries/01-global-storage-vs-server-cache.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Copying Server State into Zustand",
+          whatHappened: "Engineers frequently stored API response arrays (like deposit history or transaction tables) into Zustand stores so that 'any component could read them'.",
+          whyItFailed: "Mirroring server collections in Zustand forces manual implementation of pagination cache keys, deduplication, and stale-while-revalidate logic. Worse, updating an array with 100 rows in Zustand causes global render thrashing across all subscribed components.",
+          takeaway: "1. Let TanStack Query own all server state. 2. Reserve Zustand strictly for client-owned state: multi-step draft wizards, selected row IDs for slide-over drawers, active environment toggles, and write-once secrets."
+        },
+        steps: [
+          { title: "Determine State Ownership", body: "If data originates from an API database, it is Server State. If it is client-generated, it is Client State." },
+          { title: "Use TanStack Query for Server State", body: "Leverage automated garbage collection, query key pagination, and stale-while-revalidate." },
+          { title: "Confine Zustand to Client Drafts", body: "Store drawer open/close flags, wizard step drafts, and write-once webhook secrets in Zustand." }
+        ],
+        codeTabs: [
+          {
+            name: "TaxonomySummary.ts",
+            code: `// 1. Server State -> TanStack Query (Remote ownership, cached, deduped)
+const { data: transactions } = useTransactionsQuery({ page: 1, limit: 25 });
+
+// 2. Global Client State -> Zustand (Client-owned, persistent across routes)
+const selectedTx = useDrawerStore(s => s.selectedTransaction);
+
+// 3. Ephemeral State -> useState (Single component lifecycle)
+const [isDropdownOpen, setIsDropdownOpen] = useState(false);`
+          }
+        ],
+        resources: [
+          {
+            title: "TkDodo: Inside the React Query Cache",
+            domain: "tkdodo.eu",
+            desc: "Exhaustive exploration of cache mechanics, stale time vs gcTime, and garbage collection.",
+            url: "https://tkdodo.eu/blog/inside-react-query",
+            icon: "📖"
+          },
+          {
+            title: "Zustand v5: Shallow Selectors & useShallow",
+            domain: "github.com/pmndrs/zustand",
+            desc: "Preventing unnecessary component re-renders when selecting state slices.",
+            url: "https://github.com/pmndrs/zustand",
+            icon: "🐻"
+          }
+        ]
+      },
+
+      "02-preventing-rerenders-in-query-hooks": {
+        title: "Preventing Re-renders in Custom Query Action Hooks",
+        desc: "The Three Pillars of Render Protection: Stable callback references via useRef, reference-stable data slices via useMemo, and selector stability via useCallback.",
+        category: "🎯 Performance Engineering",
+        readingTime: "⏱️ 5 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/merchant-api-state-architecture.html",
+        rawMd: "/entries/02-preventing-rerenders-in-query-hooks.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Unmemoized Selectors & React.memo Failures",
+          whatHappened: "Child table components wrapped in `React.memo` continued to re-render on every tick because custom hooks were returning fresh helper function definitions (`getWallet: (id) => ...`) on every render.",
+          whyItFailed: "`React.memo` uses shallow equality (`===`). If a parent passes down an unmemoized function returned by a hook, the reference changes every time, invalidating the memoization guard.",
+          takeaway: "Always wrap helper functions returned by custom hooks in `useCallback`."
+        },
+        steps: [
+          { title: "Audit Hook Return Values", body: "Check that every function returned by a custom hook is wrapped in `useCallback`." },
+          { title: "Decouple Consumer Callbacks", body: "Use mutable `useRef` to store callbacks without re-triggering effect hooks." },
+          { title: "Verify with React Profiler", body: "Run Chrome DevTools profiler to confirm zero re-renders on child components when typing." }
+        ],
+        codeTabs: [
+          {
+            name: "ThreePillarsPattern.ts",
+            code: `// Pillar 1: Mutable Refs for Callbacks
+const callbackRef = useRef(onSuccess);
+callbackRef.current = onSuccess;
+
+// Pillar 2: useMemo for Slices
+const items = useMemo(() => query.data?.items ?? [], [query.data?.items]);
+
+// Pillar 3: useCallback for Helper Methods
+const findItem = useCallback((id: string) => {
+  return items.find(i => i.id === id);
+}, [items]);`
+          }
+        ],
+        resources: [
+          {
+            title: "Dan Abramov: A Complete Guide to useEffect",
+            domain: "overreacted.io",
+            desc: "The canonical deep dive on closures, dependencies, and reference stability in React.",
+            url: "https://overreacted.io/a-complete-guide-to-useeffect/",
+            icon: "⚛️"
+          },
+          {
+            title: "React 19 Compiler Architecture",
+            domain: "react.dev",
+            desc: "How the automatic memoizing compiler operates and where manual safeguards remain essential.",
+            url: "https://react.dev/learn/react-compiler",
+            icon: "⚙️"
+          }
+        ]
+      },
+
+      "03-component-endpoint-mapping": {
+        title: "Component to API Endpoint Mapping & Taxonomy",
+        desc: "Master architectural taxonomy binding Bitnormous Merchant Dashboard UI components to backend REST endpoints, caching strategies, and store scopes.",
+        category: "🗺️ System Taxonomy",
+        readingTime: "⏱️ 6 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/merchant-api-state-architecture.html",
+        rawMd: "/entries/03-component-endpoint-mapping.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Undocumented API Contracts",
+          whatHappened: "Different frontend components were calling slightly different URLs for the same resource (e.g. `/wallets/me` vs `/wallets`), leading to cache splits and desynchronized balances.",
+          whyItFailed: "Lack of a centralized component-to-endpoint architectural map allowed duplicate endpoint implementations to proliferate across features.",
+          takeaway: "Establish a single authoritative matrix defining every UI component, its primary endpoint, TanStack Query key, and Zustand drawer binding."
+        },
+        steps: [
+          { title: "Define Endpoint Catalog", body: "Document every HTTP method, URL, and cache TTL in a single reference guide." },
+          { title: "Assign Single Source of Truth", body: "Designate exactly one custom hook per resource (e.g. `useWalletsAction` for `/wallets`)." },
+          { title: "Map Ephemeral Store Bindings", body: "Document which drawer stores attach to each table row." }
+        ],
+        codeTabs: [
+          {
+            name: "EndpointTaxonomy.ts",
+            code: `// Authoritative Endpoint Contract
+// GET /api/v1/wallets         -> useWalletsAction (QueryKey: ['wallets'])
+// GET /api/v1/payouts         -> usePayoutsAction (QueryKey: ['payouts', currency])
+// POST /api/v1/payouts        -> useCreatePayoutMutation (Invalidates ['payouts'], ['balances'])
+// GET /api/v1/transactions    -> useTransactionsAction (QueryKey: ['transactions', page, status])`
+          }
+        ],
+        resources: [
+          {
+            title: "RFC 9110: HTTP Semantics & Caching",
+            domain: "datatracker.ietf.org",
+            desc: "The definitive standard for HTTP status codes, safe methods, and idempotent operations.",
+            url: "https://datatracker.ietf.org/doc/html/rfc9110",
+            icon: "📜"
+          },
+          {
+            title: "OpenAPI Specification 3.1.0",
+            domain: "spec.openapis.org",
+            desc: "Standard machine-readable interface format for describing RESTful APIs.",
+            url: "https://spec.openapis.org/oas/v3.1.0",
+            icon: "📄"
+          }
+        ]
+      },
+
+      "merchant-api-integration-guide": {
+        title: "Merchant API Integration Guide",
+        desc: "Integration standards for Bitnormous Merchant payment rails, webhook signature verification, and idempotency guarantees.",
+        category: "🗺️ System Taxonomy",
+        readingTime: "⏱️ 5 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        playbook: "/playbooks/merchant-api-state-architecture.html",
+        rawMd: "/entries/merchant-api-integration-guide.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Webhook Idempotency & Replay Attacks",
+          whatHappened: "Network retries from banking partners resulted in duplicate webhook deliveries, causing transactions to be credited twice in unhardened test environments.",
+          whyItFailed: "Assuming webhooks will only be dispatched once by external banking partners is a major financial risk. Network timeouts can trigger automated retry storms.",
+          takeaway: "1. Enforce unique idempotency keys on every transaction. 2. Verify HMAC-SHA256 signatures before processing payloads. 3. Record processed webhook event IDs in an atomic transaction ledger."
+        },
+        steps: [
+          { title: "Verify HMAC Signature", body: "Compute `HMAC-SHA256(payload, secret)` and compare with `X-Signature` header." },
+          { title: "Check Idempotency Ledger", body: "If event ID has already been recorded as processed, return HTTP 200 immediately without re-executing credit logic." },
+          { title: "Process Business Event", body: "Update merchant balance atomically inside a database transaction." }
+        ],
+        codeTabs: [
+          {
+            name: "verifyWebhook.ts",
+            code: `import crypto from 'crypto';
+
+export function verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
+  const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+}`
+          }
+        ],
+        resources: [
+          {
+            title: "Stripe: Webhook Signatures & Security",
+            domain: "docs.stripe.com",
+            desc: "Standard industry pattern for signing webhook events with HMAC-SHA256 and preventing replay attacks.",
+            url: "https://docs.stripe.com/webhooks/signatures",
+            icon: "🛡️"
+          },
+          {
+            title: "IETF: The Idempotency-Key HTTP Header Field",
+            domain: "datatracker.ietf.org",
+            desc: "Proposed standard for idempotent HTTP requests in payment processing.",
+            url: "https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header",
+            icon: "📜"
+          }
+        ]
+      }
+    };
+
+    let currentSlug = "next-payouts-metric-modeling-and-plain-english-fintech";
+
+    function loadEntry(slug) {
+      const data = entriesData[slug];
+      if (!data) return;
+
+      currentSlug = slug;
+
+      // Update URL query without page reload
+      const newUrl = window.location.pathname + "?entry=" + slug;
+      window.history.pushState({ slug: slug }, "", newUrl);
+
+      // Update Header
+      document.getElementById("breadcrumbCurrent").textContent = data.title;
+      document.getElementById("docTitle").textContent = data.title;
+      document.getElementById("docDesc").textContent = data.desc;
+      document.getElementById("badgeCategory").textContent = data.category;
+      document.getElementById("badgeReadingTime").textContent = data.readingTime;
+      document.getElementById("badgeStatus").textContent = data.status;
+      document.getElementById("badgeVerified").textContent = data.verified;
+
+      // Action links
+      document.getElementById("btnPlaybook").href = data.playbook;
+      document.getElementById("btnRawMd").href = data.rawMd;
+      document.getElementById("tocPlaybookLink").href = data.playbook;
+
+      // Update Active Navigation Item in Sidebar
+      document.querySelectorAll(".mint-nav-item").forEach(item => {
+        item.classList.toggle("active", item.getAttribute("data-slug") === slug);
+      });
+
+      // Render Center Content Body
+      let bodyHtml = `
+        <!-- Summary Section -->
+        <section id="summary" style="margin-bottom: 32px;">
+          <div class="mint-callout mint-callout-note">
+            <span class="mint-callout-icon">ℹ️</span>
+            <div class="mint-callout-content">
+              <strong>Context & Problem Statement:</strong> ${data.desc}
+            </div>
+          </div>
+        </section>
+
+        <!-- Engineering Reflection Section -->
+        <section id="reflection" style="margin-bottom: 36px;">
+          <div class="mint-callout mint-callout-reflection">
+            <span class="mint-callout-icon">💡</span>
+            <div class="mint-callout-content">
+              <div class="mint-callout-title">${data.reflection.title}</div>
+              <p style="margin-bottom: 8px;"><strong>What was at stake:</strong> ${data.reflection.whatHappened}</p>
+              <p style="margin-bottom: 8px;"><strong>Why the initial approach failed:</strong> ${data.reflection.whyItFailed}</p>
+              <p><strong>Architectural Takeaway:</strong> ${data.reflection.takeaway}</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Implementation Steps -->
+        <section id="implementation" style="margin-bottom: 36px;">
+          <h2 class="mint-section-heading">⚡ Implementation Pipeline</h2>
+          <div class="mint-steps">
+            ${data.steps.map((step, idx) => `
+              <div class="mint-step">
+                <div class="mint-step-number">${idx + 1}</div>
+                <div class="mint-step-title">${step.title}</div>
+                <div class="mint-step-body">${step.body}</div>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+
+        <!-- Code Snippets with File Header & Copy Button -->
+        <section id="code" style="margin-bottom: 36px;">
+          <h2 class="mint-section-heading">💻 Production Code Pattern</h2>
+          ${data.codeTabs.map((tab, idx) => `
+            <div class="mint-code-box">
+              <div class="mint-code-header">
+                <div class="mint-code-tabs">
+                  <span class="mint-code-tab active">${tab.name}</span>
+                </div>
+                <button class="mint-code-copy-btn" onclick="copyCodeSnippet(this, ${idx})">
+                  <span>📋 Copy Code</span>
+                </button>
+              </div>
+              <pre class="mint-code-pre"><code id="codeSnippet_${idx}">${escapeHtml(tab.code)}</code></pre>
+            </div>
+          `).join('')}
+        </section>
+      `;
+
+      document.getElementById("docBody").innerHTML = bodyHtml;
+
+      // Render Extra Resources Grid
+      const resourcesContainer = document.getElementById("resourcesGrid");
+      resourcesContainer.innerHTML = data.resources.map(res => `
+        <a href="${res.url}" target="_blank" rel="noopener noreferrer" class="mint-resource-card">
+          <div>
+            <div class="mint-resource-header">
+              <span class="mint-resource-icon">${res.icon}</span>
+              <span class="mint-resource-domain">${res.domain}</span>
+            </div>
+            <h3 class="mint-resource-title" style="margin-top: 10px;">${res.title}</h3>
+            <p class="mint-resource-desc" style="margin-top: 6px;">${res.desc}</p>
+          </div>
+          <div class="mint-resource-link">
+            <span>Read Specification</span>
+            <span>↗</span>
+          </div>
+        </a>
+      `).join('');
+
+      // Update Pager
+      updatePager(slug);
+
+      // Scroll smoothly to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updatePager(slug) {
+      const slugs = Object.keys(entriesData);
+      const currentIndex = slugs.indexOf(slug);
+
+      const prevBtn = document.getElementById("pagerPrev");
+      const nextBtn = document.getElementById("pagerNext");
+
+      if (currentIndex > 0) {
+        const prevSlug = slugs[currentIndex - 1];
+        prevBtn.style.visibility = "visible";
+        document.getElementById("pagerPrevTitle").textContent = entriesData[prevSlug].title;
+        prevBtn.onclick = (e) => { e.preventDefault(); loadEntry(prevSlug); };
+      } else {
+        prevBtn.style.visibility = "hidden";
+      }
+
+      if (currentIndex < slugs.length - 1) {
+        const nextSlug = slugs[currentIndex + 1];
+        nextBtn.style.visibility = "visible";
+        document.getElementById("pagerNextTitle").textContent = entriesData[nextSlug].title;
+        nextBtn.onclick = (e) => { e.preventDefault(); loadEntry(nextSlug); };
+      } else {
+        nextBtn.style.visibility = "hidden";
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function copyCodeSnippet(btn, index) {
+      const codeEl = document.getElementById("codeSnippet_" + index);
+      if (!codeEl) return;
+      navigator.clipboard.writeText(codeEl.textContent).then(() => {
+        btn.innerHTML = "<span>✅ Copied!</span>";
+        setTimeout(() => {
+          btn.innerHTML = "<span>📋 Copy Code</span>";
+        }, 2000);
+      });
+    }
+
+    function copyPageUrl() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const btn = document.getElementById("copyUrlBtnText");
+        btn.textContent = "✅ Link Copied!";
+        setTimeout(() => { btn.textContent = "📋 Copy Link"; }, 2000);
+      });
+    }
+
+    function handleFeedback(val) {
+      const box = document.querySelector(".mint-feedback-box");
+      if (val === "yes") {
+        box.innerHTML = '<span style="color: #34D399; font-weight: 600;">🎉 Thank you! Glad this reflection was valuable for your engineering work.</span>';
+      } else {
+        box.innerHTML = '<span style="color: #FBBF24; font-weight: 600;">🙏 Thanks for the feedback! We will add deeper technical trade-off matrices.</span>';
+      }
+    }
+
+    // Initialize Navigation Listeners
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll(".mint-nav-item").forEach(item => {
+        item.addEventListener("click", function() {
+          const slug = this.getAttribute("data-slug");
+          loadEntry(slug);
+        });
+      });
+
+      // Parse URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const entryParam = urlParams.get("entry");
+      if (entryParam && entriesData[entryParam]) {
+        loadEntry(entryParam);
+      } else {
+        loadEntry("next-payouts-metric-modeling-and-plain-english-fintech");
+      }
+
+      // Handle popstate for browser back/forward buttons
+      window.addEventListener("popstate", function(e) {
+        if (e.state && e.state.slug && entriesData[e.state.slug]) {
+          loadEntry(e.state.slug);
+        }
+      });
+
+      // Setup Scroll-Spy for Right Sidebar Table of Contents
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("id");
+            document.querySelectorAll(".mint-toc-link").forEach(link => {
+              link.classList.toggle("active", link.getAttribute("href") === "#" + id);
+            });
+          }
+        });
+      }, { threshold: 0.3 });
+
+      setTimeout(() => {
+        document.querySelectorAll("section[id]").forEach(sec => observer.observe(sec));
+      }, 300);
+    });
+  </script>
+</body>
+</html>

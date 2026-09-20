@@ -419,7 +419,7 @@
       .portal-grid { grid-template-columns: 1fr; }
       .navbar-content { flex-direction: column; align-items: flex-start; }
     }
-  </style>
+  <link rel="stylesheet" href="/mintlify.css">
 </head>
 <body>
   <div class="ambient-glow"></div>
@@ -435,13 +435,20 @@
           <span class="brand-tag">Engineering Hub</span>
         </div>
       </a>
-      <div class="nav-links">
-        <a href="/timeline" class="nav-link-item">🗓️ Timeline</a>
-        <a href="/playbooks" class="nav-link-item">🎮 Playbooks</a>
-        <a href="/specs" class="nav-link-item">📄 Specs</a>
-        <a href="https://github.com/askdebb/learning-curve" target="_blank" class="github-btn">
-          <span>GitHub ↗</span>
-        </a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button class="mint-search-trigger" style="width: auto; padding: 6px 14px;" data-open-cmd>
+          <span>🔍 Quick Search</span>
+          <span class="mint-kbd">⌘K</span>
+        </button>
+        <div class="nav-links">
+          <a href="/docs" class="nav-link-item" style="color: #34D399; font-weight: 700;">📚 Docs (Mintlify)</a>
+          <a href="/timeline" class="nav-link-item">🗓️ Timeline</a>
+          <a href="/playbooks" class="nav-link-item">🎮 Playbooks</a>
+          <a href="/specs" class="nav-link-item">📄 Specs</a>
+          <a href="https://github.com/askdebb/learning-curve" target="_blank" class="github-btn">
+            <span>GitHub ↗</span>
+          </a>
+        </div>
       </div>
     </div>
   </nav>
@@ -449,28 +456,28 @@
   <!-- Hero Header -->
   <header class="hero">
     <div class="hero-badge">
-      <span>● Multi-Route Architecture Hub</span>
+      <span>● Mintlify Documentation & Multi-Route Hub</span>
     </div>
     <h1 class="hero-title">
-      Engineering Knowledge Base &<br><span>Interactive Architecture Hub</span>
+      Engineering Knowledge Base &<br><span>Mintlify Documentation Hub</span>
     </h1>
     <p class="hero-subtitle">
-      A segmented engineering archive separating chronological session histories, interactive playbooks, and specifications into dedicated, focused routes.
+      A segmented engineering archive separating chronological session histories, interactive playbooks, and in-depth Mintlify-style architectural documentations with real-world reflections and extra learning resources.
     </p>
 
     <!-- Stats Ribbon -->
     <div class="stats-ribbon">
       <div class="stat-card">
-        <div class="stat-number">8</div>
-        <div class="stat-label">Total Architectures</div>
+        <div class="stat-number">10</div>
+        <div class="stat-label">Mintlify Architecture Docs</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">6</div>
         <div class="stat-label">Interactive Playbooks</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">4</div>
-        <div class="stat-label">Domain Routes</div>
+        <div class="stat-number">25+</div>
+        <div class="stat-label">Official RFCs & References</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">100%</div>
@@ -487,6 +494,24 @@
     </div>
 
     <div class="portal-grid">
+      <!-- Route 0: Mintlify Documentation Engine (Featured) -->
+      <a href="/docs" class="portal-card" style="border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(15, 23, 42, 0.9));">
+        <div>
+          <div class="portal-icon-row">
+            <div class="portal-icon" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4);">📚</div>
+            <span class="portal-tag" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.3);">Featured: /docs</span>
+          </div>
+          <h3 class="portal-title">Mintlify Documentation & Reflections Engine</h3>
+          <p class="portal-desc">
+            Full 3-column Mintlify documentation reader featuring engineering reflections, hard-learned lessons, code tabs with copy, visual steps, and curated extra learning resources (RFCs, OWASP, ISO 20022).
+          </p>
+        </div>
+        <div class="portal-link-btn" style="color: #34D399;">
+          <span>Explore Mintlify Docs</span>
+          <span>→</span>
+        </div>
+      </a>
+
       <!-- Route 1: Session Timeline -->
       <a href="/timeline" class="portal-card">
         <div>
@@ -532,7 +557,7 @@
           </div>
           <h3 class="portal-title">System Specifications & RFCs</h3>
           <p class="portal-desc">
-            Raw production documentation, trade-off matrices, security audits, and copy-pasteable architectural code snippets.
+            Production documentation, trade-off matrices, security audits, and copy-pasteable architectural code snippets.
           </p>
         </div>
         <div class="portal-link-btn">
@@ -616,5 +641,7 @@
   <footer class="footer">
     <p>Learning Curve • Personal Engineering Playbook & Knowledge Repository • Automatically Synced to Vercel</p>
   </footer>
+
+  <script src="/command-palette.js"></script>
 </body>
 </html>

@@ -230,6 +230,7 @@
       background: rgba(9, 13, 22, 0.95);
     }
   </style>
+  <link rel="stylesheet" href="/mintlify.css">
 </head>
 <body>
   <div class="ambient-glow"></div>
@@ -239,9 +240,18 @@
       <a href="/" class="nav-brand">
         <span>⚡ Learning Curve</span>
       </a>
-      <a href="/" class="back-btn">
-        <span>← Return to Hub</span>
-      </a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="mint-search-trigger" style="width: auto; padding: 6px 14px;" data-open-cmd>
+          <span>🔍 Quick Search</span>
+          <span class="mint-kbd">⌘K</span>
+        </button>
+        <a href="/docs" class="back-btn" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);">
+          <span>📚 Mintlify Docs</span>
+        </a>
+        <a href="/" class="back-btn">
+          <span>← Return to Hub</span>
+        </a>
+      </div>
     </div>
   </nav>
 
@@ -256,6 +266,16 @@
     </div>
 
     <div class="grid" id="playbookGrid">
+      <!-- Playbook: Developer Mode Metric Cards (NEW ACTIVE) -->
+      <article class="card">
+        <div>
+          <span class="status-badge">● Interactive Playbook</span>
+          <h2 class="card-title">Developer Mode Metric Cards & Telemetry Architecture</h2>
+          <p class="card-desc">Real-time developer overview telemetry, Week-over-Week velocity modeling, 0% directionless equilibrium, and reactive API usage rate limits.</p>
+        </div>
+        <a href="/playbooks/developer-mode-metric-cards-and-api-telemetry.html" class="btn-launch">Launch Playbook ⚡</a>
+      </article>
+
       <!-- Playbook 1 -->
       <article class="card">
         <div>
@@ -322,6 +342,7 @@
     <p>Learning Curve • Interactive Playbooks Route • Automatically Synced to Vercel</p>
   </footer>
 
+  <script src="/command-palette.js"></script>
   <script>
     function filterPlaybooks() {
       const q = document.getElementById('searchInput').value.toLowerCase();

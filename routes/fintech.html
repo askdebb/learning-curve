@@ -39,13 +39,20 @@
     .btn-playbook { flex: 1; text-align: center; background: var(--accent); color: #FFF; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; }
     .btn-spec { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; }
     .footer { border-top: 1px solid var(--border); padding: 24px; text-align: center; font-size: 13px; color: var(--text-muted); background: rgba(9, 13, 22, 0.95); }
-  </style>
+  <link rel="stylesheet" href="/mintlify.css">
 </head>
 <body>
   <nav class="navbar">
     <div class="navbar-content">
       <a href="/" class="nav-brand"><span>⚡ Learning Curve</span></a>
-      <a href="/" class="back-btn"><span>← Return to Hub</span></a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="mint-search-trigger" style="width: auto; padding: 6px 14px;" data-open-cmd>
+          <span>🔍 Quick Search</span>
+          <span class="mint-kbd">⌘K</span>
+        </button>
+        <a href="/docs" class="back-btn" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);"><span>📚 Mintlify Docs</span></a>
+        <a href="/" class="back-btn"><span>← Return to Hub</span></a>
+      </div>
     </div>
   </nav>
 
@@ -62,7 +69,7 @@
         </div>
         <div class="card-actions">
           <a href="/playbooks/financial-dashboard-chart-data-orchestration.html" class="btn-playbook">Launch Playbook ⚡</a>
-          <a href="/entries/financial-dashboard-chart-data-orchestration.md" target="_blank" class="btn-spec">Spec 📄</a>
+          <a href="/docs?entry=financial-dashboard-chart-data-orchestration" class="btn-spec" style="color: #34D399; font-weight: 600;">Mintlify Doc 📚</a>
         </div>
       </article>
 
@@ -73,7 +80,7 @@
         </div>
         <div class="card-actions">
           <a href="/playbooks/next-payouts-metric-modeling-and-plain-english-fintech.html" class="btn-playbook">Launch Playbook ⚡</a>
-          <a href="/entries/next-payouts-metric-modeling-and-plain-english-fintech.md" target="_blank" class="btn-spec">Spec 📄</a>
+          <a href="/docs?entry=next-payouts-metric-modeling-and-plain-english-fintech" class="btn-spec" style="color: #34D399; font-weight: 600;">Mintlify Doc 📚</a>
         </div>
       </article>
 
@@ -84,7 +91,7 @@
         </div>
         <div class="card-actions">
           <a href="/playbooks/merchant-api-state-architecture.html" class="btn-playbook">Launch Playbook ⚡</a>
-          <a href="/entries/merchant-api-state-architecture.md" target="_blank" class="btn-spec">Spec 📄</a>
+          <a href="/docs?entry=merchant-api-state-architecture" class="btn-spec" style="color: #34D399; font-weight: 600;">Mintlify Doc 📚</a>
         </div>
       </article>
     </div>
@@ -93,5 +100,7 @@
   <footer class="footer">
     <p>Learning Curve • FinTech Modeling Route • Automatically Synced to Vercel</p>
   </footer>
+
+  <script src="/command-palette.js"></script>
 </body>
 </html>

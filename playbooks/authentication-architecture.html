@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/mintlify.css">
   <style>
     :root {
       --bg: #090D16;
@@ -717,9 +718,15 @@
 
       <ul class="nav-list">
         <li>
-          <a class="nav-item" href="../index.html" style="color: #818CF8; font-weight: 600; margin-bottom: 12px; background: rgba(99, 102, 241, 0.1);">
+          <a class="nav-item" href="../index.html" style="color: #818CF8; font-weight: 600; margin-bottom: 6px; background: rgba(99, 102, 241, 0.1);">
             <span class="nav-item-icon">←</span>
             <span>Back to Home Hub</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" href="/docs?entry=authentication-architecture" style="color: #34D399; font-weight: 600; margin-bottom: 12px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);">
+            <span class="nav-item-icon">📚</span>
+            <span>Mintlify Doc & Reflection ↗</span>
           </a>
         </li>
         <li class="nav-category">Active Playbook</li>
@@ -1180,5 +1187,6 @@ export function validateAuthInput(identifier: string, password: string) {
     // Init on load
     renderCode();
   </script>
+  <script src="/command-palette.js"></script>
 </body>
 </html>

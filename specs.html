@@ -183,6 +183,36 @@
       color: var(--text-muted);
       background: rgba(9, 13, 22, 0.95);
     }
+  <link rel="stylesheet" href="/mintlify.css">
+  <style>
+    .spec-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .spec-tag-mint {
+      font-size: 11px;
+      font-weight: 700;
+      color: #34D399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .spec-raw-link {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .spec-raw-link:hover {
+      color: #FFF;
+      border-color: var(--accent);
+    }
   </style>
 </head>
 <body>
@@ -193,78 +223,132 @@
       <a href="/" class="nav-brand">
         <span>⚡ Learning Curve</span>
       </a>
-      <a href="/" class="back-btn">
-        <span>← Return to Hub</span>
-      </a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="mint-search-trigger" style="width: auto; padding: 6px 14px;" data-open-cmd>
+          <span>🔍 Quick Search</span>
+          <span class="mint-kbd">⌘K</span>
+        </button>
+        <a href="/docs" class="back-btn" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);">
+          <span>📚 Mintlify Docs</span>
+        </a>
+        <a href="/" class="back-btn">
+          <span>← Hub</span>
+        </a>
+      </div>
     </div>
   </nav>
 
   <main class="page-container">
     <span class="route-badge">ROUTE: /specs</span>
     <h1 class="page-title">System Specifications & RFCs</h1>
-    <p class="page-desc">Raw engineering specifications, architectural decisions, and production design records.</p>
+    <p class="page-desc">Every specification features an in-depth Mintlify-style reader with engineering reflections, code tabs, and authoritative RFC resources.</p>
 
     <div class="spec-list">
-      <a href="/entries/financial-dashboard-chart-data-orchestration.md" target="_blank" class="spec-item">
-        <div>
+      <div class="spec-item">
+        <a href="/docs?entry=financial-dashboard-chart-data-orchestration" style="flex: 1; text-decoration: none; color: inherit;">
           <h2 class="spec-title">Financial Dashboard Chart Data Orchestration & Responsive Axis Scaling</h2>
-          <div class="spec-meta">entries/financial-dashboard-chart-data-orchestration.md • Sep 20, 2026</div>
+          <div class="spec-meta">entries/financial-dashboard-chart-data-orchestration.md • Recharts, Responsive SVG Scaling • Sep 20, 2026</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=financial-dashboard-chart-data-orchestration" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/financial-dashboard-chart-data-orchestration.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
         </div>
-        <span class="spec-arrow">→</span>
-      </a>
+      </div>
 
-      <a href="/entries/next-payouts-metric-modeling-and-plain-english-fintech.md" target="_blank" class="spec-item">
-        <div>
+      <div class="spec-item">
+        <a href="/docs?entry=next-payouts-metric-modeling-and-plain-english-fintech" style="flex: 1; text-decoration: none; color: inherit;">
           <h2 class="spec-title">Next Payouts Metric Modeling: Batch Pipeline Aggregation & Plain-Language FinTech</h2>
-          <div class="spec-meta">entries/next-payouts-metric-modeling-and-plain-english-fintech.md • Sep 20, 2026</div>
+          <div class="spec-meta">entries/next-payouts-metric-modeling-and-plain-english-fintech.md • In-Flight Batching, 0% Equilibrium • Sep 20, 2026</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=next-payouts-metric-modeling-and-plain-english-fintech" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/next-payouts-metric-modeling-and-plain-english-fintech.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
         </div>
-        <span class="spec-arrow">→</span>
-      </a>
+      </div>
 
-      <a href="/entries/merchant-dashboard-reactive-state-and-query-invalidation.md" target="_blank" class="spec-item">
-        <div>
+      <div class="spec-item">
+        <a href="/docs?entry=merchant-dashboard-reactive-state-and-query-invalidation" style="flex: 1; text-decoration: none; color: inherit;">
           <h2 class="spec-title">Merchant Dashboard Reactive State, Query Invalidation & Equilibrium State Engineering</h2>
-          <div class="spec-meta">entries/merchant-dashboard-reactive-state-and-query-invalidation.md • Sep 19, 2026</div>
+          <div class="spec-meta">entries/merchant-dashboard-reactive-state-and-query-invalidation.md • TanStack Query v5, Zustand v5 • Sep 19, 2026</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=merchant-dashboard-reactive-state-and-query-invalidation" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/merchant-dashboard-reactive-state-and-query-invalidation.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
         </div>
-        <span class="spec-arrow">→</span>
-      </a>
+      </div>
 
-      <a href="/entries/authentication-architecture.md" target="_blank" class="spec-item">
-        <div>
+      <div class="spec-item">
+        <a href="/docs?entry=authentication-architecture" style="flex: 1; text-decoration: none; color: inherit;">
           <h2 class="spec-title">Enterprise Authentication Architecture & Security Hardening</h2>
-          <div class="spec-meta">entries/authentication-architecture.md • Sep 18, 2026</div>
+          <div class="spec-meta">entries/authentication-architecture.md • OWASP Enumeration Defense, Uncontrolled Keystroke Guard • Sep 18, 2026</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=authentication-architecture" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/authentication-architecture.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
         </div>
-        <span class="spec-arrow">→</span>
-      </a>
+      </div>
 
-      <a href="/entries/merchant-api-state-architecture.md" target="_blank" class="spec-item">
-        <div>
+      <div class="spec-item">
+        <a href="/docs?entry=merchant-api-state-architecture" style="flex: 1; text-decoration: none; color: inherit;">
           <h2 class="spec-title">Bitnormous Merchant API Architecture, Render Protection & State Taxonomy</h2>
-          <div class="spec-meta">entries/merchant-api-state-architecture.md • Sep 17, 2026</div>
+          <div class="spec-meta">entries/merchant-api-state-architecture.md • 3-Tier State Taxonomy, Three Pillars • Sep 17, 2026</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=merchant-api-state-architecture" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/merchant-api-state-architecture.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
         </div>
-        <span class="spec-arrow">→</span>
-      </a>
+      </div>
 
-      <a href="/entries/checkout-stepper-and-notifications.md" target="_blank" class="spec-item">
-        <div>
+      <div class="spec-item">
+        <a href="/docs?entry=checkout-stepper-and-notifications" style="flex: 1; text-decoration: none; color: inherit;">
           <h2 class="spec-title">Crypto Stepper State Persistence, Socket Lifecycle & Push Notifications</h2>
-          <div class="spec-meta">entries/checkout-stepper-and-notifications.md • Sep 16, 2026</div>
+          <div class="spec-meta">entries/checkout-stepper-and-notifications.md • Tab Suspension Recovery, Web Push API • Sep 16, 2026</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=checkout-stepper-and-notifications" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/checkout-stepper-and-notifications.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
         </div>
-        <span class="spec-arrow">→</span>
-      </a>
+      </div>
 
-      <a href="/entries/03-component-endpoint-mapping.md" target="_blank" class="spec-item">
-        <div>
-          <h2 class="spec-title">Component to API Endpoint Mapping & Taxonomy</h2>
-          <div class="spec-meta">entries/03-component-endpoint-mapping.md • Reference Spec</div>
+      <div class="spec-item">
+        <a href="/docs?entry=01-global-storage-vs-server-cache" style="flex: 1; text-decoration: none; color: inherit;">
+          <h2 class="spec-title">Global Storage vs. Server State Cache Architecture</h2>
+          <div class="spec-meta">entries/01-global-storage-vs-server-cache.md • TanStack Query vs Zustand Boundary</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=01-global-storage-vs-server-cache" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/01-global-storage-vs-server-cache.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
         </div>
-        <span class="spec-arrow">→</span>
-      </a>
+      </div>
+
+      <div class="spec-item">
+        <a href="/docs?entry=02-preventing-rerenders-in-query-hooks" style="flex: 1; text-decoration: none; color: inherit;">
+          <h2 class="spec-title">Preventing Re-renders in Custom Query Action Hooks</h2>
+          <div class="spec-meta">entries/02-preventing-rerenders-in-query-hooks.md • Stable Callbacks via useRef</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=02-preventing-rerenders-in-query-hooks" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/02-preventing-rerenders-in-query-hooks.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
+        </div>
+      </div>
+
+      <div class="spec-item">
+        <a href="/docs?entry=03-component-endpoint-mapping" style="flex: 1; text-decoration: none; color: inherit;">
+          <h2 class="spec-title">Component to API Endpoint Mapping & Taxonomy</h2>
+          <div class="spec-meta">entries/03-component-endpoint-mapping.md • Reference Spec & API Catalog</div>
+        </a>
+        <div class="spec-actions-row">
+          <a href="/docs?entry=03-component-endpoint-mapping" class="spec-tag-mint">Mintlify Reader ⚡</a>
+          <a href="/entries/03-component-endpoint-mapping.md" target="_blank" class="spec-raw-link">Raw MD ↗</a>
+        </div>
+      </div>
     </div>
   </main>
 
   <footer class="footer">
     <p>Learning Curve • Specifications Route • Automatically Synced to Vercel</p>
   </footer>
+
+  <script src="/command-palette.js"></script>
 </body>
 </html>

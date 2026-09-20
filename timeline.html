@@ -324,6 +324,7 @@
       background: rgba(9, 13, 22, 0.95);
     }
   </style>
+  <link rel="stylesheet" href="/mintlify.css">
 </head>
 <body>
   <div class="ambient-glow"></div>
@@ -333,9 +334,18 @@
       <a href="/" class="nav-brand">
         <span>⚡ Learning Curve</span>
       </a>
-      <a href="/" class="back-btn">
-        <span>← Return to Hub</span>
-      </a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="mint-search-trigger" style="width: auto; padding: 6px 14px;" data-open-cmd>
+          <span>🔍 Quick Search</span>
+          <span class="mint-kbd">⌘K</span>
+        </button>
+        <a href="/docs" class="back-btn" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);">
+          <span>📚 Mintlify Docs</span>
+        </a>
+        <a href="/" class="back-btn">
+          <span>← Return to Hub</span>
+        </a>
+      </div>
     </div>
   </nav>
 
@@ -361,6 +371,27 @@
       <!-- Today -->
       <div class="date-group" data-period="today">
         <h2 class="date-section-header">🗓️ Today — Sep 20, 2026</h2>
+        <article class="timeline-card" data-keywords="developer metrics cards telemetry equilibrium webhooks api keys rate limit bitnormous">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #34D399; font-size: 11px; font-weight: 600;">● Interactive Playbook</span>
+            <span class="timestamp-badge">Sep 20, 2026 • 12:45 PM</span>
+          </div>
+          <h3 class="card-title">Developer Mode Metric Cards, Telemetry Modeling & Environment Verification</h3>
+          <p class="card-desc">Connecting live API telemetry from GET /developer-overview, computing Week-over-Week velocity, enforcing the 0% equilibrium rule (neutral grey, no arrow), and dynamically modeling rate limits and environment verification.</p>
+          <div class="tag-list">
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">TanStack v5</span>
+            <span class="tech-tag">Telemetry</span>
+            <span class="tech-tag">0% Equilibrium</span>
+            <span class="tech-tag">Webhooks</span>
+          </div>
+          <div class="card-actions">
+            <a href="/playbooks/developer-mode-metric-cards-and-api-telemetry.html" class="btn-playbook">Launch Playbook ⚡</a>
+            <a href="/entries/developer-mode-metric-cards-and-api-telemetry.md" target="_blank" class="btn-spec">Spec 📄</a>
+          </div>
+        </article>
+
         
         <article class="timeline-card" data-keywords="charts revenue recharts ledger scaling">
           <div class="timeline-dot"></div>
@@ -535,9 +566,10 @@
   </main>
 
   <footer class="footer">
-    <p>Learning Curve • Session Timeline Route • Automatically Synced to Vercel</p>
+    <p>Learning Curve • Session Chronology & Timeline Route • Automatically Synced to Vercel</p>
   </footer>
 
+  <script src="/command-palette.js"></script>
   <script>
     function filterTimeline() {
       const q = document.getElementById('searchInput').value.toLowerCase();

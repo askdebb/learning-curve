@@ -39,13 +39,20 @@
     .btn-playbook { flex: 1; text-align: center; background: var(--accent); color: #FFF; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; }
     .btn-spec { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; }
     .footer { border-top: 1px solid var(--border); padding: 24px; text-align: center; font-size: 13px; color: var(--text-muted); background: rgba(9, 13, 22, 0.95); }
-  </style>
+  <link rel="stylesheet" href="/mintlify.css">
 </head>
 <body>
   <nav class="navbar">
     <div class="navbar-content">
       <a href="/" class="nav-brand"><span>⚡ Learning Curve</span></a>
-      <a href="/" class="back-btn"><span>← Return to Hub</span></a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="mint-search-trigger" style="width: auto; padding: 6px 14px;" data-open-cmd>
+          <span>🔍 Quick Search</span>
+          <span class="mint-kbd">⌘K</span>
+        </button>
+        <a href="/docs" class="back-btn" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);"><span>📚 Mintlify Docs</span></a>
+        <a href="/" class="back-btn"><span>← Return to Hub</span></a>
+      </div>
     </div>
   </nav>
 
@@ -56,13 +63,20 @@
 
     <div class="grid">
       <article class="card">
+        <span class="status-badge">● Live Telemetry</span>
+        <h2 class="card-title">Developer Mode Metric Cards & API Overview Ingestion</h2>
+        <p class="card-desc">Orchestrating GET /developer-overview telemetry, webhook failure rates, active vs failing endpoints, and live environment states.</p>
+        <a href="/playbooks/developer-mode-metric-cards-and-api-telemetry.html" class="btn-launch">Launch Playbook ⚡</a>
+      </article>
+
+      <article class="card">
         <div>
           <h2 class="card-title">Crypto Stepper Persistence & Socket Lifecycle</h2>
           <p class="card-desc">Surviving mobile browser tab discard and HMR reloads in crypto checkouts via synchronous Zustand localStorage hydration, visibility-based socket wake-up, and context-aware native Web Push.</p>
         </div>
         <div class="card-actions">
           <a href="/playbooks/checkout-stepper-and-notifications.html" class="btn-playbook">Launch Playbook ⚡</a>
-          <a href="/entries/checkout-stepper-and-notifications.md" target="_blank" class="btn-spec">Spec 📄</a>
+          <a href="/docs?entry=checkout-stepper-and-notifications" class="btn-spec" style="color: #34D399; font-weight: 600;">Mintlify Doc 📚</a>
         </div>
       </article>
 
@@ -73,7 +87,7 @@
         </div>
         <div class="card-actions">
           <a href="/playbooks/merchant-api-state-architecture.html" class="btn-playbook">Launch Playbook ⚡</a>
-          <a href="/entries/merchant-api-state-architecture.md" target="_blank" class="btn-spec">Spec 📄</a>
+          <a href="/docs?entry=merchant-api-state-architecture" class="btn-spec" style="color: #34D399; font-weight: 600;">Mintlify Doc 📚</a>
         </div>
       </article>
 
@@ -83,7 +97,7 @@
           <p class="card-desc">Distributed locking mechanisms with Redis, signature verification, and deduplication layers to ensure financial transactions process exactly once.</p>
         </div>
         <div class="card-actions">
-          <button class="btn-spec" style="width: 100%; cursor: not-allowed; opacity: 0.6;">In Architecture Queue</button>
+          <a href="/docs?entry=merchant-api-integration-guide" class="btn-spec" style="color: #34D399; font-weight: 600; width: 100%; text-align: center;">Mintlify Spec & Guide 📚</a>
         </div>
       </article>
     </div>
@@ -92,5 +106,7 @@
   <footer class="footer">
     <p>Learning Curve • Backend & APIs Route • Automatically Synced to Vercel</p>
   </footer>
+
+  <script src="/command-palette.js"></script>
 </body>
 </html>
