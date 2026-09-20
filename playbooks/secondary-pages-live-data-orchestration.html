@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Learning Curve — Secondary Pages Live Data Orchestration</title>
+  <title>Learning Curve — Secondary Pages Live Data Orchestration & Telemetry Inspector</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
@@ -365,7 +365,7 @@
     /* Interactive Simulator */
     .sim-container {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.2fr 1fr;
       gap: 20px;
       margin-top: 16px;
     }
@@ -387,6 +387,8 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
     }
 
     .sim-panel h3 {
@@ -435,7 +437,7 @@
     }
 
     .sim-list {
-      max-height: 320px;
+      max-height: 380px;
       overflow-y: auto;
       margin-top: 14px;
       display: flex;
@@ -453,6 +455,13 @@
       flex-direction: column;
       gap: 4px;
       animation: fadeIn 0.2s ease;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sim-item:hover, .sim-item.active {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.1);
     }
 
     .sim-item-header {
@@ -483,6 +492,18 @@
       color: var(--text-muted);
       margin-right: 6px;
       margin-bottom: 6px;
+    }
+
+    /* Inspector Card Preview in Playbook */
+    .inspector-preview {
+      background: #0B1120;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
   </style>
 </head>
@@ -521,27 +542,27 @@
     <!-- Main Content -->
     <main class="main-content">
       <div class="header-badge">ENTERPRISE STATE ORCHESTRATION</div>
-      <h1 class="page-title">Secondary Pages Live Data Orchestration: Customers & Unified Audit Trail</h1>
+      <h1 class="page-title">Secondary Pages Live Data Orchestration: Customers & Telemetry Inspector</h1>
       <p class="page-subtitle">
-        Eliminating static prototype mock files and connecting Customers and Audit Logs to live multi-stream backend events, local client persistence, and reactive TanStack query hooks.
+        Eliminating static prototype mock files, replacing raw localStorage with persistent Zustand store, enforcing pulsing column-adaptive skeletons, and elevating Audit Logs to an enterprise-grade telemetry inspection deck.
       </p>
 
       <!-- Key Metrics -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-title">Mocks Eliminated</div>
+          <div class="stat-title">Zustand Store Persist</div>
           <div class="stat-value">100%</div>
-          <div class="stat-caption">paymentData.ts fully decoupled</div>
+          <div class="stat-caption">Zero raw localStorage calls</div>
         </div>
         <div class="stat-card">
-          <div class="stat-title">Audit Streams Unified</div>
-          <div class="stat-value">4 Streams</div>
-          <div class="stat-caption">Webhooks, Orders, Ledger, Roles</div>
+          <div class="stat-title">Pulsing Skeletons</div>
+          <div class="stat-value">Fluid</div>
+          <div class="stat-caption">Zero "Loading..." text strings</div>
         </div>
         <div class="stat-card">
-          <div class="stat-title">Customer Reconciliation</div>
-          <div class="stat-value">3 Sources</div>
-          <div class="stat-caption">Checkouts + Recipients + Local</div>
+          <div class="stat-title">Telemetry Inspector</div>
+          <div class="stat-value">Interactive</div>
+          <div class="stat-caption">Structured specs & raw JSON</div>
         </div>
         <div class="stat-card">
           <div class="stat-title">Build Verification</div>
@@ -552,218 +573,183 @@
 
       <!-- Navigation Tabs -->
       <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('arch')">Architecture Design</button>
-        <button class="tab-btn" onclick="switchTab('customers')">useCustomersData Hook</button>
-        <button class="tab-btn" onclick="switchTab('audit')">useAuditLogsData Hook</button>
+        <button class="tab-btn active" onclick="switchTab('arch')">Architecture & Zustand</button>
+        <button class="tab-btn" onclick="switchTab('skeleton')">Pulsing Skeleton Design</button>
+        <button class="tab-btn" onclick="switchTab('inspector')">Telemetry Inspector</button>
         <button class="tab-btn" onclick="switchTab('simulator')">Live Stream Simulator</button>
       </div>
 
       <!-- TAB 1: Architecture -->
       <div id="tab-arch" class="tab-pane active">
         <div class="section-card">
-          <h2>Why Multi-Stream Synthesis?</h2>
+          <h2>Why Manual localStorage is Redundant When Zustand is Active</h2>
           <p>
-            In production fintech applications, an administrative view does not always have an isolated dedicated CRUD endpoint. For instance, creating a single centralized audit logging microservice may introduce unnecessary write bottlenecks and backend complexity.
+            When an enterprise application already relies on Zustand for global store management, accessing <code>localStorage</code> directly in component hooks creates technical debt:
+          </p>
+          <ul style="margin-left: 20px; color: var(--text-muted); font-size: 14px; line-height: 2;">
+            <li><strong>Reactivity Loss:</strong> Manual localStorage updates don't cause components to re-render without hacky custom event dispatchers.</li>
+            <li><strong>Hydration Drifts:</strong> Manual JSON parsing inside <code>useEffect</code> or <code>useState</code> is error-prone and causes hydration mismatches when switching merchant business accounts.</li>
+            <li><strong>Declarative Solution:</strong> We created <code>useCustomerStore</code> with Zustand's <code>persist</code> middleware and <code>createJSONStorage(() => localStorage)</code>. Components subscribe reactively, and persistence happens automatically behind the scenes.</li>
+          </ul>
+
+          <div class="code-wrapper">
+            <div class="code-header">
+              <span>src/store/useCustomerStore.ts</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>export const useCustomerStore = create&lt;CustomerStoreState&gt;()(
+  persist(
+    (set) => ({
+      customCustomers: {},
+      addCustomCustomer: (businessId, customerInput) =>
+        set((state) => {
+          const key = String(businessId);
+          const list = state.customCustomers[key] || [];
+          const newCustomer: CustomerRow = {
+            ...customerInput,
+            id: `cus-${Date.now()}`,
+            addedOn: formatDisplayDate(),
+          };
+          const filtered = list.filter(
+            (c) =>
+              !c.email ||
+              !customerInput.email ||
+              c.email.trim().toLowerCase() !== customerInput.email.trim().toLowerCase()
+          );
+          return {
+            customCustomers: {
+              ...state.customCustomers,
+              [key]: [newCustomer, ...filtered],
+            },
+          };
+        }),
+    }),
+    {
+      name: "bitnormous-customer-store",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Skeleton Design -->
+      <div id="tab-skeleton" class="tab-pane">
+        <div class="section-card">
+          <h2>Professional Skeletons vs. Primitive Text Placeholders</h2>
+          <p>
+            Displaying dummy text like <code>time: "Loading...", activity: "Loading activity..."</code> looks unpolished, shifts layout widths during initial mount, and degrades perceived performance.
           </p>
           <p>
-            Instead, we leverage client-side event stream unification:
+            We refactored <code>DataTableCard</code> and all page consumers to use <strong>Column-Adaptive Pulsing Skeletons</strong>:
           </p>
           <div style="margin: 16px 0;">
-            <span class="tag-badge">Webhooks Stream: Delivery attempts & status codes</span>
-            <span class="tag-badge">Orders Stream: Checkout lifecycle transitions</span>
-            <span class="tag-badge">Ledger Stream: Double-entry debit/credit ledger</span>
-            <span class="tag-badge">Team Stream: Role-based access control assignments</span>
+            <span class="tag-badge">Timestamp Column: Fixed w-28 / w-32 pulsing pill</span>
+            <span class="tag-badge">Activity Column: Alternating w-4/5 max-w-lg and w-3/5 max-w-md</span>
+            <span class="tag-badge">Zero Layout Shift (CLS = 0)</span>
+            <span class="tag-badge">Passes isLoading={true} directly to table engine</span>
           </div>
         </div>
+      </div>
 
+      <!-- TAB 3: Telemetry Inspector -->
+      <div id="tab-inspector" class="tab-pane">
         <div class="section-card">
-          <h2>Decoupling and Cleanup Summary</h2>
-          <p>The following mock artifacts were dismantled without breaking consumer layouts:</p>
+          <h2>AuditLogDetailInspector Forensics Console</h2>
+          <p>
+            Instead of dumping raw strings into an aside, the new <code>AuditLogDetailInspector</code> provides an interactive, enterprise-grade inspection deck:
+          </p>
           <ul style="margin-left: 20px; color: var(--text-muted); font-size: 14px; line-height: 2;">
-            <li><strong>dashboardData.ts:</strong> Removed mock static arrays (<code>dashboardMockData</code>, <code>dashboardMockDataDevMode</code>, <code>revenueViews</code>, <code>successRate</code>, <code>successRateDevMode</code>). Retained only pure TypeScript interfaces.</li>
-            <li><strong>SuccessRateChart.tsx:</strong> Purged mock data fallback branches. Now renders clean empty state when no transaction history is present.</li>
-            <li><strong>Customers.tsx:</strong> Replaced static import from <code>paymentData.ts</code> with live <code>useCustomersData()</code>.</li>
-            <li><strong>AuditLogs.tsx:</strong> Replaced static mock list with live <code>useAuditLogsData()</code>.</li>
+            <li><strong>Domain Themed Badges:</strong> Webhook Dispatch (Indigo), Checkout Order (Emerald), Ledger Settlement (Amber), and Access Control (Purple).</li>
+            <li><strong>Live Pulse Status:</strong> Real-time HTTP status indicators (HTTP 200 OK, Pending, Failed).</li>
+            <li><strong>One-Click Clipboard Actions:</strong> Instant copy with temporary checkmark feedback for Event IDs and JSON payloads.</li>
+            <li><strong>Tabbed Forensic Views:</strong> Toggle between human-readable Structured Properties and syntax-styled Raw JSON.</li>
           </ul>
-        </div>
-      </div>
-
-      <!-- TAB 2: Customers Hook -->
-      <div id="tab-customers" class="tab-pane">
-        <div class="section-card">
-          <h2>Customer Directory Reconciliation Hook</h2>
-          <p>
-            The <code>useCustomersData</code> hook extracts customer information from hosted checkout sessions, merges address book payout recipients, and respects client-side added customer persistence.
-          </p>
-
-          <div class="code-wrapper">
-            <div class="code-header">
-              <span>src/hooks/useCustomersData.ts</span>
-              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-            </div>
-            <pre><code>import { useMemo, useState, useCallback } from "react";
-import useCurrentBusiness from "@/hooks/useCurrentBusiness";
-import { usePayments } from "@/actions/developer";
-import { useRecipientsAction } from "@/actions/transfers";
-import { formatDisplayDate } from "@/helpers/listUtils";
-import type { CustomerRow } from "@/types/payment";
-
-export const useCustomersData = () => {
-  const { business, isLoading: isBusinessLoading } = useCurrentBusiness();
-  const businessId = business?.id;
-
-  // 1. Live checkout orders
-  const { data: paymentsPage, isLoading: isPaymentsLoading } = usePayments(businessId, { per_page: 50 });
-
-  // 2. Live payout recipients
-  const { recipients, isLoading: isRecipientsLoading } = useRecipientsAction();
-
-  // Deduplicate and reconcile
-  const customers = useMemo(() => {
-    const customerMap = new Map&lt;string, CustomerRow&gt;();
-
-    // Ingest checkout sessions
-    (paymentsPage?.data ?? []).forEach(sess => {
-      if (sess.customer?.email) {
-        customerMap.set(sess.customer.email.toLowerCase(), {
-          id: `cus-${sess.id}`,
-          fullName: sess.customer.name || sess.customer.email.split("@")[0],
-          email: sess.customer.email,
-          phone: "N/A",
-          addedOn: formatDisplayDate(new Date(sess.created_at || Date.now())),
-        });
-      }
-    });
-
-    // Ingest saved address book recipients
-    (recipients ?? []).forEach(rec => {
-      const key = (rec.account || rec.account_name).toLowerCase();
-      if (!customerMap.has(key)) {
-        customerMap.set(key, {
-          id: `rec-${rec.id}`,
-          fullName: rec.account_name || rec.label,
-          email: "N/A",
-          phone: rec.account,
-          addedOn: formatDisplayDate(new Date(rec.created_at || Date.now())),
-        });
-      }
-    });
-
-    return Array.from(customerMap.values());
-  }, [paymentsPage?.data, recipients]);
-
-  return { customers, isLoading: isBusinessLoading || isPaymentsLoading || isRecipientsLoading };
-};</code></pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 3: Audit Logs Hook -->
-      <div id="tab-audit" class="tab-pane">
-        <div class="section-card">
-          <h2>Audit Trail Multi-Stream Synthesizer</h2>
-          <p>
-            Chronologically aggregates live webhook deliveries, checkout session states, unified ledger entries, and team member assignments into a standardized audit event model.
-          </p>
-
-          <div class="code-wrapper">
-            <div class="code-header">
-              <span>src/hooks/useAuditLogsData.ts</span>
-              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-            </div>
-            <pre><code>// 1. Live Webhook Delivery Events
-const deliveries = deliveriesPage?.data ?? [];
-deliveries.forEach((del) => {
-  const dt = del.created_at ? new Date(del.created_at).getTime() : Date.now();
-  const statusLabel =
-    del.status === "succeeded"
-      ? "successfully delivered"
-      : del.status === "pending"
-      ? "pending delivery"
-      : "failed delivering";
-
-  events.push({
-    id: `audit-del-${del.id}`,
-    timestamp: dt,
-    activity: `Webhook event "${del.event}" ${statusLabel}${del.http_status ? ` (HTTP ${del.http_status})` : ""}`,
-  });
-});
-
-// 2. Checkout Session Orders
-sessions.forEach((sess) => {
-  events.push({
-    id: `audit-sess-${sess.id}`,
-    timestamp: new Date(sess.created_at).getTime(),
-    activity: `Checkout session ${sess.id} created for ${sess.currency} ${sess.amount} — status: ${sess.status}`,
-  });
-});
-
-// 3. Unified Ledger Activity
-transactions.forEach((tx) => {
-  const directionLabel = tx.direction === "credit" ? "Credit settled" : "Debit withdrawn";
-  events.push({
-    id: `audit-tx-${tx.id}`,
-    timestamp: new Date(tx.created_at).getTime(),
-    activity: `${directionLabel}: ${tx.amount} ${tx.currency} (${tx.category}) — bucket: ${tx.bucket}`,
-  });
-});
-
-// Sort strictly newest first
-events.sort((a, b) => b.timestamp - a.timestamp);</code></pre>
-          </div>
         </div>
       </div>
 
       <!-- TAB 4: Simulator -->
       <div id="tab-simulator" class="tab-pane">
         <div class="section-card">
-          <h2>Interactive Multi-Stream Chronicle Simulator</h2>
-          <p>Trigger simulated incoming events to watch how the unified audit log synthesizes, timestamps, and sorts the stream in real time.</p>
+          <h2>Interactive Event Chronicle & Inspector Playground</h2>
+          <p>Click any event on the left to see the interactive <strong>AuditLogDetailInspector</strong> update on the right in real time.</p>
 
           <div class="sim-container">
-            <!-- Action Panel -->
+            <!-- Action & Chronicle Panel -->
             <div class="sim-panel">
               <h3>Dispatch Micro-Events</h3>
-              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
                 <button class="btn-action" onclick="dispatchSimEvent('webhook')">
-                  <span>⚡</span> Dispatch Webhook Attempt
+                  <span>⚡</span> Webhook Event
                 </button>
                 <button class="btn-action" style="background: #10B981;" onclick="dispatchSimEvent('checkout')">
-                  <span>🛒</span> Create Checkout Order
+                  <span>🛒</span> Checkout Order
                 </button>
                 <button class="btn-action" style="background: #F59E0B;" onclick="dispatchSimEvent('ledger')">
-                  <span>💰</span> Settle Ledger Transaction
+                  <span>💰</span> Settle Ledger
                 </button>
                 <button class="btn-action-outline" onclick="clearSimLogs()">
-                  <span>🧹</span> Clear Chronicle
+                  <span>🧹</span> Clear
                 </button>
               </div>
-            </div>
 
-            <!-- Log Viewer -->
-            <div class="sim-panel">
-              <h3>Unified Event Log (<span id="eventCount">3</span> events)</h3>
+              <h3>Live Event Chronicle (<span id="eventCount">3</span>)</h3>
               <div class="sim-list" id="simList">
-                <div class="sim-item">
+                <div class="sim-item active" onclick="selectSimItem(this, 'webhook', 'checkout_session.completed', 'cs_92819', '200', 'USD', '450.00')">
                   <div class="sim-item-header">
                     <span class="sim-badge webhook">WEBHOOK</span>
                     <span>Just now</span>
                   </div>
                   <div>Webhook event "checkout_session.completed" successfully delivered (HTTP 200)</div>
                 </div>
-                <div class="sim-item">
+                <div class="sim-item" onclick="selectSimItem(this, 'checkout', 'Checkout session created', 'cs_92819', 'open', 'USD', '450.00')">
                   <div class="sim-item-header">
                     <span class="sim-badge checkout">CHECKOUT</span>
                     <span>1 min ago</span>
                   </div>
                   <div>Checkout session cs_92819 created for USD 450.00 — status: open</div>
                 </div>
-                <div class="sim-item">
+                <div class="sim-item" onclick="selectSimItem(this, 'ledger', 'Credit settled', 'tx_98124', 'withdrawable', 'USD', '450.00')">
                   <div class="sim-item-header">
                     <span class="sim-badge ledger">LEDGER</span>
                     <span>3 mins ago</span>
                   </div>
                   <div>Credit settled: 450.00 USD (crypto settlement) — bucket: withdrawable</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inspector Panel -->
+            <div class="sim-panel">
+              <h3>Audit Event Inspector</h3>
+              <div class="inspector-preview" id="inspectorView">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="sim-badge webhook" id="inspBadge">WEBHOOK DISPATCH</span>
+                  <span style="color: #34D399; font-size: 11px; font-weight: 600;">● HTTP 200 OK</span>
+                </div>
+                <div style="background: #1E293B; padding: 12px; border-radius: 8px;">
+                  <h4 style="font-size: 13px; color: #FFF;" id="inspTitle">Webhook event "checkout_session.completed" successfully delivered</h4>
+                  <span style="font-size: 11px; color: #94A3B8;">Recorded at Just now</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                  <div style="background: #1E293B; padding: 8px; border-radius: 6px;">
+                    <span style="color: #94A3B8; font-size: 10px;">EVENT ID</span>
+                    <div style="font-family: monospace; color: #FFF;" id="inspId">audit-del-101</div>
+                  </div>
+                  <div style="background: #1E293B; padding: 8px; border-radius: 6px;">
+                    <span style="color: #94A3B8; font-size: 10px;">VALUE</span>
+                    <div style="font-family: monospace; color: #34D399; font-weight: 700;" id="inspVal">USD 450.00</div>
+                  </div>
+                </div>
+                <div>
+                  <span style="color: #94A3B8; font-size: 11px; font-weight: 600;">RAW PAYLOAD</span>
+                  <pre style="background: #030712; padding: 10px; border-radius: 6px; font-size: 11px; max-height: 120px; overflow-y: auto;" id="inspJson"><code>{
+  "event": "checkout_session.completed",
+  "status": "succeeded",
+  "http_status": 200,
+  "attempts": 1
+}</code></pre>
                 </div>
               </div>
             </div>
@@ -801,23 +787,20 @@ events.sort((a, b) => b.timestamp - a.timestamp);</code></pre>
       const now = new Date().toLocaleTimeString();
 
       if (type === 'webhook') {
-        const statuses = [
-          'successfully delivered (HTTP 200)',
-          'pending delivery (HTTP 0)',
-          'failed delivering (HTTP 504)'
-        ];
-        const status = statuses[Math.floor(Math.random() * statuses.length)];
         badge = '<span class="sim-badge webhook">WEBHOOK</span>';
-        text = `Webhook event "payout.processed" ${status}`;
+        text = `Webhook event "payout.processed" successfully delivered (HTTP 200)`;
+        item.onclick = () => selectSimItem(item, 'webhook', text, 'audit-del-' + Date.now(), '200', 'GHS', '350.00');
       } else if (type === 'checkout') {
         const id = 'cs_' + Math.floor(100000 + Math.random() * 900000);
         const amount = (Math.random() * 500 + 10).toFixed(2);
         badge = '<span class="sim-badge checkout">CHECKOUT</span>';
         text = `Checkout session ${id} created for USD ${amount} — status: processing`;
+        item.onclick = () => selectSimItem(item, 'checkout', text, id, 'processing', 'USD', amount);
       } else if (type === 'ledger') {
         const amount = (Math.random() * 1000 + 50).toFixed(2);
         badge = '<span class="sim-badge ledger">LEDGER</span>';
         text = `Credit settled: ${amount} GHS (fiat settlement) — bucket: withdrawable`;
+        item.onclick = () => selectSimItem(item, 'ledger', text, 'tx_' + Date.now(), 'withdrawable', 'GHS', amount);
       }
 
       item.innerHTML = `
@@ -831,6 +814,26 @@ events.sort((a, b) => b.timestamp - a.timestamp);</code></pre>
       list.insertBefore(item, list.firstChild);
       simEvents++;
       document.getElementById('eventCount').innerText = simEvents;
+      item.click();
+    }
+
+    function selectSimItem(el, cat, title, id, status, curr, amount) {
+      document.querySelectorAll('.sim-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+
+      document.getElementById('inspBadge').innerText = cat.toUpperCase() + ' DISPATCH';
+      document.getElementById('inspBadge').className = 'sim-badge ' + cat;
+      document.getElementById('inspTitle').innerText = title;
+      document.getElementById('inspId').innerText = id;
+      document.getElementById('inspVal').innerText = curr + ' ' + amount;
+      document.getElementById('inspJson').innerHTML = `<code>${JSON.stringify({
+  category: cat,
+  reference: id,
+  status: status,
+  amount: amount,
+  currency: curr,
+  timestamp: new Date().toISOString()
+}, null, 2)}</code>`;
     }
 
     function clearSimLogs() {

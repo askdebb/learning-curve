@@ -4,67 +4,102 @@
 
 In modern fintech platforms, not every administrative view maps one-to-one with a single backend database table. In Bitnormous Merchant, two critical secondary views—**Customers** and **Audit Logs**—historically relied on static mock arrays (`paymentData.ts`) during early UI prototyping. 
 
-To transition these views into production-grade, enterprise operational tools without requiring breaking modifications to the backend service contracts, we engineered a client-side **Multi-Stream Event Aggregation and Reconciliation Architecture**.
+To transition these views into production-grade, enterprise operational tools without requiring breaking modifications to the backend service contracts, we engineered a client-side **Multi-Stream Event Aggregation and Reconciliation Architecture**, eliminated redundant manual `localStorage` calls in favor of a persistent **Zustand Store**, and elevated loading and inspection states to enterprise UI standards.
 
 ---
 
-## 1. Customers Orchestration (`useCustomersData`)
+## 1. Customers Orchestration & Zustand Store (`useCustomerStore`)
 
-### The Challenge
-The merchant gateway does not maintain an isolated, mutable `/customers` CRUD endpoint. Instead, merchant-customer relationships emerge from two primary transactional sources:
-1. **Checkout Session Payloads** (`GET /user/businesses/{id}/payments`): Direct customer details captured during hosted checkout flows (`customer: { name, email, reference }`).
-2. **Saved Address Book Recipients** (`GET /user/businesses/{id}/recipients`): Counterparties and accounts saved for payouts and recurring transfers (`account_name`, `label`, `channel`, `account`).
-3. **Client-Registered Customers**: Ad-hoc counterparty additions initiated directly by merchant staff via the "Add Customer" modal.
+### The Architectural Question: Why Not Direct `localStorage`?
+When an application already uses **Zustand** as its primary client-side state manager, writing manual `localStorage.getItem()`, `localStorage.setItem()`, and `JSON.parse()` routines inside React component hooks is an anti-pattern:
+1. **Loss of Reactivity**: Changes written to `localStorage` do not automatically cause other components or hooks subscribed to that key to re-render without manual custom event listeners (`window.addEventListener('storage')`).
+2. **Boilerplate & Deserialization Vulnerability**: Manually parsing JSON strings inside `useEffect` or `useState` initializers requires defensive `try/catch` wrappers and creates hydration drift between tabs or business switcher switches.
+3. **State Centralization**: By defining a dedicated Zustand store with the official `persist` middleware, persistence is handled declaratively behind the scenes, while components enjoy granular selector-based reactive subscriptions:
 
-### The Solution: Deduplication & Normalization
-The `useCustomersData` custom React hook unifies these three sources into a deduplicated, cohesive customer directory:
+```typescript
+export const useCustomerStore = create<CustomerStoreState>()(
+  persist(
+    (set) => ({
+      customCustomers: {},
+      addCustomCustomer: (businessId, customerInput) =>
+        set((state) => {
+          const key = String(businessId);
+          const list = state.customCustomers[key] || [];
+          const newCustomer: CustomerRow = {
+            ...customerInput,
+            id: `cus-${Date.now()}`,
+            addedOn: formatDisplayDate(),
+          };
+          const filtered = list.filter(
+            (c) =>
+              !c.email ||
+              !customerInput.email ||
+              c.email.trim().toLowerCase() !== customerInput.email.trim().toLowerCase()
+          );
+          return {
+            customCustomers: {
+              ...state.customCustomers,
+              [key]: [newCustomer, ...filtered],
+            },
+          };
+        }),
+    }),
+    {
+      name: "bitnormous-customer-store",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+```
 
-1. **Extraction & Deduplication**:
-   - Iterates through live checkout sessions. If customer details exist, an ID is minted from the customer's email or fallback reference.
-   - Iterates through saved payout recipients, matching or appending new entries.
-   - Reads persisted client additions from `localStorage` under the key `bitnormous_custom_customers_{businessId}`.
-2. **Field Fallbacks**:
-   - `fullName`: Uses customer name, recipient account name, or the mailbox prefix of their email.
-   - `email`: Uses customer email or defaults to a clean placeholder (`"N/A"`).
-   - `phone`: Maps phone or recipient account address.
-   - `addedOn`: Formats UTC creation timestamp into a human-friendly date (`"MMM dd, yyyy"`).
-3. **Local Mutation Persistence**:
-   - Providing `addCustomer(customer)` seamlessly saves to `localStorage` and triggers reactive query state re-evaluation.
+### The Three-Source Customer Reconciliation Pipeline
+The `useCustomersData` custom React hook unifies three distinct transactional streams into a deduplicated, cohesive directory:
+1. **Checkout Session Payloads** (`GET /user/businesses/{id}/payments`): Real customers captured during hosted checkout sessions (`customer: { name, email, reference }`).
+2. **Saved Address Book Recipients** (`GET /user/businesses/{id}/recipients`): Saved counterparties and bank/mobile-money accounts.
+3. **Zustand Persisted Customers**: Registered directly by merchant operators via the "Add Customer" modal.
 
 ---
 
-## 2. Audit Trail Synthesis (`useAuditLogsData`)
+## 2. Professional Skeleton Design vs. Raw Text Placeholders
 
-### The Challenge
-Enterprises require an auditable trail of administrative and transactional actions. In high-velocity payments infrastructure, system activities originate across distributed micro-events:
-- Webhook delivery attempts to merchant servers.
-- Checkout session creation, payment state transitions, and expirations.
-- Internal ledger credits, debit payouts, and settlement adjustments.
-- Team member permissions, role updates, and organizational changes.
+### Eliminating `"Loading..."` Text Placeholders
+Rendering rows with raw text strings like `time: "Loading..."` and `activity: "Loading activity..."` breaks visual hierarchy, shifts layout widths during network requests, and degrades user confidence.
 
-### The Solution: Multi-Stream Event Chronicle
-Rather than waiting for a centralized audit microservice, `useAuditLogsData` queries and normalizes four real-time reactive streams:
+Instead, enterprise data tables employ **Column-Proportional Pulsing Skeletons**:
+- **Timestamp Column**: Fixed-width pulsing block (`w-28` to `w-32`) matching the natural aspect ratio of dates.
+- **Activity Column**: Fluid, alternating sentence-length pulsing bars (`w-4/5 max-w-lg` alternating with `w-3/5 max-w-md`) simulating natural paragraph sentences.
+- **Configurable `skeletonClassName`**: Columns in `DataTableCard` now support explicit skeleton overrides for exact layout fidelity.
+
+---
+
+## 3. Audit Trail Multi-Stream Synthesis & Interactive Telemetry Inspector
+
+### Real-Time Micro-Event Synthesis
+Rather than waiting for a heavy centralized audit logging microservice, `useAuditLogsData` queries and normalizes four real-time reactive streams:
 
 | Stream | Hook / Action | Event Synthesized | Status Representation |
 | :--- | :--- | :--- | :--- |
-| **Webhooks** | `useDeliveries` | Event dispatch attempt to merchant endpoints | `succeeded`, `pending`, `failed` with HTTP status |
+| **Webhooks** | `useDeliveries` | Event dispatch attempt to merchant endpoints | `succeeded` (HTTP 200), `pending`, `failed` |
 | **Orders** | `usePayments` | Checkout session creation, status lifecycle | `open`, `processing`, `completed`, `expired` |
 | **Ledger** | `useLedgerTransactionsAction` | Settlement credits, payout debits, fees | Direction (`credit` / `debit`), amount, currency, bucket |
 | **Team Access** | `useMembers` | Team member role bindings and invitations | Member name/email, assigned role (`admin`, `dev`, etc.) |
 
-### Chronological Sorting & Detail Inspection
-Every event is assigned an internal epoch timestamp `timestamp: number` and a human-readable activity description. The synthesized array is sorted in strict descending order (newest activity first). 
-
-Selecting any row in the `DataTableCard` opens a slide-over inspection drawer showing the exact timestamp, structured details, and raw JSON context for security audits.
+### Professional Telemetry Inspector (`AuditLogDetailInspector`)
+Selecting any audit log in the chronicle transitions the inspection deck into a rich, interactive forensic console:
+1. **Category Pills with Semantic Icons**:
+   - `FaBolt` Indigo Pill: Webhook Dispatch
+   - `FaCartShopping` Emerald Pill: Checkout Session
+   - `FaWallet` Amber Pill: Ledger Settlement
+   - `FaUserShield` Purple Pill: Access Control
+2. **Status Indicator with Pulse**: Real-time status badges (`HTTP 200 OK`, `In Progress`, `Failed`) with animated glowing dots.
+3. **Copyable Telemetry Specifications**: One-click clipboard copy for event IDs and target entity references with visual checkmark confirmation.
+4. **Tabbed Inspector**:
+   - **Structured Properties**: Key-value metadata table displaying balance after, bucket allocation, delivery attempts, and references.
+   - **Raw JSON Console**: Formatted monospace payload viewer with a dedicated "Copy JSON" action for audit exports.
+5. **Intuitive Empty State**: When no log is selected, renders a centered audit shield illustration with clear instructions to click any table row to inspect.
 
 ---
 
-## 3. Mock Data Elimination
+## 4. Verification & Clean Build
 
-All references to static mocks have been eliminated from production pathways:
-- **`dashboardData.ts`**: Stripped of `dashboardMockData`, `dashboardMockDataDevMode`, `revenueViews`, and mock success rates. Only TypeScript interfaces are preserved.
-- **`SuccessRateChart.tsx`**: Stripped of `successRateDevMode` fallback.
-- **`Customers.tsx`**: Disconnected from `paymentData.ts`, wired directly to `useCustomersData()`.
-- **`AuditLogs.tsx`**: Disconnected from `paymentData.ts`, wired directly to `useAuditLogsData()`.
-
-When collections are loading or empty, pages render skeleton placeholder rows or descriptive zero-data states, ensuring a responsive user experience.
+All components passed strict TypeScript compilation (`tsc -b`) and Vite production bundling with **0 errors**.
