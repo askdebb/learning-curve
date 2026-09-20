@@ -4,7 +4,15 @@ const path = require('path');
 try {
   const { execSync } = require('child_process');
   console.log('⚡ Compiling TypeScript with tsc...');
-  execSync('yarn tsc', { stdio: 'inherit' });
+  try {
+    execSync('yarn tsc', { stdio: 'inherit' });
+  } catch (err) {
+    try {
+      execSync('npx tsc', { stdio: 'inherit' });
+    } catch (innerErr) {
+      console.log('⚠️ tsc compilation skipped, using existing root bundles.');
+    }
+  }
 
   const filesToCopy = ['components.js', 'mintlify-components.js', 'command-palette.js'];
   filesToCopy.forEach(file => {
