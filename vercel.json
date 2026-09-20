@@ -1,0 +1,13 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/timeline", "destination": "/timeline.html" },
+    { "source": "/playbooks", "destination": "/playbooks.html" },
+    { "source": "/specs", "destination": "/specs.html" },
+    { "source": "/react", "destination": "/routes/react.html" },
+    { "source": "/fintech", "destination": "/routes/fintech.html" },
+    { "source": "/security", "destination": "/routes/security.html" },
+    { "source": "/backend", "destination": "/routes/backend.html" }
+  ]
+}

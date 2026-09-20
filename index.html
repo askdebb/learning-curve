@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Learning Curve — Engineering Knowledge Base & Interactive Playbook Hub</title>
+  <title>Learning Curve — Engineering Knowledge Base & Architecture Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -21,8 +21,7 @@
       --accent-glow: rgba(99, 102, 241, 0.25);
       --emerald: #10B981;
       --emerald-glow: rgba(16, 185, 129, 0.2);
-      --amber: #F59E0B;
-      --rose: #F43F5E;
+      --purple: #8B5CF6;
       --code-bg: #030712;
     }
 
@@ -42,7 +41,6 @@
       line-height: 1.6;
     }
 
-    /* Ambient Lighting */
     .ambient-glow {
       position: fixed;
       top: -200px;
@@ -65,7 +63,6 @@
       z-index: 0;
     }
 
-    /* Top Navigation Header */
     .navbar {
       position: sticky;
       top: 0;
@@ -121,10 +118,22 @@
       font-weight: 600;
     }
 
-    .nav-actions {
+    .nav-links {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 18px;
+    }
+
+    .nav-link-item {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link-item:hover {
+      color: #FFF;
     }
 
     .github-btn {
@@ -145,14 +154,12 @@
     .github-btn:hover {
       background: var(--surface-hover);
       border-color: var(--accent);
-      transform: translateY(-1px);
     }
 
-    /* Hero */
     .hero {
       max-width: 1240px;
       margin: 0 auto;
-      padding: 56px 24px 28px 24px;
+      padding: 64px 24px 36px 24px;
       text-align: center;
     }
 
@@ -160,7 +167,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 12px;
+      padding: 4px 14px;
       border-radius: 999px;
       background: rgba(16, 185, 129, 0.12);
       border: 1px solid rgba(16, 185, 129, 0.3);
@@ -171,10 +178,10 @@
     }
 
     .hero-title {
-      font-size: clamp(32px, 4vw, 48px);
+      font-size: clamp(34px, 4.5vw, 52px);
       font-weight: 800;
       letter-spacing: -0.03em;
-      line-height: 1.2;
+      line-height: 1.18;
       margin-bottom: 16px;
     }
 
@@ -185,463 +192,176 @@
     }
 
     .hero-subtitle {
-      font-size: 16px;
+      font-size: 16.5px;
       color: var(--text-muted);
-      max-width: 720px;
-      margin: 0 auto 36px auto;
+      max-width: 760px;
+      margin: 0 auto 40px auto;
+      line-height: 1.65;
     }
 
-    /* Filter & Organization Controls Toolbar */
-    .control-panel {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 0 24px 32px 24px;
-      display: flex;
-      flex-direction: column;
+    /* Stats Ribbon */
+    .stats-ribbon {
+      max-width: 1000px;
+      margin: 0 auto 56px auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 16px;
+      padding: 0 20px;
     }
 
-    .toolbar-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+    .stat-card {
       background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--border);
-      padding: 14px 18px;
       border-radius: 12px;
+      padding: 18px 16px;
+      text-align: center;
       backdrop-filter: blur(12px);
     }
 
-    .search-box {
-      flex: 1;
-      min-width: 260px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 14px;
-    }
-
-    .search-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
+    .stat-number {
+      font-size: 26px;
+      font-weight: 800;
       color: #FFF;
-      font-size: 13.5px;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 4px;
     }
 
-    .search-input::placeholder {
-      color: #64748B;
-    }
-
-    .tools-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .dropdown-select {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: #FFF;
-      font-size: 13px;
-      padding: 8px 12px;
-      outline: none;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .dropdown-select:focus {
-      border-color: var(--accent);
-    }
-
-    .view-mode-toggle {
-      display: flex;
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 3px;
-      gap: 2px;
-    }
-
-    .view-btn {
-      background: transparent;
-      border: none;
+    .stat-label {
+      font-size: 12px;
       color: var(--text-muted);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
     }
 
-    .view-btn.active {
-      background: var(--accent);
-      color: #FFF;
-      box-shadow: 0 2px 8px var(--accent-glow);
-    }
-
-    /* Category Filter Pills */
-    .category-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .pill {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .pill:hover {
-      background: var(--surface-hover);
-      color: #FFF;
-      border-color: var(--accent);
-    }
-
-    .pill.active {
-      background: var(--accent);
-      color: #FFF;
-      border-color: var(--accent);
-      box-shadow: 0 2px 8px var(--accent-glow);
-    }
-
-    /* Main Container */
-    .content-section {
+    /* Primary Route Portals Grid */
+    .portal-section {
       max-width: 1240px;
       margin: 0 auto;
       padding: 0 24px 60px 24px;
     }
 
-    .section-meta-row {
+    .section-heading-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
-      font-size: 13.5px;
-      color: var(--text-muted);
-    }
-
-    /* Date Group Header */
-    .date-group-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 36px 0 20px 0;
-      padding-bottom: 10px;
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
 
-    .date-group-title {
-      font-size: 16px;
+    .section-title {
+      font-size: 20px;
       font-weight: 700;
       color: #FFF;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .date-group-badge {
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      color: #818CF8;
-    }
-
-    /* Grid Layout */
-    .concept-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 24px;
-    }
-
-    /* Card */
-    .concept-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      backdrop-filter: blur(16px);
-      position: relative;
-    }
-
-    .concept-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    }
-
-    .card-top {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-badge-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      gap: 8px;
-    }
-
-    .status-badge {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      padding: 4px 10px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .status-badge.complete {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34D399;
-    }
-
-    .status-badge.standard {
-      background: rgba(99, 102, 241, 0.12);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      color: #818CF8;
-    }
-
-    .status-badge.queue {
-      background: rgba(148, 163, 184, 0.1);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #94A3B8;
-    }
-
-    .card-timestamp {
-      font-size: 11.5px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-muted);
-      background: rgba(3, 7, 18, 0.6);
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid rgba(51, 65, 85, 0.5);
-    }
-
-    .card-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #FFF;
-      line-height: 1.35;
-      margin-bottom: 10px;
-    }
-
-    .card-desc {
-      font-size: 13.5px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 18px;
-    }
-
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 24px;
-    }
-
-    .tech-tag {
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      padding: 3px 8px;
-      border-radius: 4px;
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid var(--border);
-      color: #CBD5E1;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .tech-tag:hover {
-      border-color: var(--accent);
-      color: #FFF;
-    }
-
-    .card-actions {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding-top: 18px;
-      border-top: 1px solid var(--border);
     }
 
-    .btn-playbook {
-      flex: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: var(--accent);
-      color: #FFF;
-      text-decoration: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px var(--accent-glow);
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
     }
 
-    .btn-playbook:hover {
-      background: #4F46E5;
-      transform: translateY(-1px);
-    }
-
-    .btn-spec {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: var(--surface);
+    .portal-card {
+      background: var(--surface-card);
       border: 1px solid var(--border);
-      color: var(--text-muted);
+      border-radius: 14px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       text-decoration: none;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .btn-spec:hover {
-      background: var(--surface-hover);
-      color: #FFF;
-      border-color: var(--accent);
-    }
-
-    /* Timeline View Specific Styling */
-    .timeline-container {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(16px);
       position: relative;
-      padding-left: 32px;
+      overflow: hidden;
     }
 
-    .timeline-container::before {
+    .portal-card::before {
       content: '';
       position: absolute;
-      left: 10px;
-      top: 10px;
-      bottom: 20px;
-      width: 2px;
-      background: linear-gradient(180deg, var(--accent) 0%, rgba(99, 102, 241, 0.1) 100%);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      opacity: 0;
+      transition: opacity 0.2s;
     }
 
-    .timeline-item {
-      position: relative;
-      margin-bottom: 36px;
+    .portal-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .timeline-dot {
-      position: absolute;
-      left: -28px;
-      top: 24px;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: 3px solid var(--bg);
-      box-shadow: 0 0 10px var(--accent-glow);
+    .portal-card:hover::before {
+      opacity: 1;
     }
 
-    /* Pagination Controls */
-    .pagination-bar {
+    .portal-icon-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .portal-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
+      font-size: 22px;
     }
 
-    .page-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: #FFF;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .page-btn:hover:not(:disabled) {
-      background: var(--surface-hover);
-      border-color: var(--accent);
-    }
-
-    .page-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .page-info {
-      font-size: 13px;
-      color: var(--text-muted);
+    .portal-tag {
+      font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #CBD5E1;
     }
 
-    /* Empty state */
-    .empty-state {
-      display: none;
-      text-align: center;
-      padding: 60px 20px;
-      background: var(--surface-card);
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-    }
-
-    .empty-icon {
-      font-size: 36px;
-      margin-bottom: 12px;
-    }
-
-    .empty-title {
-      font-size: 18px;
+    .portal-title {
+      font-size: 19px;
       font-weight: 700;
       color: #FFF;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
     }
 
-    .empty-desc {
+    .portal-desc {
       font-size: 14px;
       color: var(--text-muted);
-      margin-bottom: 20px;
+      line-height: 1.6;
+      margin-bottom: 24px;
     }
 
-    /* Auto Publish Notice */
+    .portal-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #818CF8;
+      font-size: 13.5px;
+      font-weight: 600;
+      transition: gap 0.2s;
+    }
+
+    .portal-card:hover .portal-link-btn {
+      gap: 10px;
+      color: #A5B4FC;
+    }
+
+    /* Hands-Free Notice */
     .auto-box {
       max-width: 1240px;
       margin: 0 auto 60px auto;
@@ -695,10 +415,9 @@
     }
 
     @media (max-width: 768px) {
-      .concept-grid { grid-template-columns: 1fr; }
+      .stats-ribbon { grid-template-columns: repeat(2, 1fr); }
+      .portal-grid { grid-template-columns: 1fr; }
       .navbar-content { flex-direction: column; align-items: flex-start; }
-      .toolbar-row { flex-direction: column; align-items: stretch; }
-      .tools-group { justify-content: space-between; }
     }
   </style>
 </head>
@@ -706,19 +425,22 @@
   <div class="ambient-glow"></div>
   <div class="ambient-glow-2"></div>
 
-  <!-- Top Navbar -->
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="navbar-content">
-      <a href="index.html" class="nav-brand">
+      <a href="/" class="nav-brand">
         <div class="brand-icon">⚡</div>
         <div>
           <span class="brand-text">Learning Curve</span>
           <span class="brand-tag">Engineering Hub</span>
         </div>
       </a>
-      <div class="nav-actions">
+      <div class="nav-links">
+        <a href="/timeline" class="nav-link-item">🗓️ Timeline</a>
+        <a href="/playbooks" class="nav-link-item">🎮 Playbooks</a>
+        <a href="/specs" class="nav-link-item">📄 Specs</a>
         <a href="https://github.com/askdebb/learning-curve" target="_blank" class="github-btn">
-          <span>GitHub Repo ↗</span>
+          <span>GitHub ↗</span>
         </a>
       </div>
     </div>
@@ -727,383 +449,151 @@
   <!-- Hero Header -->
   <header class="hero">
     <div class="hero-badge">
-      <span>● Chronological Engineering Knowledge Base</span>
+      <span>● Multi-Route Architecture Hub</span>
     </div>
     <h1 class="hero-title">
-      Engineering Knowledge Base &<br><span>Interactive Playbook Hub</span>
+      Engineering Knowledge Base &<br><span>Interactive Architecture Hub</span>
     </h1>
     <p class="hero-subtitle">
-      Organized session-by-session archive cataloging deep-dive architectures, financial metric pipelines, and interactive playbooks across all codebases.
+      A segmented engineering archive separating chronological session histories, interactive playbooks, and specifications into dedicated, focused routes.
     </p>
+
+    <!-- Stats Ribbon -->
+    <div class="stats-ribbon">
+      <div class="stat-card">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Total Architectures</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">6</div>
+        <div class="stat-label">Interactive Playbooks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">4</div>
+        <div class="stat-label">Domain Routes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Live Vercel Sync</div>
+      </div>
+    </div>
   </header>
 
-  <!-- Organization & Filtering Controls Toolbar -->
-  <section class="control-panel">
-    <div class="toolbar-row">
-      <!-- Search Input -->
-      <div class="search-box">
-        <span>🔍</span>
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="Search topics, patterns, endpoints, or code concepts..."
-          oninput="applyAllFilters()"
-        >
-      </div>
-
-      <!-- Time & View Controls -->
-      <div class="tools-group">
-        <!-- Date / Period Filter -->
-        <select id="dateFilter" class="dropdown-select" onchange="applyAllFilters()">
-          <option value="all">All Dates & Sessions</option>
-          <option value="today">Today (Sep 20, 2026)</option>
-          <option value="yesterday">Yesterday (Sep 19, 2026)</option>
-          <option value="earlier">Earlier Sessions (Sep 16–18)</option>
-          <option value="queue">Upcoming Queue</option>
-        </select>
-
-        <!-- Chronological Sort Order -->
-        <select id="sortOrder" class="dropdown-select" onchange="applyAllFilters()">
-          <option value="desc">Newest First ▾</option>
-          <option value="asc">Oldest First ▴</option>
-        </select>
-
-        <!-- View Mode Switcher -->
-        <div class="view-mode-toggle">
-          <button class="view-btn active" id="btnGridView" onclick="setViewMode('grid')">
-            <span>▦ Grouped Grid</span>
-          </button>
-          <button class="view-btn" id="btnTimelineView" onclick="setViewMode('timeline')">
-            <span>☷ Timeline</span>
-          </button>
-        </div>
-      </div>
+  <!-- Primary Route Portals -->
+  <main class="portal-section">
+    <div class="section-heading-row">
+      <h2 class="section-title">🧭 Dedicated Knowledge Routes</h2>
+      <span style="font-size: 13px; color: var(--text-muted);">Select a route to view its contents</span>
     </div>
 
-    <!-- Category Pills -->
-    <div class="category-pills">
-      <button class="pill active" onclick="setCategory('all', this)">All Concepts (8)</button>
-      <button class="pill" onclick="setCategory('react', this)">React & State (5)</button>
-      <button class="pill" onclick="setCategory('backend', this)">Backend & APIs (3)</button>
-      <button class="pill" onclick="setCategory('performance', this)">Performance (5)</button>
-      <button class="pill" onclick="setCategory('security', this)">Security & Auth (1)</button>
-    </div>
-  </section>
-
-  <!-- Main Content Container -->
-  <main class="content-section">
-    <div class="section-meta-row">
-      <span id="resultsCount">Showing 8 of 8 engineering playbooks</span>
-      <span id="activeGroupingLabel" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #818CF8;">Grouped by Session Date</span>
-    </div>
-
-    <!-- Empty State Notification -->
-    <div id="emptyState" class="empty-state">
-      <div class="empty-icon">🔎</div>
-      <div class="empty-title">No matching architecture entries found</div>
-      <p class="empty-desc">Try clearing your search query or selecting a different category/date filter.</p>
-      <button onclick="resetFilters()" class="btn-playbook" style="max-width: 200px; margin: 0 auto;">Reset Filters</button>
-    </div>
-
-    <!-- Cards Container -->
-    <div id="cardsContainer">
-      <!-- Group: Today (Sep 20, 2026) -->
-      <div class="date-group-section" data-group-date="today">
-        <div class="date-group-header">
-          <h2 class="date-group-title">🗓️ Today — Sep 20, 2026</h2>
-          <span class="date-group-badge">2 Recent Sessions</span>
+    <div class="portal-grid">
+      <!-- Route 1: Session Timeline -->
+      <a href="/timeline" class="portal-card">
+        <div>
+          <div class="portal-icon-row">
+            <div class="portal-icon">🗓️</div>
+            <span class="portal-tag">Route: /timeline</span>
+          </div>
+          <h3 class="portal-title">Session Chronology & Timeline</h3>
+          <p class="portal-desc">
+            Organized chronologically by session date and exact timestamps (Today, Yesterday, Earlier Sessions, and Upcoming Roadmap).
+          </p>
         </div>
-        <div class="concept-grid">
-          <!-- Card 1: Financial Dashboard Chart Data Orchestration -->
-          <article
-            class="concept-card"
-            data-category="react performance backend"
-            data-timestamp="2026-09-20T12:05:00"
-            data-date-period="today"
-            data-keywords="charts revenue success rate recharts ledger transactions date windowing dynamic axis scaling bitnormous"
-          >
-            <div class="card-top">
-              <div class="card-badge-row">
-                <span class="status-badge complete">● Interactive Playbook</span>
-                <span class="card-timestamp">Sep 20 • 12:05 PM</span>
-              </div>
-              <h3 class="card-title">Financial Dashboard Chart Data Orchestration & Responsive Axis Scaling</h3>
-              <p class="card-desc">
-                Eliminating mock chart series with rolling ledger date windowing (Monthly, Quarterly, Yearly), magnitude-aware dynamic Y-axis tick math, and dual-mode Developer vs. Business telemetry pipelines.
-              </p>
-              <div class="tag-list">
-                <span class="tech-tag" onclick="quickFilterTag('Recharts')">Recharts</span>
-                <span class="tech-tag" onclick="quickFilterTag('React 19')">React 19</span>
-                <span class="tech-tag" onclick="quickFilterTag('TanStack v5')">TanStack v5</span>
-                <span class="tech-tag" onclick="quickFilterTag('Ledger Math')">Ledger Math</span>
-                <span class="tech-tag" onclick="quickFilterTag('Dual-Mode')">Dual-Mode</span>
-              </div>
-            </div>
-            <div class="card-actions">
-              <a href="playbooks/financial-dashboard-chart-data-orchestration.html" class="btn-playbook">
-                <span>Launch Playbook ⚡</span>
-              </a>
-              <a href="entries/financial-dashboard-chart-data-orchestration.md" target="_blank" class="btn-spec" title="View Markdown Specification">
-                <span>Spec 📄</span>
-              </a>
-            </div>
-          </article>
-
-          <!-- Card 2: Next Payouts Metric Modeling -->
-          <article
-            class="concept-card"
-            data-category="react performance backend"
-            data-timestamp="2026-09-20T11:55:00"
-            data-date-period="today"
-            data-keywords="payouts pending processing settled fiat fintech trend equilibrium figma velocity bitnormous plain english"
-          >
-            <div class="card-top">
-              <div class="card-badge-row">
-                <span class="status-badge complete">● Interactive Playbook</span>
-                <span class="card-timestamp">Sep 20 • 11:55 AM</span>
-              </div>
-              <h3 class="card-title">Next Payouts Metric Modeling, In-Flight Batching & Plain-Language FinTech</h3>
-              <p class="card-desc">
-                Eliminating academic LaTeX syntax in favor of human-readable financial formulas, batching in-flight liabilities (pending + processing), computing velocity trends against settled history, and enforcing directionless 0% equilibrium.
-              </p>
-              <div class="tag-list">
-                <span class="tech-tag" onclick="quickFilterTag('FinTech UX')">FinTech UX</span>
-                <span class="tech-tag" onclick="quickFilterTag('React 19')">React 19</span>
-                <span class="tech-tag" onclick="quickFilterTag('TanStack v5')">TanStack v5</span>
-                <span class="tech-tag" onclick="quickFilterTag('Batching')">Batching</span>
-                <span class="tech-tag" onclick="quickFilterTag('Equilibrium')">Equilibrium</span>
-              </div>
-            </div>
-            <div class="card-actions">
-              <a href="playbooks/next-payouts-metric-modeling-and-plain-english-fintech.html" class="btn-playbook">
-                <span>Launch Playbook ⚡</span>
-              </a>
-              <a href="entries/next-payouts-metric-modeling-and-plain-english-fintech.md" target="_blank" class="btn-spec" title="View Markdown Specification">
-                <span>Spec 📄</span>
-              </a>
-            </div>
-          </article>
+        <div class="portal-link-btn">
+          <span>Open Session Timeline</span>
+          <span>→</span>
         </div>
-      </div>
+      </a>
 
-      <!-- Group: Yesterday (Sep 19, 2026) -->
-      <div class="date-group-section" data-group-date="yesterday">
-        <div class="date-group-header">
-          <h2 class="date-group-title">🗓️ Yesterday — Sep 19, 2026</h2>
-          <span class="date-group-badge">1 Core Architecture</span>
+      <!-- Route 2: Interactive Playbooks Hub -->
+      <a href="/playbooks" class="portal-card">
+        <div>
+          <div class="portal-icon-row">
+            <div class="portal-icon">🎮</div>
+            <span class="portal-tag">Route: /playbooks</span>
+          </div>
+          <h3 class="portal-title">Interactive Playbooks Hub</h3>
+          <p class="portal-desc">
+            Direct access to all interactive simulators, visual state testing tools, reactive sliders, and telemetry benches.
+          </p>
         </div>
-        <div class="concept-grid">
-          <!-- Card 3: Merchant Dashboard Reactive State -->
-          <article
-            class="concept-card"
-            data-category="react performance backend"
-            data-timestamp="2026-09-19T23:45:00"
-            data-date-period="yesterday"
-            data-keywords="dashboard query invalidation keys zustand sync equilibrium 0% arrow countup bitnormous merchant"
-          >
-            <div class="card-top">
-              <div class="card-badge-row">
-                <span class="status-badge complete">● Interactive Playbook</span>
-                <span class="card-timestamp">Sep 19 • 11:45 PM</span>
-              </div>
-              <h3 class="card-title">Merchant Dashboard Reactive State, Query Invalidation & Equilibrium Design</h3>
-              <p class="card-desc">
-                Decoupling UI from TanStack Query keys via centralized factories and semantic invalidators, mounting root actions in Layout for automated Zustand hydration, and engineering directionless 0% equilibrium micro-UI physics.
-              </p>
-              <div class="tag-list">
-                <span class="tech-tag" onclick="quickFilterTag('Query Keys')">Query Keys</span>
-                <span class="tech-tag" onclick="quickFilterTag('Zustand v5')">Zustand v5</span>
-                <span class="tech-tag" onclick="quickFilterTag('TanStack Query v5')">TanStack Query v5</span>
-                <span class="tech-tag" onclick="quickFilterTag('Equilibrium UI')">Equilibrium UI</span>
-              </div>
-            </div>
-            <div class="card-actions">
-              <a href="playbooks/merchant-dashboard-reactive-state-and-query-invalidation.html" class="btn-playbook">
-                <span>Launch Playbook ⚡</span>
-              </a>
-              <a href="entries/merchant-dashboard-reactive-state-and-query-invalidation.md" target="_blank" class="btn-spec" title="View Markdown Specification">
-                <span>Spec 📄</span>
-              </a>
-            </div>
-          </article>
+        <div class="portal-link-btn">
+          <span>Open Playbooks Route</span>
+          <span>→</span>
         </div>
-      </div>
+      </a>
 
-      <!-- Group: Earlier Sessions (Sep 16–18, 2026) -->
-      <div class="date-group-section" data-group-date="earlier">
-        <div class="date-group-header">
-          <h2 class="date-group-title">🗓️ Earlier Sessions — Sep 16–18, 2026</h2>
-          <span class="date-group-badge">3 Foundation Topics</span>
+      <!-- Route 3: System Specifications -->
+      <a href="/specs" class="portal-card">
+        <div>
+          <div class="portal-icon-row">
+            <div class="portal-icon">📄</div>
+            <span class="portal-tag">Route: /specs</span>
+          </div>
+          <h3 class="portal-title">System Specifications & RFCs</h3>
+          <p class="portal-desc">
+            Raw production documentation, trade-off matrices, security audits, and copy-pasteable architectural code snippets.
+          </p>
         </div>
-        <div class="concept-grid">
-          <!-- Card 4: Authentication Architecture -->
-          <article
-            class="concept-card"
-            data-category="security react performance"
-            data-timestamp="2026-09-18T16:30:00"
-            data-date-period="earlier"
-            data-keywords="authentication security owasp react tanstack yup autofill uncontrolled keystroke"
-          >
-            <div class="card-top">
-              <div class="card-badge-row">
-                <span class="status-badge complete">● Interactive Playbook</span>
-                <span class="card-timestamp">Sep 18 • 04:30 PM</span>
-              </div>
-              <h3 class="card-title">Enterprise Authentication Architecture & Security Hardening</h3>
-              <p class="card-desc">
-                Production blueprint addressing keystroke re-rendering overhead with uncontrolled forms, OWASP user enumeration mitigation via generic notices, modular Yup request rules, and Tailwind autofill overrides.
-              </p>
-              <div class="tag-list">
-                <span class="tech-tag" onclick="quickFilterTag('OWASP')">OWASP</span>
-                <span class="tech-tag" onclick="quickFilterTag('Yup')">Yup</span>
-                <span class="tech-tag" onclick="quickFilterTag('React 19')">React 19</span>
-                <span class="tech-tag" onclick="quickFilterTag('Tailwind')">Tailwind</span>
-              </div>
-            </div>
-            <div class="card-actions">
-              <a href="playbooks/authentication-architecture.html" class="btn-playbook">
-                <span>Launch Playbook ⚡</span>
-              </a>
-              <a href="entries/authentication-architecture.md" target="_blank" class="btn-spec" title="View Markdown Specification">
-                <span>Spec 📄</span>
-              </a>
-            </div>
-          </article>
-
-          <!-- Card 5: Merchant API State Architecture -->
-          <article
-            class="concept-card"
-            data-category="react performance backend"
-            data-timestamp="2026-09-17T21:15:00"
-            data-date-period="earlier"
-            data-keywords="api state zustand tanstack render protection memoization controller bitnormous"
-          >
-            <div class="card-top">
-              <div class="card-badge-row">
-                <span class="status-badge standard">● Architectural Standard</span>
-                <span class="card-timestamp">Sep 17 • 09:15 PM</span>
-              </div>
-              <h3 class="card-title">Bitnormous Merchant API Architecture & Render Protection</h3>
-              <p class="card-desc">
-                Orchestrating 50 financial endpoints across 14 domains with 3-Tier State Taxonomy (Server State vs. Zustand drafts vs. Ephemeral), Three Pillars of Render Protection (useRef, useMemo, useCallback), and decoupled drawer stores.
-              </p>
-              <div class="tag-list">
-                <span class="tech-tag" onclick="quickFilterTag('Render Guard')">Render Guard</span>
-                <span class="tech-tag" onclick="quickFilterTag('Zustand')">Zustand</span>
-                <span class="tech-tag" onclick="quickFilterTag('Axios')">Axios</span>
-                <span class="tech-tag" onclick="quickFilterTag('Architecture')">Architecture</span>
-              </div>
-            </div>
-            <div class="card-actions">
-              <a href="playbooks/merchant-api-state-architecture.html" class="btn-playbook">
-                <span>Launch Playbook ⚡</span>
-              </a>
-              <a href="entries/merchant-api-state-architecture.md" target="_blank" class="btn-spec" title="View Markdown Specification">
-                <span>Spec 📄</span>
-              </a>
-            </div>
-          </article>
-
-          <!-- Card 6: Crypto Stepper State Persistence -->
-          <article
-            class="concept-card"
-            data-category="backend react performance"
-            data-timestamp="2026-09-16T14:20:00"
-            data-date-period="earlier"
-            data-keywords="websocket realtime notifications state sync stepper zustand push persist"
-          >
-            <div class="card-top">
-              <div class="card-badge-row">
-                <span class="status-badge complete">● Interactive Playbook</span>
-                <span class="card-timestamp">Sep 16 • 02:20 PM</span>
-              </div>
-              <h3 class="card-title">Crypto Stepper State Persistence, Socket Lifecycle & Push Notifications</h3>
-              <p class="card-desc">
-                Surviving mobile browser tab discard and HMR reloads in crypto checkouts via synchronous Zustand localStorage hydration, visibility-based socket wake-up, and context-aware native Web Push.
-              </p>
-              <div class="tag-list">
-                <span class="tech-tag" onclick="quickFilterTag('Zustand Persist')">Zustand Persist</span>
-                <span class="tech-tag" onclick="quickFilterTag('Web Push API')">Web Push API</span>
-                <span class="tech-tag" onclick="quickFilterTag('Laravel Echo')">Laravel Echo</span>
-              </div>
-            </div>
-            <div class="card-actions">
-              <a href="playbooks/checkout-stepper-and-notifications.html" class="btn-playbook">
-                <span>Launch Playbook ⚡</span>
-              </a>
-              <a href="entries/checkout-stepper-and-notifications.md" target="_blank" class="btn-spec" title="View Markdown Specification">
-                <span>Spec 📄</span>
-              </a>
-            </div>
-          </article>
+        <div class="portal-link-btn">
+          <span>Open Specifications Route</span>
+          <span>→</span>
         </div>
-      </div>
+      </a>
 
-      <!-- Group: Upcoming Queue -->
-      <div class="date-group-section" data-group-date="queue">
-        <div class="date-group-header">
-          <h2 class="date-group-title">⏳ Upcoming Queue & Roadmap</h2>
-          <span class="date-group-badge">2 Scheduled Topics</span>
+      <!-- Route 4: React & State Architecture -->
+      <a href="/react" class="portal-card">
+        <div>
+          <div class="portal-icon-row">
+            <div class="portal-icon">⚛️</div>
+            <span class="portal-tag">Route: /react</span>
+          </div>
+          <h3 class="portal-title">React & State Architecture</h3>
+          <p class="portal-desc">
+            Zustand v5 stores, TanStack Query v5 cache invalidators, query key factories, and directionless 0% equilibrium micro-UI physics.
+          </p>
         </div>
-        <div class="concept-grid">
-          <!-- Card 7: Webhook Idempotency -->
-          <article
-            class="concept-card"
-            data-category="backend security"
-            data-timestamp="2026-09-30T00:00:00"
-            data-date-period="queue"
-            data-keywords="webhook idempotency redis distributed locks payments replay attack"
-          >
-            <div class="card-top">
-              <div class="card-badge-row">
-                <span class="status-badge queue">○ In Queue</span>
-                <span class="card-timestamp">Upcoming</span>
-              </div>
-              <h3 class="card-title">Webhook Idempotency & Replay Attack Defense</h3>
-              <p class="card-desc">
-                Distributed locking mechanisms with Redis, signature verification, and deduplication layers to ensure financial transactions and webhook events process exactly once.
-              </p>
-              <div class="tag-list">
-                <span class="tech-tag">Redis</span>
-                <span class="tech-tag">HMAC-SHA256</span>
-                <span class="tech-tag">Idempotency</span>
-              </div>
-            </div>
-            <div class="card-actions">
-              <button class="btn-spec" style="width: 100%; cursor: not-allowed; opacity: 0.6;">Upcoming Concept</button>
-            </div>
-          </article>
+        <div class="portal-link-btn">
+          <span>View 5 React Playbooks</span>
+          <span>→</span>
+        </div>
+      </a>
 
-          <!-- Card 8: Multi-Tenant RBAC -->
-          <article
-            class="concept-card"
-            data-category="security backend"
-            data-timestamp="2026-10-05T00:00:00"
-            data-date-period="queue"
-            data-keywords="rbac permissions multitenancy authz role-based access control"
-          >
-            <div class="card-top">
-              <div class="card-badge-row">
-                <span class="status-badge queue">○ In Queue</span>
-                <span class="card-timestamp">Upcoming</span>
-              </div>
-              <h3 class="card-title">Multi-Tenant Role-Based Access Control (RBAC)</h3>
-              <p class="card-desc">
-                Hierarchical permission evaluation trees, tenant boundary isolation, and lightweight client-side permission guards that enforce zero-trust authorization.
-              </p>
-              <div class="tag-list">
-                <span class="tech-tag">Authorization</span>
-                <span class="tech-tag">Multi-Tenancy</span>
-                <span class="tech-tag">RBAC</span>
-              </div>
-            </div>
-            <div class="card-actions">
-              <button class="btn-spec" style="width: 100%; cursor: not-allowed; opacity: 0.6;">Upcoming Concept</button>
-            </div>
-          </article>
+      <!-- Route 5: FinTech & Payout Rail Modeling -->
+      <a href="/fintech" class="portal-card">
+        <div>
+          <div class="portal-icon-row">
+            <div class="portal-icon">💳</div>
+            <span class="portal-tag">Route: /fintech</span>
+          </div>
+          <h3 class="portal-title">FinTech & Payout Rail Modeling</h3>
+          <p class="portal-desc">
+            In-flight batch aggregation (pending + processing), currency isolation standards, dynamic Y-axis scaling math, and plain-language financial metrics.
+          </p>
         </div>
-      </div>
+        <div class="portal-link-btn">
+          <span>View FinTech Playbooks</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- Route 6: Security & Authentication -->
+      <a href="/security" class="portal-card">
+        <div>
+          <div class="portal-icon-row">
+            <div class="portal-icon">🔒</div>
+            <span class="portal-tag">Route: /security</span>
+          </div>
+          <h3 class="portal-title">Security & Authentication</h3>
+          <p class="portal-desc">
+            OWASP user enumeration mitigation, keystroke render protection with uncontrolled forms, and multi-tenant authorization guards.
+          </p>
+        </div>
+        <div class="portal-link-btn">
+          <span>View Security Playbooks</span>
+          <span>→</span>
+        </div>
+      </a>
     </div>
   </main>
 
@@ -1126,109 +616,5 @@
   <footer class="footer">
     <p>Learning Curve • Personal Engineering Playbook & Knowledge Repository • Automatically Synced to Vercel</p>
   </footer>
-
-  <script>
-    let currentCategory = 'all';
-    let currentViewMode = 'grid';
-
-    function setCategory(cat, btn) {
-      currentCategory = cat;
-      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      applyAllFilters();
-    }
-
-    function quickFilterTag(tagText) {
-      const searchInput = document.getElementById('searchInput');
-      searchInput.value = tagText;
-      applyAllFilters();
-    }
-
-    function resetFilters() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('dateFilter').value = 'all';
-      document.getElementById('sortOrder').value = 'desc';
-      setCategory('all', document.querySelector('.category-pills .pill'));
-    }
-
-    function setViewMode(mode) {
-      currentViewMode = mode;
-      document.getElementById('btnGridView').classList.toggle('active', mode === 'grid');
-      document.getElementById('btnTimelineView').classList.toggle('active', mode === 'timeline');
-
-      const container = document.getElementById('cardsContainer');
-      if (mode === 'timeline') {
-        container.classList.add('timeline-container');
-        document.querySelectorAll('.concept-card').forEach(card => {
-          if (!card.querySelector('.timeline-dot')) {
-            const dot = document.createElement('div');
-            dot.className = 'timeline-dot';
-            card.prepend(dot);
-          }
-        });
-      } else {
-        container.classList.remove('timeline-container');
-        document.querySelectorAll('.timeline-dot').forEach(dot => dot.remove());
-      }
-      applyAllFilters();
-    }
-
-    function applyAllFilters() {
-      const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-      const dateFilter = document.getElementById('dateFilter').value;
-      const sortOrder = document.getElementById('sortOrder').value;
-
-      const dateGroups = document.querySelectorAll('.date-group-section');
-      const allCards = document.querySelectorAll('.concept-card');
-      let visibleCardCount = 0;
-
-      // Filter each card
-      allCards.forEach(card => {
-        const categories = card.getAttribute('data-category') || '';
-        const keywords = card.getAttribute('data-keywords') || '';
-        const period = card.getAttribute('data-date-period') || '';
-        const text = card.textContent.toLowerCase();
-
-        const matchesCategory = currentCategory === 'all' || categories.includes(currentCategory);
-        const matchesSearch = !searchQuery || text.includes(searchQuery) || keywords.includes(searchQuery);
-        const matchesDate = dateFilter === 'all' || period === dateFilter;
-
-        const isVisible = matchesCategory && matchesSearch && matchesDate;
-        card.style.display = isVisible ? 'flex' : 'none';
-
-        if (isVisible) {
-          visibleCardCount++;
-        }
-      });
-
-      // Show/hide group headers based on visible cards inside
-      dateGroups.forEach(group => {
-        const visibleInside = group.querySelectorAll('.concept-card[style*="display: flex"]').length;
-        group.style.display = visibleInside > 0 ? 'block' : 'none';
-      });
-
-      // Sorting within groups
-      dateGroups.forEach(group => {
-        const grid = group.querySelector('.concept-grid');
-        const cards = Array.from(grid.querySelectorAll('.concept-card'));
-        cards.sort((a, b) => {
-          const tA = new Date(a.getAttribute('data-timestamp')).getTime() || 0;
-          const tB = new Date(b.getAttribute('data-timestamp')).getTime() || 0;
-          return sortOrder === 'asc' ? tA - tB : tB - tA;
-        });
-        cards.forEach(c => grid.appendChild(c));
-      });
-
-      // Update meta row
-      const countElem = document.getElementById('resultsCount');
-      countElem.textContent = `Showing ${visibleCardCount} of ${allCards.length} engineering playbooks`;
-
-      const emptyState = document.getElementById('emptyState');
-      emptyState.style.display = visibleCardCount === 0 ? 'block' : 'none';
-    }
-
-    // Run initial filter check
-    applyAllFilters();
-  </script>
 </body>
 </html>

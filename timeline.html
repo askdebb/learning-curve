@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Curve — Session Timeline & Chronology Route</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --surface: #0F172A;
+      --surface-hover: #1E293B;
+      --surface-card: rgba(15, 23, 42, 0.75);
+      --border: rgba(51, 65, 85, 0.6);
+      --border-accent: rgba(99, 102, 241, 0.4);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #6366F1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10B981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --code-bg: #030712;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      left: 20%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+    }
+
+    .navbar-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #FFF;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: var(--surface-hover);
+      color: #FFF;
+      border-color: var(--accent);
+    }
+
+    .page-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 60px 24px;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .route-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #818CF8;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .page-desc {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 10px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #FFF;
+      font-size: 13.5px;
+      outline: none;
+    }
+
+    .filter-select {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #FFF;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Timeline Container */
+    .timeline-container {
+      position: relative;
+      padding-left: 36px;
+    }
+
+    .timeline-container::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 15px;
+      bottom: 20px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--accent) 0%, rgba(99, 102, 241, 0.15) 100%);
+    }
+
+    .date-section-header {
+      font-size: 15px;
+      font-weight: 700;
+      color: #FFF;
+      margin: 32px 0 16px -36px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-section-header:first-of-type {
+      margin-top: 0;
+    }
+
+    .timeline-card {
+      position: relative;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      transition: all 0.2s;
+    }
+
+    .timeline-card:hover {
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -32px;
+      top: 24px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .card-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .timestamp-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      background: rgba(3, 7, 18, 0.6);
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFF;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .tech-tag {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border);
+      color: #CBD5E1;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-playbook {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #FFF;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .btn-spec {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: rgba(9, 13, 22, 0.95);
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="/" class="nav-brand">
+        <span>⚡ Learning Curve</span>
+      </a>
+      <a href="/" class="back-btn">
+        <span>← Return to Hub</span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="page-container">
+    <header class="page-header">
+      <span class="route-badge">ROUTE: /timeline</span>
+      <h1 class="page-title">Session Chronology & Timeline</h1>
+      <p class="page-desc">Chronological history of all architectural implementations with exact timestamps.</p>
+    </header>
+
+    <div class="filter-bar">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search sessions..." oninput="filterTimeline()">
+      <select id="periodFilter" class="filter-select" onchange="filterTimeline()">
+        <option value="all">All Dates</option>
+        <option value="today">Today (Sep 20)</option>
+        <option value="yesterday">Yesterday (Sep 19)</option>
+        <option value="earlier">Earlier (Sep 16–18)</option>
+        <option value="queue">Upcoming Queue</option>
+      </select>
+    </div>
+
+    <div class="timeline-container" id="timelineContainer">
+      <!-- Today -->
+      <div class="date-group" data-period="today">
+        <h2 class="date-section-header">🗓️ Today — Sep 20, 2026</h2>
+        
+        <article class="timeline-card" data-keywords="charts revenue recharts ledger scaling">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #34D399; font-size: 11px; font-weight: 600;">● Interactive Playbook</span>
+            <span class="timestamp-badge">Sep 20, 2026 • 12:05 PM</span>
+          </div>
+          <h3 class="card-title">Financial Dashboard Chart Data Orchestration & Responsive Axis Scaling</h3>
+          <p class="card-desc">Rolling ledger date windowing (Monthly, Quarterly, Yearly), magnitude-aware dynamic Y-axis tick math, and dual-mode Developer vs. Business telemetry pipelines.</p>
+          <div class="tag-list">
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">Recharts</span>
+            <span class="tech-tag">TanStack v5</span>
+            <span class="tech-tag">Ledger Math</span>
+          </div>
+          <div class="card-actions">
+            <a href="/playbooks/financial-dashboard-chart-data-orchestration.html" class="btn-playbook">Launch Playbook ⚡</a>
+            <a href="/entries/financial-dashboard-chart-data-orchestration.md" target="_blank" class="btn-spec">Spec 📄</a>
+          </div>
+        </article>
+
+        <article class="timeline-card" data-keywords="payouts pending processing settled fiat fintech trend equilibrium">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #34D399; font-size: 11px; font-weight: 600;">● Interactive Playbook</span>
+            <span class="timestamp-badge">Sep 20, 2026 • 11:55 AM</span>
+          </div>
+          <h3 class="card-title">Next Payouts Metric Modeling, In-Flight Batching & Plain-Language FinTech</h3>
+          <p class="card-desc">Batching in-flight liabilities (pending + processing), computing velocity trends against settled history, and enforcing directionless 0% equilibrium.</p>
+          <div class="tag-list">
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">FinTech UX</span>
+            <span class="tech-tag">TanStack v5</span>
+            <span class="tech-tag">Batching</span>
+          </div>
+          <div class="card-actions">
+            <a href="/playbooks/next-payouts-metric-modeling-and-plain-english-fintech.html" class="btn-playbook">Launch Playbook ⚡</a>
+            <a href="/entries/next-payouts-metric-modeling-and-plain-english-fintech.md" target="_blank" class="btn-spec">Spec 📄</a>
+          </div>
+        </article>
+      </div>
+
+      <!-- Yesterday -->
+      <div class="date-group" data-period="yesterday">
+        <h2 class="date-section-header">🗓️ Yesterday — Sep 19, 2026</h2>
+        
+        <article class="timeline-card" data-keywords="dashboard query invalidation keys zustand sync equilibrium">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #34D399; font-size: 11px; font-weight: 600;">● Interactive Playbook</span>
+            <span class="timestamp-badge">Sep 19, 2026 • 11:45 PM</span>
+          </div>
+          <h3 class="card-title">Merchant Dashboard Reactive State, Query Invalidation & Equilibrium Design</h3>
+          <p class="card-desc">Decoupling UI from TanStack Query keys via centralized factories and semantic invalidators, mounting root actions in Layout for automated Zustand hydration.</p>
+          <div class="tag-list">
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">Zustand v5</span>
+            <span class="tech-tag">Query Keys</span>
+            <span class="tech-tag">Equilibrium UI</span>
+          </div>
+          <div class="card-actions">
+            <a href="/playbooks/merchant-dashboard-reactive-state-and-query-invalidation.html" class="btn-playbook">Launch Playbook ⚡</a>
+            <a href="/entries/merchant-dashboard-reactive-state-and-query-invalidation.md" target="_blank" class="btn-spec">Spec 📄</a>
+          </div>
+        </article>
+      </div>
+
+      <!-- Earlier Sessions -->
+      <div class="date-group" data-period="earlier">
+        <h2 class="date-section-header">🗓️ Earlier Sessions — Sep 16–18, 2026</h2>
+        
+        <article class="timeline-card" data-keywords="authentication security owasp react tanstack yup">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #34D399; font-size: 11px; font-weight: 600;">● Interactive Playbook</span>
+            <span class="timestamp-badge">Sep 18, 2026 • 04:30 PM</span>
+          </div>
+          <h3 class="card-title">Enterprise Authentication Architecture & Security Hardening</h3>
+          <p class="card-desc">Addressing keystroke re-rendering overhead with uncontrolled forms, OWASP user enumeration mitigation via generic notices, and modular Yup request rules.</p>
+          <div class="tag-list">
+            <span class="tech-tag">OWASP</span>
+            <span class="tech-tag">Yup</span>
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">Tailwind</span>
+          </div>
+          <div class="card-actions">
+            <a href="/playbooks/authentication-architecture.html" class="btn-playbook">Launch Playbook ⚡</a>
+            <a href="/entries/authentication-architecture.md" target="_blank" class="btn-spec">Spec 📄</a>
+          </div>
+        </article>
+
+        <article class="timeline-card" data-keywords="api state zustand tanstack render protection memoization controller">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #818CF8; font-size: 11px; font-weight: 600;">● Architectural Standard</span>
+            <span class="timestamp-badge">Sep 17, 2026 • 09:15 PM</span>
+          </div>
+          <h3 class="card-title">Bitnormous Merchant API Architecture & Render Protection</h3>
+          <p class="card-desc">Orchestrating 50 financial endpoints across 14 domains with 3-Tier State Taxonomy and Three Pillars of Render Protection (useRef, useMemo, useCallback).</p>
+          <div class="tag-list">
+            <span class="tech-tag">Render Guard</span>
+            <span class="tech-tag">Zustand</span>
+            <span class="tech-tag">Axios</span>
+          </div>
+          <div class="card-actions">
+            <a href="/playbooks/merchant-api-state-architecture.html" class="btn-playbook">Launch Playbook ⚡</a>
+            <a href="/entries/merchant-api-state-architecture.md" target="_blank" class="btn-spec">Spec 📄</a>
+          </div>
+        </article>
+
+        <article class="timeline-card" data-keywords="websocket realtime notifications state sync stepper zustand">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #34D399; font-size: 11px; font-weight: 600;">● Interactive Playbook</span>
+            <span class="timestamp-badge">Sep 16, 2026 • 02:20 PM</span>
+          </div>
+          <h3 class="card-title">Crypto Stepper State Persistence, Socket Lifecycle & Push Notifications</h3>
+          <p class="card-desc">Surviving mobile tab discard in crypto checkouts via synchronous Zustand localStorage hydration, visibility-based socket wake-up, and native Web Push.</p>
+          <div class="tag-list">
+            <span class="tech-tag">Zustand Persist</span>
+            <span class="tech-tag">Web Push API</span>
+            <span class="tech-tag">Laravel Echo</span>
+          </div>
+          <div class="card-actions">
+            <a href="/playbooks/checkout-stepper-and-notifications.html" class="btn-playbook">Launch Playbook ⚡</a>
+            <a href="/entries/checkout-stepper-and-notifications.md" target="_blank" class="btn-spec">Spec 📄</a>
+          </div>
+        </article>
+      </div>
+
+      <!-- Upcoming Queue -->
+      <div class="date-group" data-period="queue">
+        <h2 class="date-section-header">⏳ Upcoming Queue & Roadmap</h2>
+
+        <article class="timeline-card" data-keywords="webhook idempotency redis distributed locks payments">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #94A3B8; font-size: 11px; font-weight: 600;">○ In Queue</span>
+            <span class="timestamp-badge">Upcoming</span>
+          </div>
+          <h3 class="card-title">Webhook Idempotency & Replay Attack Defense</h3>
+          <p class="card-desc">Distributed locking mechanisms with Redis, signature verification, and deduplication layers to ensure financial transactions process exactly once.</p>
+          <div class="tag-list">
+            <span class="tech-tag">Redis</span>
+            <span class="tech-tag">HMAC-SHA256</span>
+            <span class="tech-tag">Idempotency</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn-spec" style="cursor: not-allowed; opacity: 0.6;">Upcoming Concept</button>
+          </div>
+        </article>
+
+        <article class="timeline-card" data-keywords="rbac permissions multitenancy authz role-based access">
+          <div class="timeline-dot"></div>
+          <div class="card-meta-row">
+            <span style="color: #94A3B8; font-size: 11px; font-weight: 600;">○ In Queue</span>
+            <span class="timestamp-badge">Upcoming</span>
+          </div>
+          <h3 class="card-title">Multi-Tenant Role-Based Access Control (RBAC)</h3>
+          <p class="card-desc">Hierarchical permission evaluation trees, tenant boundary isolation, and lightweight client-side permission guards that enforce zero-trust authorization.</p>
+          <div class="tag-list">
+            <span class="tech-tag">Authorization</span>
+            <span class="tech-tag">Multi-Tenancy</span>
+            <span class="tech-tag">RBAC</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn-spec" style="cursor: not-allowed; opacity: 0.6;">Upcoming Concept</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Learning Curve • Session Timeline Route • Automatically Synced to Vercel</p>
+  </footer>
+
+  <script>
+    function filterTimeline() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const period = document.getElementById('periodFilter').value;
+      const groups = document.querySelectorAll('.date-group');
+
+      groups.forEach(group => {
+        const groupPeriod = group.getAttribute('data-period');
+        const cards = group.querySelectorAll('.timeline-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          const text = card.textContent.toLowerCase();
+          const keywords = card.getAttribute('data-keywords') || '';
+          const matchesQuery = !q || text.includes(q) || keywords.includes(q);
+          const matchesPeriod = period === 'all' || groupPeriod === period;
+
+          const visible = matchesQuery && matchesPeriod;
+          card.style.display = visible ? 'block' : 'none';
+          if (visible) visibleCount++;
+        });
+
+        group.style.display = visibleCount > 0 ? 'block' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
