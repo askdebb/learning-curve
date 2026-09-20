@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Learning Curve — Next Payouts Metric Modeling & Plain-Language FinTech Playbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --surface: #0F172A;
+      --surface-hover: #1E293B;
+      --surface-card: rgba(15, 23, 42, 0.75);
+      --border: rgba(51, 65, 85, 0.6);
+      --border-accent: rgba(99, 102, 241, 0.4);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #6366F1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10B981;
+      --emerald-glow: rgba(16, 185, 129, 0.2);
+      --rose: #F43F5E;
+      --rose-glow: rgba(244, 63, 94, 0.2);
+      --amber: #F59E0B;
+      --cyan: #06B6D4;
+      --code-bg: #030712;
+      --sidebar-width: 280px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      left: 20%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.14) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -200px;
+      right: 10%;
+      width: min(600px, 90vw);
+      height: min(600px, 90vw);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .layout-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: var(--sidebar-width);
+      border-right: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      text-decoration: none;
+      color: #FFF;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #A855F7);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .brand-text {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: var(--surface-hover);
+      color: #FFF;
+      border-left: 2px solid var(--accent);
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 40px 48px;
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .badge-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .badge-pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-pill.status {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34D399;
+    }
+
+    .badge-pill.tech {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #818CF8;
+    }
+
+    .header-title {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #FFFFFF 30%, #CBD5E1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-desc {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    /* Interactive Simulation Section */
+    .interactive-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(16px);
+    }
+
+    .interactive-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .interactive-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .control-input, .control-select {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #FFF;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .control-input:focus, .control-select:focus {
+      border-color: var(--accent);
+    }
+
+    .payout-list-box {
+      background: rgba(3, 7, 18, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .payout-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.6);
+      font-size: 12.5px;
+    }
+
+    .payout-status-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .tag-pending { background: rgba(245, 158, 11, 0.2); color: #FBBF24; }
+    .tag-processing { background: rgba(99, 102, 241, 0.2); color: #818CF8; }
+    .tag-settled { background: rgba(16, 185, 129, 0.2); color: #34D399; }
+
+    /* Live Preview Card */
+    .preview-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .preview-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Target Figma Metric Card Simulation */
+    .figma-metric-card {
+      height: 91px;
+      border-radius: 10px;
+      border: 1px solid #E4E4E7;
+      background: #FFFFFF;
+      padding: 15px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      transition: all 0.3s ease;
+    }
+
+    .figma-card-label {
+      font-size: 13px;
+      color: #71717A;
+      font-weight: 400;
+      line-height: 20px;
+    }
+
+    .figma-card-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .figma-card-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #353535;
+      font-family: 'Geist', sans-serif;
+      line-height: 1.2;
+    }
+
+    .figma-card-trend {
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .trend-green { color: #22C55E; }
+    .trend-red { color: #FF3B30; }
+    .trend-neutral { color: #71717A; }
+
+    /* Plain English Formula Callouts */
+    .formula-box {
+      background: rgba(3, 7, 18, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      color: #38BDF8;
+      line-height: 1.6;
+    }
+
+    .formula-explanation {
+      font-family: 'Geist', sans-serif;
+      font-size: 14.5px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Comparison Table */
+    .table-container {
+      overflow-x: auto;
+      margin: 24px 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-card);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: rgba(30, 41, 59, 0.7);
+      padding: 12px 16px;
+      font-weight: 600;
+      color: #FFF;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      color: var(--text-muted);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Code Blocks */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #E2E8F0;
+      overflow-x: auto;
+      margin: 18px 0 28px 0;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #FFF;
+      margin: 36px 0 14px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .layout-container { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .main-content { padding: 24px 20px; }
+      .sim-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div class="layout-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="../index.html" class="brand-group">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <div class="brand-text">Learning Curve</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Engineering Hub</div>
+        </div>
+      </a>
+
+      <div class="nav-label">Table of Contents</div>
+      <ul class="nav-list">
+        <li><a href="#simulator" class="nav-link active">🎮 Interactive Simulator</a></li>
+        <li><a href="#problem" class="nav-link">🎯 The FinTech Metric Problem</a></li>
+        <li><a href="#lifecycle" class="nav-link">🔄 Payout Lifecycle</a></li>
+        <li><a href="#plain-formulas" class="nav-link">📖 Plain-English Formulas</a></li>
+        <li><a href="#currency" class="nav-link">💱 Currency Isolation</a></li>
+        <li><a href="#code" class="nav-link">💻 Production Code</a></li>
+      </ul>
+
+      <div class="nav-label">Quick Actions</div>
+      <a href="../index.html" class="nav-link">← Return to Hub</a>
+      <a href="../entries/next-payouts-metric-modeling-and-plain-english-fintech.md" target="_blank" class="nav-link">📄 Open Raw Markdown</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="badge-bar">
+        <span class="badge-pill status">● Production Standard</span>
+        <span class="badge-pill tech">React 19</span>
+        <span class="badge-pill tech">TanStack Query v5</span>
+        <span class="badge-pill tech">FinTech UX</span>
+      </div>
+
+      <h1 class="header-title">Next Payouts Metric Modeling: Batch Pipeline Aggregation & Plain-Language FinTech Architecture</h1>
+      <p class="header-desc">
+        Eliminating academic LaTeX syntax in favor of human-readable financial formulas, batching in-flight liabilities (`pending` + `processing`), computing velocity trends against completed settlements, and enforcing the 0% equilibrium design standard.
+      </p>
+
+      <!-- Section: Interactive Simulator -->
+      <section id="simulator" class="interactive-card">
+        <div class="interactive-header">
+          <div class="interactive-title">
+            <span>🎮 Live Interactive FinTech Card Simulator</span>
+          </div>
+          <span style="font-size: 12px; color: var(--accent); font-weight: 600;">Reactive Calculation</span>
+        </div>
+
+        <div class="sim-grid">
+          <!-- Controls -->
+          <div class="sim-controls">
+            <div class="control-group">
+              <label class="control-label">Active Currency</label>
+              <select id="currencySelect" class="control-select" onchange="runSimulation()">
+                <option value="GHS" selected>GHS (Ghanaian Cedi)</option>
+                <option value="NGN">NGN (Nigerian Naira)</option>
+                <option value="USD">USD (US Dollar)</option>
+                <option value="KES">KES (Kenyan Shilling)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Previous Settled Payout Amount</label>
+              <input type="number" id="prevSettledInput" class="control-input" value="300" oninput="runSimulation()">
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">In-Flight Pipeline (Pending + Processing)</label>
+              <div class="payout-list-box" id="payoutListBox">
+                <div class="payout-row">
+                  <span>Payout #1042</span>
+                  <span class="payout-status-tag tag-processing">processing</span>
+                  <strong>GHS 200.00</strong>
+                </div>
+                <div class="payout-row">
+                  <span>Payout #1043</span>
+                  <span class="payout-status-tag tag-pending">pending</span>
+                  <strong>GHS 290.00</strong>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <button onclick="setSample('figma')" class="control-select" style="cursor: pointer; background: var(--surface);">Figma Demo (+56%)</button>
+              <button onclick="setSample('drop')" class="control-select" style="cursor: pointer; background: var(--surface);">Volume Drop (-30%)</button>
+              <button onclick="setSample('zero')" class="control-select" style="cursor: pointer; background: var(--surface);">Equilibrium (0%)</button>
+            </div>
+          </div>
+
+          <!-- Live Metric Card Preview -->
+          <div class="preview-box">
+            <div class="preview-label">Live Output on Merchant Dashboard Card</div>
+
+            <div class="figma-metric-card" id="previewCard">
+              <div class="figma-card-label">Next payouts</div>
+              <div class="figma-card-bottom">
+                <div class="figma-card-value" id="previewBigAmount">GHS 490.00</div>
+                <div class="figma-card-trend trend-green" id="previewTrend">
+                  <span id="previewTrendText">+56%</span>
+                  <span id="previewArrow">↑</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="font-size: 12px; color: var(--text-muted); background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+              <div style="font-weight: 600; color: #FFF; margin-bottom: 4px;">Simulation Telemetry:</div>
+              <div>Current Pending Total: <strong id="telemetryPending" style="color: #38BDF8;">GHS 490.00</strong></div>
+              <div>Previous Settled: <strong id="telemetrySettled" style="color: #94A3B8;">GHS 300.00</strong></div>
+              <div>Math: <span id="telemetryMath">((490 - 300) / 300) * 100 = +63%</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Problem Statement -->
+      <section id="problem">
+        <h2 class="section-title">🎯 1. The FinTech Metric Problem</h2>
+        <p>
+          In high-volume crypto and fiat payment gateways, metric cards cannot merely present static or arbitrary counts. Merchants look at the <strong>Next payouts</strong> card to make critical treasury decisions:
+        </p>
+        <ul style="margin: 14px 0 20px 24px; color: var(--text-muted);">
+          <li><strong>Primary Question:</strong> "How much capital is currently in-transit to my bank or Mobile Money account?"</li>
+          <li><strong>Secondary Question:</strong> "Is my payout velocity increasing or decreasing compared to my last batch?"</li>
+        </ul>
+        <p>
+          Previously, the UI displayed raw counts like <code>"2 pending"</code>. The Figma design specified a financial percentage trend (e.g. <code>+56% ↑</code>), requiring us to engineer a relative velocity calculation against completed history.
+        </p>
+      </section>
+
+      <!-- Section: Payout Lifecycle -->
+      <section id="lifecycle">
+        <h2 class="section-title">🔄 2. The On-Demand FinTech Payout Lifecycle</h2>
+        <p>
+          Unlike scheduled corporate payrolls running on monthly cron expressions, Bitnormous merchant payouts are <strong>on-demand</strong> via <code>POST /fiat/payouts</code>. The lifecycle states are strictly separated:
+        </p>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Lifecycle Status</th>
+                <th>Physical State</th>
+                <th>Counted in "Next Payouts"?</th>
+                <th>Reasoning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code style="color: #FBBF24;">pending</code></td>
+                <td>Queued in gateway database</td>
+                <td><strong>YES</strong></td>
+                <td>Deducted from balance; waiting to dispatch.</td>
+              </tr>
+              <tr>
+                <td><code style="color: #818CF8;">processing</code></td>
+                <td>In-flight via banking/MoMo rails</td>
+                <td><strong>YES</strong></td>
+                <td>Actively transferring across partner rails.</td>
+              </tr>
+              <tr>
+                <td><code style="color: #34D399;">settled</code></td>
+                <td>Completed & landed in account</td>
+                <td><strong>NO</strong> (Historical Baseline)</td>
+                <td>Funds have arrived; used to calculate velocity trend.</td>
+              </tr>
+              <tr>
+                <td><code style="color: #F43F5E;">failed</code></td>
+                <td>Rejected by rails</td>
+                <td><strong>NO</strong></td>
+                <td>Reversed back to merchant withdrawable balance.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section: Plain-English Formulas -->
+      <section id="plain-formulas">
+        <h2 class="section-title">📖 3. Human-Readable FinTech Formulas vs. LaTeX</h2>
+        <p>
+          We explicitly deprecate academic LaTeX notation in engineering and merchant documents. Plain English descriptions paired with real-world examples remove friction across engineering and product teams.
+        </p>
+
+        <div class="formula-box">
+          Next Payouts Amount = Total sum of all pending or processing payout amounts in the active currency.
+          <div class="formula-explanation">
+            Example: If you have a GHS 200 processing payout and a GHS 290 pending payout, the card displays <strong>GHS 490.00</strong>.
+          </div>
+        </div>
+
+        <div class="formula-box">
+          Trend % = ((Current Pending Volume − Previous Settled Volume) ÷ Previous Settled Volume) × 100
+          <div class="formula-explanation">
+            Example: If your last payout was GHS 300 and your current pending batch is GHS 468, growth is ((468 − 300) ÷ 300) × 100 = <strong>+56%</strong> (Displays <strong>+56% ↑</strong> in green).
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Calculation</th>
+                <th>Display Output</th>
+                <th>Styling Standard</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Accelerated Volume</strong></td>
+                <td><code>((468 - 300) / 300) * 100</code></td>
+                <td><strong style="color: #22C55E;">+56% ↑</strong></td>
+                <td>Green tone with upward arrow</td>
+              </tr>
+              <tr>
+                <td><strong>Decelerated Volume</strong></td>
+                <td><code>((350 - 500) / 500) * 100</code></td>
+                <td><strong style="color: #FF3B30;">-30% ↓</strong></td>
+                <td>Red tone with downward arrow</td>
+              </tr>
+              <tr>
+                <td><strong>Equilibrium (0% Diff)</strong></td>
+                <td><code>((300 - 300) / 300) * 100</code></td>
+                <td><strong style="color: #71717A;">0%</strong></td>
+                <td>Neutral grey, NO directional arrow</td>
+              </tr>
+              <tr>
+                <td><strong>First Payout (No History)</strong></td>
+                <td>Baseline unavailable</td>
+                <td><strong style="color: #71717A;">0%</strong></td>
+                <td>Neutral grey, NO directional arrow</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section: Currency Isolation -->
+      <section id="currency">
+        <h2 class="section-title">💱 4. Multi-Currency Isolation Standard</h2>
+        <p>
+          Bitnormous accounts support multi-currency fiat ledgers (GHS, NGN, USD, KES). Summing amounts across differing currencies produces immediate accounting errors.
+        </p>
+        <p>
+          We strictly scope the payout query to <code>useFiatPayoutsAction({ currency: activeCurrency })</code> so that only payouts matching the dashboard's active currency are retrieved and aggregated.
+        </p>
+      </section>
+
+      <!-- Section: Production Code -->
+      <section id="code">
+        <h2 class="section-title">💻 5. Production Implementation in useNormalDashboardMetrics.ts</h2>
+        <pre class="code-block"><code>// src/hooks/useNormalDashboardMetrics.ts
+export const useNormalDashboardMetrics = () => {
+  const activeCurrency = useFiatBalanceStore((state) => state.activeCurrency);
+
+  // 1. Currency-scoped query: isolates active currency payouts
+  const { payouts, isLoading: isPayoutsLoading } = useFiatPayoutsAction({
+    currency: activeCurrency,
+  });
+
+  // 2. Next payouts: Pending pipeline total and relative percentage trend
+  const { pendingPayoutTotal, nextPayoutsTrend, nextPayoutsTrendDir, nextPayoutsTone } = useMemo(() => {
+    const pending = payouts.filter((p) => p.status === "pending" || p.status === "processing");
+    const settled = payouts.filter((p) => p.status === "settled");
+
+    const total = pending.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    const formattedTotal = formatFiatAmount(total.toFixed(2), activeCurrency);
+
+    // Equilibrium fallback if no pending volume or no settled history
+    if (total === 0 || settled.length === 0) {
+      return {
+        pendingPayoutTotal: formattedTotal,
+        nextPayoutsTrend: "0%",
+        nextPayoutsTrendDir: "none" as const,
+        nextPayoutsTone: "green" as const,
+      };
+    }
+
+    const prevAmount = parseFloat(settled[0].amount) || 0;
+    if (prevAmount === 0) {
+      return {
+        pendingPayoutTotal: formattedTotal,
+        nextPayoutsTrend: "+100%",
+        nextPayoutsTrendDir: "up" as const,
+        nextPayoutsTone: "green" as const,
+      };
+    }
+
+    const diffPct = Math.round(((total - prevAmount) / prevAmount) * 100);
+    if (diffPct === 0) {
+      return {
+        pendingPayoutTotal: formattedTotal,
+        nextPayoutsTrend: "0%",
+        nextPayoutsTrendDir: "none" as const,
+        nextPayoutsTone: "green" as const,
+      };
+    }
+
+    return {
+      pendingPayoutTotal: formattedTotal,
+      nextPayoutsTrend: `${diffPct > 0 ? "+" : ""}${diffPct}%`,
+      nextPayoutsTrendDir: diffPct > 0 ? ("up" as const) : ("down" as const),
+      nextPayoutsTone: diffPct >= 0 ? ("green" as const) : ("red" as const),
+    };
+  }, [payouts, activeCurrency]);
+
+  return { metrics };
+};</code></pre>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let sampleData = {
+      pending: 490,
+      settled: 300,
+      currency: "GHS"
+    };
+
+    function setSample(type) {
+      if (type === 'figma') {
+        sampleData.pending = 468;
+        sampleData.settled = 300;
+        document.getElementById('prevSettledInput').value = 300;
+        document.getElementById('payoutListBox').innerHTML = `
+          <div class="payout-row"><span>Batch #1</span><span class="payout-status-tag tag-processing">processing</span><strong>GHS 268.00</strong></div>
+          <div class="payout-row"><span>Batch #2</span><span class="payout-status-tag tag-pending">pending</span><strong>GHS 200.00</strong></div>
+        `;
+      } else if (type === 'drop') {
+        sampleData.pending = 350;
+        sampleData.settled = 500;
+        document.getElementById('prevSettledInput').value = 500;
+        document.getElementById('payoutListBox').innerHTML = `
+          <div class="payout-row"><span>Batch #1</span><span class="payout-status-tag tag-processing">processing</span><strong>GHS 350.00</strong></div>
+        `;
+      } else if (type === 'zero') {
+        sampleData.pending = 300;
+        sampleData.settled = 300;
+        document.getElementById('prevSettledInput').value = 300;
+        document.getElementById('payoutListBox').innerHTML = `
+          <div class="payout-row"><span>Batch #1</span><span class="payout-status-tag tag-processing">processing</span><strong>GHS 300.00</strong></div>
+        `;
+      }
+      runSimulation();
+    }
+
+    function runSimulation() {
+      const cur = document.getElementById('currencySelect').value;
+      const prev = parseFloat(document.getElementById('prevSettledInput').value) || 0;
+      const total = sampleData.pending;
+
+      const bigAmountElem = document.getElementById('previewBigAmount');
+      const trendTextElem = document.getElementById('previewTrendText');
+      const arrowElem = document.getElementById('previewArrow');
+      const trendBox = document.getElementById('previewTrend');
+
+      bigAmountElem.textContent = `${cur} ${total.toFixed(2)}`;
+      document.getElementById('telemetryPending').textContent = `${cur} ${total.toFixed(2)}`;
+      document.getElementById('telemetrySettled').textContent = `${cur} ${prev.toFixed(2)}`;
+
+      if (total === 0 || prev === 0) {
+        trendTextElem.textContent = "0%";
+        arrowElem.style.display = "none";
+        trendBox.className = "figma-card-trend trend-neutral";
+        document.getElementById('telemetryMath').textContent = "No baseline or zero volume = 0% equilibrium";
+        return;
+      }
+
+      const diffPct = Math.round(((total - prev) / prev) * 100);
+      document.getElementById('telemetryMath').textContent = `((${total} - ${prev}) / ${prev}) * 100 = ${diffPct > 0 ? '+' : ''}${diffPct}%`;
+
+      if (diffPct === 0) {
+        trendTextElem.textContent = "0%";
+        arrowElem.style.display = "none";
+        trendBox.className = "figma-card-trend trend-neutral";
+      } else if (diffPct > 0) {
+        trendTextElem.textContent = `+${diffPct}%`;
+        arrowElem.textContent = "↑";
+        arrowElem.style.display = "inline";
+        trendBox.className = "figma-card-trend trend-green";
+      } else {
+        trendTextElem.textContent = `${diffPct}%`;
+        arrowElem.textContent = "↓";
+        arrowElem.style.display = "inline";
+        trendBox.className = "figma-card-trend trend-red";
+      }
+    }
+
+    runSimulation();
+  </script>
+</body>
+</html>

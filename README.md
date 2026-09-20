@@ -8,6 +8,7 @@ Welcome to the **Learning Curve** repository. This is an independent, cross-proj
 
 | Date | Topic / Domain | Primary Technologies | Entry Link |
 |---|---|---|---|
+| **Sep 2026** | **Next Payouts Metric Modeling & Plain-Language FinTech Architecture** | React 19, TypeScript, TanStack Query v5, FinTech UX | [next-payouts-metric-modeling-and-plain-english-fintech.md](./entries/next-payouts-metric-modeling-and-plain-english-fintech.md) |
 | **Sep 2026** | **Enterprise Authentication Architecture & Security Hardening** | React, TanStack Query, Yup, Tailwind CSS | [authentication-architecture.md](./entries/authentication-architecture.md) |
 | **Sep 2026** | **Crypto Stepper State Persistence, Socket Lifecycle, & Push Notifications** | React 19, Zustand (Persist), Laravel Echo, Web Notifications API | [checkout-stepper-and-notifications.md](./entries/checkout-stepper-and-notifications.md) |
 | **Sep 2026** | **Bitnormous Merchant API Architecture, Render Protection & State Taxonomy** | React 19, TypeScript, TanStack Query v5, Zustand, Axios | [merchant-api-state-architecture.md](./entries/merchant-api-state-architecture.md) |
