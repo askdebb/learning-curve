@@ -55,6 +55,10 @@
         <div class="mint-sidebar-section-title">
           <span>💳 FinTech & Payout Rails</span>
         </div>
+        <a class="mint-nav-item" data-slug="crypto-custody-and-withdrawal-ledger-orchestration">
+          <span class="mint-nav-item-text">Crypto Custody & Withdrawal Ledger</span>
+          <span class="mint-tag mint-tag-fintech">CUSTODY</span>
+        </a>
         <a class="mint-nav-item" data-slug="next-payouts-metric-modeling-and-plain-english-fintech">
           <span class="mint-nav-item-text">Next Payouts Metric Modeling</span>
           <span class="mint-tag mint-tag-fintech">HOT</span>
@@ -168,6 +172,27 @@
   <script>
     // Knowledge Base Dataset: All 10 Entries with Reflection Callouts, Code Blocks, and Authoritative Extra Resources
     const entriesData = {
+      "crypto-custody-and-withdrawal-ledger-orchestration": {
+        title: "Crypto Custody Ledger Architecture & High-Integrity Withdrawal Orchestration",
+        desc: "Custody SSOT balance modeling, non-destructive withdrawal state machine, dynamic network fee estimation, and pixel-perfect card/chart layout symmetry.",
+        category: "💳 FinTech & Custody",
+        readingTime: "⏱️ 6 min read",
+        status: "● Production Standard",
+        verified: "Verified: Sep 2026",
+        rawMd: "/entries/crypto-custody-and-withdrawal-ledger-orchestration.md",
+        reflection: {
+          title: "Hard-Learned Lesson: Transaction Summation vs. Custody Vault Drift",
+          whatHappened: "Deriving wallet balance by client-side summation of paginated deposits minus withdrawals drifted from real on-chain balances, while premature state resets destroyed destination parameters before authentication.",
+          whyItFailed: "Transactions API records are paginated and exclude miner fees and locked UTXOs. Custody (/custody/wallets) is the authoritative balance ledger.",
+          takeaway: "1. Treat Custody as the sole SSOT for spendable balance. 2. Preserve draft state across modal workflows until terminal confirmation. 3. Query network fees dynamically."
+        },
+        steps: [
+          { title: "Bind Custody SSOT", body: "Direct both digital card and line chart total to activeWalletDetail.balanceGhs derived from custody." },
+          { title: "Dynamic Network Fee Engine", body: "Use useWithdrawalFeeAction and resolveNetworkFeeInfo with <NetworkFeeDisplay />." },
+          { title: "Non-Destructive Authorization", body: "Retain destination and amount across modal transitions." },
+          { title: "Grid & Box Sizing Parity", body: "Use items-stretch and eliminate top padding offsets to achieve identical heights." }
+        ]
+      },
       "next-payouts-metric-modeling-and-plain-english-fintech": {
         title: "Next Payouts Metric Modeling & Plain-Language FinTech Architecture",
         desc: "Batch pipeline aggregation (pending + processing), dynamic multi-currency scoping, directionless 0% equilibrium handling, and plain-English financial metrics.",
@@ -996,3 +1021,4 @@ export function verifyWebhookSignature(payload: string, signature: string, secre
   </script>
 </body>
 </html>
+

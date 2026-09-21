@@ -8,6 +8,7 @@ Welcome to the **Learning Curve** repository. This is an independent, cross-proj
 
 | Date | Topic / Domain | Primary Technologies | Entry Link |
 |---|---|---|---|
+| **Sep 2026** | **Crypto Custody Ledger Architecture & High-Integrity Withdrawal Orchestration** | React 19, TypeScript, Zustand, TanStack Query v5, Recharts | [crypto-custody-and-withdrawal-ledger-orchestration.md](./entries/crypto-custody-and-withdrawal-ledger-orchestration.md) |
 | **Sep 2026** | **Financial Dashboard Chart Data Orchestration & Responsive Axis Scaling** | React 19, TypeScript, Recharts, TanStack Query v5 | [financial-dashboard-chart-data-orchestration.md](./entries/financial-dashboard-chart-data-orchestration.md) |
 | **Sep 2026** | **Next Payouts Metric Modeling & Plain-Language FinTech Architecture** | React 19, TypeScript, TanStack Query v5, FinTech UX | [next-payouts-metric-modeling-and-plain-english-fintech.md](./entries/next-payouts-metric-modeling-and-plain-english-fintech.md) |
 | **Sep 2026** | **Enterprise Authentication Architecture & Security Hardening** | React, TanStack Query, Yup, Tailwind CSS | [authentication-architecture.md](./entries/authentication-architecture.md) |
@@ -43,3 +44,4 @@ Each entry in entries/ adheres to a strict 5-part engineering anatomy:
 3. **The Chosen Solution & Rationale**: Why a specific path was selected.
 4. **Step-by-Step Implementation & Code Snippets**: Production-ready, copy-pasteable snippets.
 5. **Learning Resources & Authoritative References**: Links to official RFCs, OWASP guides, and deep-dive documentation.
+
